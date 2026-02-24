@@ -21,12 +21,14 @@ Repository ini menggunakan sistem branch terstruktur untuk kolaborasi tim.
 Selalu mulai dari main terbaru:
 
 git checkout main
+
 git pull origin main
-git checkout -b nama-branch
+
+git checkout nama-branch
 
 Contoh:
 
-git checkout -b sakhi
+git checkout sakhi
 
 ---
 
@@ -35,11 +37,12 @@ git checkout -b sakhi
 Setiap ada perubahan:
 
 git add .
+
 git commit -m "deskripsi perubahan jelas"
 
 Push pertama kali:
 
-git push -u origin nama-branch
+git push origin nama-branch
 
 Push berikutnya cukup:
 
@@ -52,8 +55,11 @@ git push
 Merge ke dev terlebih dahulu:
 
 git checkout dev
+
 git pull origin dev
+
 git merge nama-branch
+
 git push origin dev
 
 ---
@@ -63,8 +69,11 @@ git push origin dev
 Merge dev ke main:
 
 git checkout main
+
 git pull origin main
+
 git merge dev
+
 git push origin main
 
 ---
@@ -74,8 +83,11 @@ git push origin main
 Jika main atau dev sudah berubah, update branch kamu:
 
 git checkout dev/main
+
 git pull origin dev/main
+
 git checkout nama-branch
+
 git merge dev/main
 
 ---
@@ -202,9 +214,7 @@ git merge dev/main
 
   - React
 
-    npm run dev (jika menggunakan npm)
-
-    pnpm run dev (jika menggunakan pnpm)
+    pnpm run dev
     
   - Mobile
 
