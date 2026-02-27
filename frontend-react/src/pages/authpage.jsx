@@ -35,11 +35,12 @@ export default function AuthPage() {
                         className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"/>
 
                         <button type="submit" 
-                        className="w-full bg-red-700 text-white py-3 rounded-md hover:bg-red-500 transition">
+                        className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary-700 transition cursor-pointer">
                             {isLogin ? "Masuk" : "Daftar"}
                         </button>
 
-                        <button type="button" className="w-full border-2 border-gray-400 py-3 rounded-md flex items-center justify-center gap-2 hover:bg-gray-200 transition">
+                        <button type="button" className="w-full border-2 border-gray-400 py-3 rounded-md flex items-center 
+                        justify-center gap-2 hover:bg-gray-200 transition cursor-pointer">
                             <img src={Google} alt="Google Logo" className="w-5" />
                             {isLogin ? "Masuk dengan Google" : "Daftar dengan Google"}
                         </button>
@@ -47,7 +48,7 @@ export default function AuthPage() {
 
                     <p className="text-sm text-center mt-6 text-gray-600">
                         {isLogin ? "Belum punya akun?" : "Sudah punya akun?"}
-                        <button onClick={() => setIsLogin(!isLogin)} className="ml-2 underline">
+                        <button onClick={() => setIsLogin(!isLogin)} className="ml-2 underline cursor-pointer">
                             {isLogin ? "Daftar di sini" : "Masuk di sini"}
                         </button>
                     </p>

@@ -1,16 +1,15 @@
-import examp from "../../assets/examp.jpg";
 import { Heart, Eye, Star } from "lucide-react";
 
-export default function ProductCard() {
+export default function ProductCard({ nama, harga, image, diskon, rating }) {
     return (
-        <div className="relative w-68 rounded-lg overflow-hidden">
+        <div className="relative w-full rounded-sm overflow-hidden">
             {/* Image Section */}
-            <div className="group relative w-68 h-64 bg-cover bg-center overflow-hidden" 
-            style={{ backgroundImage: `url(${examp})` }}>
+            <div className="group relative w-full aspect-square bg-cover bg-center overflow-hidden" 
+            style={{ backgroundImage: `url(${image})` }}>
 
                 {/* Discount */}
                     <div className="absolute top-3 left-3 bg-red-700 text-white text-xs px-3 py-1 rounded-md z-10">
-                        -40%
+                        -{diskon}%
                     </div>
 
                 {/* Right Icons */}
@@ -33,15 +32,15 @@ export default function ProductCard() {
             </div>
 
             {/* Product Section */}
-            <div className="pt-4 space-y-2 text-base">
-                <h4 className="font-semibold ">
-                    Dog Food
+            <div className="pt-4 space-y-2 text-sm md:text-base">
+                <h4 className="font-semibold truncate">
+                    {nama}
                 </h4>
                 <p className="text-red-400">
-                    Rp 19.500
+                    Rp {harga.toLocaleString('id-ID')}
                 </p>
                 <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
+                    {[...Array(rating)].map((_, i) => (
                         <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
                     ))}
                 </div>
