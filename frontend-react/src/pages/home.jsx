@@ -6,7 +6,7 @@ import ProductSection from "../components/reusable/productsection";
 
 export default function Home() {
     return(
-        <div className="space-y-10">
+        <div className="space-y-5">
             <HeroSlider />
             <CategorySection />
             <ProductSection />
