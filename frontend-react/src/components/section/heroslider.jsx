@@ -34,52 +34,58 @@ export default function HeroSlider() {
     }, [current, slides]);
 
     return (
-        <div className="relative w-full max-w-6xl h-120 md:h-140 mx-auto overflow-hidden">
+        <div className="relative w-[92%] md:w-full max-w-6xl h-64 md:h-140 mt-5 mx-auto overflow-hidden rounded-3xl">
 
-        {/* Slides Container */}
-        <div
-            className="flex transition-transform duration-700 ease-in-out h-full"
-            style={{ transform: `translateX(-${current * 100}%)` }}
-        >
-            {slides.map((slide) => (
-            <HeroSlide
-                key={slide.id}
-                text={slide.text}
-                image={slide.image} 
-            />
-            ))}
-        </div>
+            {/* Slides Container */}
+            <div
+                className="flex transition-transform duration-700 ease-in-out h-full"
+                style={{ transform: `translateX(-${current * 100}%)` }}
+            >
+                {slides.map((slide) => (
+                <HeroSlide
+                    key={slide.id}
+                    text={slide.text}
+                    image={slide.image} 
+                />
+                ))}
+            </div>
 
-        {/* Prev Button */}
-        <button
-            onClick={prevSlide}
-            className="absolute top-1/2 left-4 -translate-y-1/2 text-white text-2xl"
-        >
-            ❮
-        </button>
-
-        {/* Next Button */}
-        <button
-            onClick={nextSlide}
-            className="absolute top-1/2 right-4 -translate-y-1/2 text-white text-2xl"
-        >
-            ❯
-        </button>
-
-        {/* Indicator Dots */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
-            {slides.map((_, index) => (
+            {/* Prev Button */}
             <button
-                key={index}
-                onClick={() => setCurrent(index)}
-                className={`w-3 h-3 rounded-full ${
-                index === current
-                    ? "bg-primary border-2 border-white"
-                    : "bg-white/50"
-                }`}
-            />
-            ))}
-        </div>
+                onClick={prevSlide}
+                className="absolute top-1/2 left-2 md:left-4 -translate-y-1/2 
+                        text-white text-lg md:text-2xl 
+                        md:bg-transparent 
+                        px-2 py-1 rounded-md md:px-0 md:py-0"
+            >
+                ❮
+            </button>
+
+            {/* Next Button */}
+            <button
+                onClick={nextSlide}
+                className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 
+                            text-white text-lg md:text-2xl 
+                            md:bg-transparent 
+                            px-2 py-1 rounded-md md:px-0 md:py-0"
+            >
+                ❯
+            </button>
+
+            {/* Indicator Dots */}
+            <div className="absolute bottom-3 md:bottom-4 left-0 right-0 flex justify-center gap-1 md:gap-2">
+                {slides.map((_, index) => (
+                <button
+                    key={index}
+                    onClick={() => setCurrent(index)}
+                    className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all ${
+                    index === current
+                        ? "bg-primary border-2 border-white"
+                        : "bg-white/50"
+                    }`}
+                />
+                ))}
+            </div>
         </div>
     );
 }
