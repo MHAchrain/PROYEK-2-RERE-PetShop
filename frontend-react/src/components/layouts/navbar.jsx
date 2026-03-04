@@ -34,8 +34,15 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  //buat page items
+  const menuItems = [
+    { name: "Beranda", path: "/"},
+    { name: "Kontak", path: "/contact"},
+    { name: "Tentang Kami", path: "/about"},
+  ];
+
   return (
-    <nav className="w-full border-b border-gray-200 bg-white relative z-50">
+    <nav className="w-full border-b border-gray-200 bg-white z-50 sticky top-0">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           
@@ -46,10 +53,15 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-12 text-sm font-medium">
-            {["Home", "Contact", "About"].map((item) => (
-              <Link key={item} to="#" className="relative group">
-                <span className="relative z-10">{item}</span>
-                <span className="absolute left-0 -bottom-1 h-0.5 w-0 bg-gray-700 transition-all duration-300 group-hover:w-full"></span>
+            {menuItems.map((item) => (
+              <Link 
+              key={item.name} 
+              to={item.path}
+              className="relative group">
+                <span className="relative z-10">{item.name}</span>
+                <span className="absolute left-0 -bottom-1 h-0.5 w-0 
+                              bg-gray-700 transition-all duration-300 
+                              group-hover:w-full"></span>
               </Link>
             ))}
           </div>
@@ -165,11 +177,16 @@ export default function Navbar() {
             />
             <Search size={18} className="text-gray-500" />
           </div>
-
-          <Link to="#" onClick={() => setMobileOpen(false)}>Home</Link>
-          <Link to="#" onClick={() => setMobileOpen(false)}>Contact</Link>
-          <Link to="#" onClick={() => setMobileOpen(false)}>About</Link>
-
+          {menuItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              onClick={() => setMobileOpen(false)}
+              className="py-2 hover:text-primary hover:font-semibold"
+            >
+              {item.name}
+            </Link>
+          ))}
           {!user && (
             <Link
               to="/auth"
