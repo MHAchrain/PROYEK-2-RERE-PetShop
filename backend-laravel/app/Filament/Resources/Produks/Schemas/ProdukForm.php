@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Produks\Schemas;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\FileUpload;
 
 class ProdukForm
 {
@@ -12,9 +14,11 @@ class ProdukForm
     {
         return $schema
             ->components([
-                TextInput::make('id_kategori')
-                    ->required()
-                    ->numeric(),
+                Select::make('id_kategori')
+                    ->label('Kategori')
+                    ->options(\App\Models\Kategori::pluck('nama_kategori', 'id_kategori'))
+                    ->searchable()
+                    ->required(),
                 TextInput::make('nama_produk')
                     ->required(),
                 TextInput::make('harga')
@@ -28,8 +32,11 @@ class ProdukForm
                 Textarea::make('deskripsi')
                     ->default(null)
                     ->columnSpanFull(),
-                TextInput::make('foto')
-                    ->default(null),
+                FileUpload::make('foto')
+                    ->image()
+                    ->disk('public')
+                    ->directory('produk')
+                    ->imagePreviewHeight('200')
             ]);
     }
 }
