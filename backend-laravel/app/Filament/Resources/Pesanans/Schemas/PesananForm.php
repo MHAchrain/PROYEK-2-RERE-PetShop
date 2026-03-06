@@ -14,27 +14,32 @@ class PesananForm
     {
         return $schema
             ->components([
-                TextInput::make('id_pelanggan')
-                    ->required()
-                    ->numeric(),
+                Select::make('id_pelanggan')
+                    ->label('Pelanggan')
+                    ->relationship('pelanggan', 'nama')
+                    ->searchable()
+                    ->required(),
+
                 DateTimePicker::make('tanggal_pesanan')
                     ->required(),
+
                 Textarea::make('alamat_kirim')
-                    ->default(null)
-                    ->columnSpanFull(),
-                TextInput::make('total')
                     ->required()
+                    ->columnSpanFull(),
+
+                TextInput::make('total')
                     ->numeric()
-                    ->default(0.0),
+                    ->required()
+                    ->default(0),
+
                 Select::make('status_pesanan')
                     ->options([
-            'baru' => 'Baru',
-            'diproses' => 'Diproses',
-            'dikirim' => 'Dikirim',
-            'selesai' => 'Selesai',
-            'batal' => 'Batal',
-        ])
-                    ->default('baru')
+                        'baru' => 'Baru',
+                        'diproses' => 'Diproses',
+                        'dikirim' => 'Dikirim',
+                        'selesai' => 'Selesai',
+                        'dibatalkan' => 'Dibatalkan',
+                    ])
                     ->required(),
             ]);
     }
