@@ -14,25 +14,24 @@ class PesanansTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('id_pelanggan')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('tanggal_pesanan')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('total')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('status_pesanan'),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+        ->columns([
+            TextColumn::make('id_pesanan')
+                ->label('ID Pesanan')
+                ->sortable(),
+
+            TextColumn::make('id_pelanggan')
+                ->label('Pelanggan')
+                ->sortable(),
+
+            TextColumn::make('tanggal_pesanan')
+                ->dateTime()
+                ->sortable(),
+
+            TextColumn::make('total')
+                ->sortable(),
+
+            TextColumn::make('status_pesanan')
+                ->badge(),
             ])
             ->filters([
                 //

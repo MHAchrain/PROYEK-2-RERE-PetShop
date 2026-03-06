@@ -16,7 +16,7 @@ class PesananForm
             ->components([
                 Select::make('id_pelanggan')
                     ->label('Pelanggan')
-                    ->relationship('pelanggan', 'nama')
+                    ->options(\App\Models\Pelanggan::pluck('nama', 'id_pelanggan')->toArray())
                     ->searchable()
                     ->required(),
 

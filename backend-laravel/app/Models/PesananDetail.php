@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class PesananDetail extends Model
 {
     protected $table = 'pesanan_detail';
-    protected $primaryKey = 'id_detail'; // ganti kalau PK kamu beda
+    protected $primaryKey = 'id_detail';
     protected $guarded = [];
+
+    public $timestamps = false;
 
     public function pesanan()
     {

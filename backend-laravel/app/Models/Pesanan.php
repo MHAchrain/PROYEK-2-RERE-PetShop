@@ -16,8 +16,8 @@ class Pesanan extends Model
         return $this->hasMany(PesananDetail::class, 'id_pesanan', 'id_pesanan');
     }
 
-    public function pelanggan()
+   public function pelanggan()
 {
-    return $this->belongsTo(Pelanggan::class, 'id_pelanggan', 'id_pelanggan');
+    return $this->belongsTo(\App\Models\Pelanggan::class, 'id_pelanggan', 'id_pelanggan');
 }
 }
