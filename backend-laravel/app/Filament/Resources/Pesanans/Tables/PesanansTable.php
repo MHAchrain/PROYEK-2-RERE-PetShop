@@ -15,12 +15,10 @@ class PesanansTable
     {
         return $table
         ->columns([
+
             TextColumn::make('id_pesanan')
                 ->label('ID Pesanan')
-                ->sortable(),
-
-            TextColumn::make('id_pelanggan')
-                ->label('Pelanggan')
+                ->formatStateUsing(fn ($state) => 'ORD-' . str_pad($state, 4, '0', STR_PAD_LEFT))
                 ->sortable(),
 
             TextColumn::make('tanggal_pesanan')
@@ -28,22 +26,25 @@ class PesanansTable
                 ->sortable(),
 
             TextColumn::make('total')
+                ->label('Total')
+                ->formatStateUsing(fn ($state) => number_format($state, 0, ',', '.'))
                 ->sortable(),
 
             TextColumn::make('status_pesanan')
                 ->badge(),
-            ])
-            ->filters([
-                //
-            ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+
+        ])
+        ->filters([
+            //
+        ])
+        ->recordActions([
+            ViewAction::make(),
+            EditAction::make(),
+        ])
+        ->toolbarActions([
+            BulkActionGroup::make([
+                DeleteBulkAction::make(),
+            ]),
+        ]);
     }
 }

@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pembayaran extends Model
 {
+    use HasFactory;
+
     protected $table = 'pembayaran';
-    protected $primaryKey = 'id_pembayaran'; // sesuaikan kalau PK kamu beda
+    protected $primaryKey = 'id_pembayaran';
+
     protected $guarded = [];
 
     public function pesanan()

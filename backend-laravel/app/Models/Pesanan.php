@@ -3,21 +3,45 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pesanan extends Model
 {
-    protected $table = 'pesanan';
-    protected $primaryKey = 'id_pesanan'; // kalau PK kamu ini
-    protected $guarded = [];
+    use HasFactory;
 
-    public function details(): HasMany
+    protected $table = 'pesanan';
+    protected $primaryKey = 'id_pesanan';
+
+    protected $fillable = [
+        'id_pelanggan',
+        'tanggal_pesanan',
+        'alamat_kirim',
+        'total',
+        'status_pesanan',
+    ];
+
+    public function pelanggan()
+    {
+        return $this->belongsTo(Pelanggan::class, 'id_pelanggan', 'id_pelanggan');
+    }
+
+    public function details()
     {
         return $this->hasMany(PesananDetail::class, 'id_pesanan', 'id_pesanan');
     }
 
-   public function pelanggan()
-{
-    return $this->belongsTo(\App\Models\Pelanggan::class, 'id_pelanggan', 'id_pelanggan');
-}
+    public function pembayaran()
+    {
+        return $this->hasOne(Pembayaran::class, 'id_pesanan', 'id_pesanan');
+    }
+
+    public function pengiriman()
+    {
+        return $this->hasOne(Pengiriman::class, 'id_pesanan', 'id_pesanan');
+    }
+
+    public function getKodePesananAttribute(): string
+    {
+        return 'ORD-' . str_pad((string) $this->id_pesanan, 4, '0', STR_PAD_LEFT);
+    }
 }

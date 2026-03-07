@@ -15,22 +15,31 @@ class PelanggansTable
     {
         return $table
             ->columns([
-                TextColumn::make('nama')
-                    ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
-                TextColumn::make('no_hp')
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+    TextColumn::make('id_pelanggan')
+        ->label('ID Pelanggan')
+        ->formatStateUsing(fn ($state) => 'PLG-' . str_pad((string) $state, 4, '0', STR_PAD_LEFT))
+        ->sortable(),
+
+    TextColumn::make('nama')
+        ->searchable(),
+
+    TextColumn::make('email')
+        ->label('Email address')
+        ->searchable(),
+
+    TextColumn::make('no_hp')
+        ->searchable(),
+
+    TextColumn::make('created_at')
+        ->dateTime()
+        ->sortable()
+        ->toggleable(isToggledHiddenByDefault: true),
+
+    TextColumn::make('updated_at')
+        ->dateTime()
+        ->sortable()
+        ->toggleable(isToggledHiddenByDefault: true),
+])
             ->filters([
                 //
             ])

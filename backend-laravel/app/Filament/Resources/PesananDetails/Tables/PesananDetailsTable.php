@@ -14,12 +14,14 @@ class PesananDetailsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id_pesanan')
-                    ->numeric()
-                    ->sortable(),
+                 TextColumn::make('id_pesanan')
+        ->label('ID Pesanan')
+        ->formatStateUsing(fn ($state) => 'ORD-' . str_pad($state, 4, '0', STR_PAD_LEFT))
+        ->sortable(),
                 TextColumn::make('id_produk')
-                    ->numeric()
-                    ->sortable(),
+        ->label('ID Produk')
+        ->formatStateUsing(fn ($state) => 'PRO-' . str_pad($state, 4, '0', STR_PAD_LEFT))
+        ->sortable(),
                 TextColumn::make('qty')
                     ->numeric()
                     ->sortable(),

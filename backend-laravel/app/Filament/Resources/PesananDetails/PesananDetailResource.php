@@ -19,8 +19,10 @@ class PesananDetailResource extends Resource
     protected static ?string $model = PesananDetail::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
-    protected static ?string $recordTitleAttribute = 'PesananDetail';
+    protected static string|\UnitEnum|null $navigationGroup = 'Manajemen Toko';
+    protected static ?string $navigationLabel = 'Pesanan Detail';
+    protected static ?string $modelLabel = 'Pesanan Detail';
+    protected static ?string $pluralModelLabel = 'Pesanan Detail';
 
     public static function form(Schema $schema): Schema
     {
@@ -34,9 +36,7 @@ class PesananDetailResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

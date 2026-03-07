@@ -13,9 +13,18 @@ class PengirimanForm
     {
         return $schema
             ->components([
-                TextInput::make('id_pesanan')
-                    ->required()
-                    ->numeric(),
+                Select::make('id_pesanan')
+                    ->label('Pesanan')
+                    ->options(
+                        \App\Models\Pesanan::query()
+                            ->orderBy('id_pesanan', 'desc')
+                            ->get()
+                            ->mapWithKeys(fn ($item) => [
+                                $item->id_pesanan => 'ORD-' . str_pad($item->id_pesanan, 4, '0', STR_PAD_LEFT),
+                            ])
+                            ->toArray()
+                    )
+                    ->required(),
 
                 Select::make('status_kirim')
                     ->options([

@@ -16,7 +16,15 @@ class PesananForm
             ->components([
                 Select::make('id_pelanggan')
                     ->label('Pelanggan')
-                    ->options(\App\Models\Pelanggan::pluck('nama', 'id_pelanggan')->toArray())
+                    ->options(
+                        \App\Models\Pelanggan::query()
+                            ->orderBy('id_pelanggan', 'desc')
+                            ->get()
+                            ->mapWithKeys(fn ($item) => [
+                                $item->id_pelanggan => 'PLG-' . str_pad($item->id_pelanggan, 4, '0', STR_PAD_LEFT)  . $item->nama_pelanggan,
+                            ])
+                            ->toArray()
+                    )
                     ->searchable()
                     ->required(),
 

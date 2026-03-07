@@ -12,4 +12,8 @@ class Pelanggan extends Model
     protected $keyType = 'int';
 
     protected $guarded = [];
+    public function getKodePelangganAttribute(): string
+{
+    return 'PLG-' . str_pad((string) $this->id_pelanggan, 4, '0', STR_PAD_LEFT);
+}
 }

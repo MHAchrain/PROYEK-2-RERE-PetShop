@@ -14,30 +14,38 @@ class PembayaransTable
     {
         return $table
             ->columns([
+
                 TextColumn::make('id_pembayaran')
-                    ->label('ID')
+                    ->label('ID Pembayaran')
+                    ->formatStateUsing(fn ($state) => 'PAY-' . str_pad($state, 4, '0', STR_PAD_LEFT))
                     ->sortable(),
 
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
+                    ->formatStateUsing(fn ($state) => 'ORD-' . str_pad($state, 4, '0', STR_PAD_LEFT))
                     ->sortable(),
 
-                TextColumn::make('metode_pembayaran')
+                TextColumn::make('metode_bayar')
                     ->label('Metode')
                     ->searchable(),
 
                 TextColumn::make('jumlah_bayar')
                     ->label('Jumlah Bayar')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
 
-                TextColumn::make('status_pembayaran')
+                TextColumn::make('ref_gateway')
+                    ->label('Ref Gateway'),
+
+                TextColumn::make('status_bayar')
                     ->label('Status')
                     ->badge(),
 
-                TextColumn::make('tanggal_pembayaran')
+                TextColumn::make('waktu_bayar')
                     ->label('Tanggal Pembayaran')
                     ->dateTime()
                     ->sortable(),
+
             ])
             ->filters([
                 //

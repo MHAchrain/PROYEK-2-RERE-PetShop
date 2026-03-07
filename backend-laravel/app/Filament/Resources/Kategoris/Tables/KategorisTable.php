@@ -15,8 +15,10 @@ class KategorisTable
         return $table
                      ->columns([
     TextColumn::make('id_kategori')
-        ->label('ID')
+        ->label('ID Kategori')
+        ->formatStateUsing(fn ($state) => 'CAT-' . str_pad($state, 4, '0', STR_PAD_LEFT))
         ->sortable(),
+        
 
     TextColumn::make('nama_kategori')
         ->label('Nama Kategori')
