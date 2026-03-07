@@ -18,6 +18,7 @@ class Pesanan extends Model
         'alamat_kirim',
         'total',
         'status_pesanan',
+        'no_telp'
     ];
 
     public function pelanggan()
