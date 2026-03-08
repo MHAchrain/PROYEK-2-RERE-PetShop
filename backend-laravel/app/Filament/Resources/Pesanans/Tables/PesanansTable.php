@@ -32,10 +32,10 @@ class PesanansTable
                 
                 TextColumn::make('alamat_kirim')
                 ->label('Alamat Kirim')
-                ->sortable(),
-
-                 TextColumn::make('no_telp')
-                ->label('Nomor Telepon')
+                ->searchable(),
+                
+                 TextColumn::make('alamat_kirim')
+                ->label('Alamat Kirim')
                 ->searchable(),
 
             TextColumn::make('status_pesanan')
