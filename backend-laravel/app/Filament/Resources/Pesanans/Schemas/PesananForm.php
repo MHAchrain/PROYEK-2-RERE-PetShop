@@ -35,6 +35,10 @@ class PesananForm
                     ->required()
                     ->columnSpanFull(),
 
+                Textarea::make('no_telp')
+                    ->required()
+                    ->columnSpanFull(),    
+
                 TextInput::make('total')
                     ->numeric()
                     ->required()

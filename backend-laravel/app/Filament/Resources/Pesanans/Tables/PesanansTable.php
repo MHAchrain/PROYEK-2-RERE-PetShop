@@ -29,6 +29,14 @@ class PesanansTable
                 ->label('Total')
                 ->formatStateUsing(fn ($state) => number_format($state, 0, ',', '.'))
                 ->sortable(),
+                
+                TextColumn::make('alamat_kirim')
+                ->label('Alamat Kirim')
+                ->searchable(),
+
+                 TextColumn::make('no_telp')
+                ->label('Nomor Telepon')
+                ->searchable(),
 
             TextColumn::make('status_pesanan')
                 ->badge(),

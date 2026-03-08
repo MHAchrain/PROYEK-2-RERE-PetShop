@@ -30,6 +30,10 @@ class PelanggansTable
     TextColumn::make('no_hp')
         ->searchable(),
 
+    TextColumn::make('alamat')
+                ->label('Alamat')
+                ->searchable(),    
+
     TextColumn::make('created_at')
         ->dateTime()
         ->sortable()
