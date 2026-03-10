@@ -1,42 +1,45 @@
 import { Heart, Eye, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 export default function ProductCard({
   id,
   nama,
   harga,
-  foto,
-  diskon = 0,
-  rating = 5,
+  image,
+  diskon,
+  rating,
 }) {
   const hasDiskon = diskon > 0;
 
   const hargaFinal = hasDiskon ? harga - (harga * diskon) / 100 : harga;
 
-  const imageUrl = foto
-    ? `http://127.0.0.1:8000/storage/${foto}`
-    : 'https://via.placeholder.com/300x300?text=No+Image';
+  const navigate = useNavigate();
 
   return (
     <div
       className="relative group rounded-sm overflow-hidden 
-      transition-all duration-500 hover:scale-105">
+        transition-all duration-500 hover:scale-105">
+      {/* IMAGE WRAPPER */}
       <div className="relative aspect-square overflow-hidden">
+        {/* Clickable Area */}
         <Link to={`/product/${id}`} className="block w-full h-full">
           <img
-            src={imageUrl}
+            src={image[0]}
             alt={nama}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         </Link>
 
+        {/* Discount Badge */}
         {hasDiskon && (
           <div className="absolute top-3 left-3 bg-red-700 text-white text-xs px-3 py-1 rounded-md z-20">
             -{diskon}%
           </div>
         )}
 
+        {/* Right Icons */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
           <button
             onClick={(e) => {
@@ -57,10 +60,11 @@ export default function ProductCard({
           </button>
         </div>
 
+        {/* Add To Cart */}
         <div
           className="absolute bottom-0 left-0 w-full 
-          translate-y-full group-hover:translate-y-0
-          transition-transform duration-300 z-20">
+            translate-y-full group-hover:translate-y-0
+            transition-transform duration-300 z-20">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -72,6 +76,7 @@ export default function ProductCard({
         </div>
       </div>
 
+      {/* PRODUCT INFO */}
       <Link
         to={`/product/${id}`}
         className="block pt-4 space-y-2 text-sm md:text-base">
@@ -80,12 +85,12 @@ export default function ProductCard({
         <div className="flex items-center gap-2">
           <p
             className={`font-semibold ${hasDiskon ? 'text-primary' : 'text-gray-800'}`}>
-            Rp {Number(hargaFinal).toLocaleString('id-ID')}
+            Rp {hargaFinal.toLocaleString('id-ID')}
           </p>
 
           {hasDiskon && (
             <p className="text-gray-400 line-through text-sm">
-              Rp {Number(harga).toLocaleString('id-ID')}
+              Rp {harga.toLocaleString('id-ID')}
             </p>
           )}
         </div>
