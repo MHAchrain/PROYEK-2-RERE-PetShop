@@ -12,17 +12,17 @@ class ProdukController extends Controller
     {
         $query = Produk::with('kategori');
 
-        if ($request->filled('search')) {
-            $query->where('nama_produk', 'like', '%' . $request->search . '%');
-        }
-
         if ($request->filled('id_kategori')) {
             $query->where('id_kategori', $request->id_kategori);
         }
 
+        if ($request->filled('search')) {
+            $query->where('nama_produk', 'like', '%' . $request->search . '%');
+        }
+
         $produk = $query
             ->orderBy('id_produk', 'desc')
-            ->paginate(10);
+            ->get();
 
         return response()->json([
             'success' => true,

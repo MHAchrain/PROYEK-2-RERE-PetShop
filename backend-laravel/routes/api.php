@@ -6,7 +6,11 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProdukController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
-
+use App\Http\Controllers\Api\PesananController;
+use App\Http\Controllers\Api\KategoriController;
+use App\Http\Controllers\Api\PembayaranController;
+use App\Http\Controllers\Api\PengirimanController;
+use App\Http\Controllers\Api\DashboardController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -14,6 +18,9 @@ Route::get('/test', function () {
     ]);
 });
 
+Route::get('/kategori', [KategoriController::class, 'index']);
+Route::get('/kategori/{id}', [KategoriController::class, 'show']);
+Route::get('/kategori/{id}/produk', [KategoriController::class, 'produkByKategori']);
 
 Route::get('/produk', [ProdukController::class, 'index']);
 Route::get('/produk/{id}', [ProdukController::class, 'show']);
@@ -36,6 +43,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/cart', [CartController::class, 'cart']);
     Route::delete('/cart/item/{id}', [CartController::class, 'remove']);
     Route::post('/checkout', [CheckoutController::class, 'checkout']);
+    Route::get('/pesanan', [PesananController::class, 'index']);
+    Route::get('/pesanan/{id}', [PesananController::class, 'show']);
+    Route::post('/pembayaran', [PembayaranController::class, 'store']);
+    Route::get('/pembayaran/{id}', [PembayaranController::class, 'show']);
+    Route::get('/pesanan/{id}/pengiriman', [PengirimanController::class, 'show']);
+    Route::post('/pesanan/{id}/selesai', [PesananController::class, 'selesai']);
+    Route::post('/pesanan/{id}/batal', [PesananController::class, 'batal']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+    Route::get('/pesanan/{id}/status', [PesananController::class, 'status']);
 });
 
     Route::get('/cek-token', function (Request $request) {

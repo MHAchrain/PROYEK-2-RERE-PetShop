@@ -3,16 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pembayaran extends Model
 {
-    use HasFactory;
-
     protected $table = 'pembayaran';
     protected $primaryKey = 'id_pembayaran';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'id_pesanan',
+        'metode_bayar',
+        'jumlah_bayar',
+        'status_bayar',
+        'ref_gateway',
+        'waktu_bayar',
+    ];
+
+    protected static function booted(): void
+    {
+        static::updated(function ($pembayaran) {
+            if ($pembayaran->wasChanged('status_bayar') && $pembayaran->status_bayar === 'paid') {
+                $pesanan = $pembayaran->pesanan;
+
+                if ($pesanan && in_array($pesanan->status_pesanan, ['baru', 'menunggu_verifikasi'])) {
+                    $pesanan->status_pesanan = 'diproses';
+                    $pesanan->save();
+                }
+            }
+        });
+    }
 
     public function pesanan()
     {

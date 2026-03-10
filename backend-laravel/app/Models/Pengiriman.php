@@ -12,7 +12,13 @@ class Pengiriman extends Model
     protected $table = 'pengiriman';
     protected $primaryKey = 'id_pengiriman';
 
-    protected $guarded = [];
+    protected $fillable = [
+        'id_pesanan',
+        'kurir',
+        'resi',
+        'status_kirim',
+        'tanggal_kirim'
+    ];
 
     public function pesanan()
     {
