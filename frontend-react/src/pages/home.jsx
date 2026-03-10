@@ -1,55 +1,73 @@
-import { useState } from "react";
-import { ListBarang } from "../Data";
-import HeroSlider from "../components/section/heroslider";
-import CategorySection from "../components/reusable/categorysection";
-import ProductSection from "../components/reusable/productsection";
+import { useEffect, useState } from 'react';
+import HeroSlider from '../components/section/heroslider';
+import CategorySection from '../components/reusable/categorysection';
+import ProductSection from '../components/reusable/productsection';
 
 export default function Home() {
-    const [visibleCount, setVisibleCount] = useState(4);
-    const [isLoading, setIsLoading] =useState(false);
+  const [produk, setProduk] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(4);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const totalProduk = ListBarang.length;
-    const isShowingAll = visibleCount === totalProduk;
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/produk', {
+      headers: {
+        Accept: 'application/json',
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setProduk(data.data ?? data);
+      })
+      .catch((err) => {
+        console.error('Gagal ambil produk:', err);
+      });
+  }, []);
 
-    const handleClick = () => {
-        if(!isShowingAll){
-            setIsLoading(true);
+  const totalProduk = produk.length;
+  const isShowingAll = visibleCount >= totalProduk && totalProduk > 0;
 
-            setTimeout(()=>{
-                setVisibleCount(totalProduk);
-                setIsLoading(false);
-            },1200);
+  const handleClick = () => {
+    if (!isShowingAll) {
+      setIsLoading(true);
 
-        } else{
-            setVisibleCount(4);
-        }
+      setTimeout(() => {
+        setVisibleCount(totalProduk);
+        setIsLoading(false);
+      }, 1200);
+    } else {
+      setVisibleCount(4);
     }
+  };
 
-    return (
-        <div className="space-y-5 mb-20">
-            <HeroSlider />
-            <CategorySection />
-            <div className="flex justify-center px-4">
+  return (
+    <div className="space-y-5 mb-20">
+      <HeroSlider />
+      <CategorySection />
 
-                <div className="max-w-6xl w-full space-y-4">
-                    <div className="flex items-center gap-5">
-                        <div className="bg-primary w-5 h-10 rounded-sm"></div>
-                        <p className="text-primary font-semibold">Hari ini</p>
-                    </div>
+      <div className="flex justify-center px-4">
+        <div className="max-w-6xl w-full space-y-4">
+          <div className="flex items-center gap-5">
+            <div className="bg-primary w-5 h-10 rounded-sm"></div>
+            <p className="text-primary font-semibold">Hari ini</p>
+          </div>
 
-                <h2 className="text-2xl font-bold">Rekomendasi</h2>
+          <h2 className="text-2xl font-bold">Rekomendasi</h2>
 
-                <ProductSection visibleCount={visibleCount} isLoading={isLoading} />
+          <ProductSection
+            products={produk}
+            visibleCount={visibleCount}
+            isLoading={isLoading}
+          />
 
-                    <div className="flex justify-center">
-                        <button onClick={handleClick}
-                        className="m-10 px-12 py-3 rounded-sm bg-primary text-white hover:bg-primary-700 transition">
-                            {isShowingAll ? "Tampilkan Lebih Sedikit" : "Lihat Semua"}
-                        </button>
-                    </div>
-
-                </div>
-            </div>
+          <div className="flex justify-center">
+            <button
+              onClick={handleClick}
+              className="m-10 px-12 py-3 rounded-sm bg-primary text-white hover:bg-primary-700 transition">
+              {isShowingAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua'}
+            </button>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
