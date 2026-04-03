@@ -10,11 +10,17 @@ export default function ProductCard({
   diskon,
   rating,
 }) {
-  const hasDiskon = diskon > 0;
 
-  const hargaFinal = hasDiskon ? harga - (harga * diskon) / 100 : harga;
+  const imageSrc = Array.isArray(image) ? image[0] : image;
+  const safeHarga = Number(harga) || 0;
+  const safeDiskon = Number(diskon) || 0;
+  const safeRating = Number(rating) || 0;
 
-  const navigate = useNavigate();
+  const hasDiskon = safeDiskon > 0;
+
+  const hargaFinal = hasDiskon
+    ? safeHarga - (safeHarga * safeDiskon) / 100
+    : safeHarga;
 
   return (
     <div
@@ -25,8 +31,8 @@ export default function ProductCard({
         {/* Clickable Area */}
         <Link to={`/product/${id}`} className="block w-full h-full">
           <img
-            src={image[0]}
-            alt={nama}
+            src={imageSrc || "/no-image.png"}
+            alt={nama || "product"}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />

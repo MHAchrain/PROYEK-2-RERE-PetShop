@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { ListBarang } from '../Data';
-import HeroSlider from '../components/section/heroslider';
+import HeroSlider from '../components/section/herosection';
 import CategorySection from '../components/reusable/categorysection';
 import ProductSection from '../components/reusable/productsection';
 
 export default function Home() {
-  const [visibleCount, setVisibleCount] = useState(4);
+  const [visibleCount, setVisibleCount] = useState(8);
   const [isLoading, setIsLoading] = useState(false);
 
   const totalProduk = ListBarang.length;
@@ -20,7 +20,7 @@ export default function Home() {
         setIsLoading(false);
       }, 1200);
     } else {
-      setVisibleCount(4);
+      setVisibleCount(8);
     }
   };
 
@@ -39,13 +39,13 @@ export default function Home() {
 
           <ProductSection visibleCount={visibleCount} isLoading={isLoading} />
 
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <button
               onClick={handleClick}
               className="m-10 px-12 py-3 rounded-sm bg-primary text-white hover:bg-primary-700 transition">
               {isShowingAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua'}
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
 import { HeroSlides as HeroSlidesData } from "../../Data";
 import HeroSlide from "./heroslide";
+import Skeleton from "../ui/skeleton";
 
 export default function HeroSlider() {
 
     const [slides, setSlides] = useState([]);
     const [current, setCurrent] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Shuffle + ambil 5 data saat pertama load
     useEffect(() => {
+        setIsLoading(true);
+
         const shuffled = [...HeroSlidesData].sort(() => 0.5 - Math.random());
-        setSlides(shuffled.slice(0, 5));
+
+        setTimeout(() => {
+            setSlides(shuffled.slice(0, 5));
+            setIsLoading(false);
+        }, 2000); //atur waktu loading sesuai kebutuhan
     }, []);
 
     const nextSlide = () => {
@@ -37,18 +45,22 @@ export default function HeroSlider() {
         <div className="relative w-[92%] md:w-full max-w-6xl h-64 md:h-140 mt-5 mx-auto overflow-hidden rounded-3xl">
 
             {/* Slides Container */}
-            <div
-                className="flex transition-transform duration-700 ease-in-out h-full"
-                style={{ transform: `translateX(-${current * 100}%)` }}
-            >
-                {slides.map((slide) => (
-                <HeroSlide
-                    key={slide.id}
-                    text={slide.text}
-                    image={slide.image} 
-                />
-                ))}
-            </div>
+            {isLoading ? (
+                <Skeleton className="w-full h-full" />
+            ) : (
+                <div
+                    className="flex transition-transform duration-700 ease-in-out h-full"
+                    style={{ transform: `translateX(-${current * 100}%)` }}
+                >
+                    {slides.map((slide) => (
+                        <HeroSlide
+                            key={slide.id}
+                            text={slide.text}
+                            image={slide.image}
+                        />
+                    ))}
+                </div>
+            )}
 
             {/* Prev Button */}
             <button

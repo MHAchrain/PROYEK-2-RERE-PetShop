@@ -3,7 +3,9 @@ import { useAuth } from "../context/authcontext";
 import { useNavigate } from "react-router-dom";
 import catImage from "../assets/dummy.png";
 import Google from "../assets/google.svg";
-
+import axios from "axios";
+import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function AuthPage() {
     const {login} = useAuth();
@@ -13,39 +15,40 @@ export default function AuthPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e) =>{
+    const handleSubmit = async (e) => {
         e.preventDefault();
-    
+        setLoading(true);
+
         const endpoint = isLogin ? "login" : "register";
 
-        console.log("Mode:", endpoint);
-        console.log({name, email, password});
-    
-        const fakeUser = {
-            name: isLogin ? "Ryu" : name,
-            email: email
-        };
-        login(fakeUser, "dummy-token");
-        navigate("/")
+        try {
+            const response = await axios.post(
+                `http://127.0.0.1:8000/api/${endpoint}`,
+                isLogin 
+                    ? { email, password } 
+                    : { name, email, password }
+            );
 
+            const user = response.data.data;
+            const token = response.data.token;
 
+            login(user, token);
 
+            toast.success("Selamat datang di ReRe PetShop!");
 
+            navigate("/");
+        } catch (error) {
+            console.error(error);
 
-        // const response = await fetch(`http://localhost:5000/api/${endpoint}`, {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type" : "application/json",
-        //     },
-        //     body: JSON.stringify({ email, password }),
-        // });
-    
-        // const data = await response.json();
-    
-        // if(response.ok){
-        //     login(data.user, data.token);
-        // }
+            alert(
+                error.response?.data?.message || "Terjadi kesalahan"
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -75,12 +78,31 @@ export default function AuthPage() {
                         <input type="text" placeholder="Email atau Nomor Telepon" value={email} onChange={(e) => setEmail(e.target.value)}
                         className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"/>
                         
-                        <input type="password" placeholder="Kata Sandi" value={password} onChange={(e) => setPassword(e.target.value)}
-                        className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"/>
+                        <div className="relative w-full">
+                            <input type={showPassword ? "text" : "password"} placeholder="Kata Sandi" value={password} onChange={(e) => setPassword(e.target.value)}
+                            className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"/>
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-0 top-2 text-gray-500 hover:text-gray-700"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
 
-                        <button type="submit" 
-                        className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary-700 transition cursor-pointer">
-                            {isLogin ? "Masuk" : "Daftar"}
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`w-full py-3 rounded-md text-white transition flex items-center justify-center gap-2 ${
+                                loading
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-primary hover:bg-primary-700"
+                            }`}
+                            >
+                                {loading && (
+                                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                )}
+                                {loading ? "Loading..." : isLogin ? "Masuk" : "Daftar"}
                         </button>
 
                         <button type="button" className="w-full border-2 border-gray-400 py-3 rounded-md flex items-center 
