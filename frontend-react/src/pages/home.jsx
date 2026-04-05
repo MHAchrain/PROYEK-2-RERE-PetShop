@@ -1,11 +1,21 @@
+<<<<<<< HEAD
 import { useEffect, useState } from 'react';
 import HeroSlider from '../components/section/heroslider';
+=======
+import { useState } from 'react';
+import { ListBarang } from '../Data';
+import HeroSlider from '../components/section/herosection';
+>>>>>>> dev
 import CategorySection from '../components/reusable/categorysection';
 import ProductSection from '../components/reusable/productsection';
 
 export default function Home() {
+<<<<<<< HEAD
   const [produk, setProduk] = useState([]);
   const [visibleCount, setVisibleCount] = useState(4);
+=======
+  const [visibleCount, setVisibleCount] = useState(8);
+>>>>>>> dev
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -35,7 +45,7 @@ export default function Home() {
         setIsLoading(false);
       }, 1200);
     } else {
-      setVisibleCount(4);
+      setVisibleCount(8);
     }
   };
 
@@ -59,13 +69,13 @@ export default function Home() {
             isLoading={isLoading}
           />
 
-          <div className="flex justify-center">
+          {/* <div className="flex justify-center">
             <button
               onClick={handleClick}
               className="m-10 px-12 py-3 rounded-sm bg-primary text-white hover:bg-primary-700 transition">
               {isShowingAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua'}
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

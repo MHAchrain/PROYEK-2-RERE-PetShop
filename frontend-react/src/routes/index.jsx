@@ -15,7 +15,7 @@ export default function AppRoutes() {
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/category/:namaKategori" element={<CategoryPage/>} />
+                <Route path="/category/:id" element={<CategoryPage/>} />
                 <Route path="/product/:id" element={<ProductPage/>} />
 
                 {/* Taro di paling bawah */}

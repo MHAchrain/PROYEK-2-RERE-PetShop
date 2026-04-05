@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 
-export default function CategoryCard({nama, Icon}) {
+export default function CategoryCard({ id, nama, Icon}) {
     return (
-        <Link to={`/category/${nama.toLowerCase()}`}>
+        <Link to={`/category/${id}`}>
             <div className="w-full h-40 border rounded-md 
             flex flex-col items-center justify-center
             border-gray-300 hover:bg-primary hover:text-white 

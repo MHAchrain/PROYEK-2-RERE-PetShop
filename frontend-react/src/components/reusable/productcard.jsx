@@ -9,13 +9,23 @@ export default function ProductCard({
   diskon = 0,
   rating = 5,
 }) {
-  const hasDiskon = diskon > 0;
 
-  const hargaFinal = hasDiskon ? harga - (harga * diskon) / 100 : harga;
+  const imageSrc = Array.isArray(image) ? image[0] : image;
+  const safeHarga = Number(harga) || 0;
+  const safeDiskon = Number(diskon) || 0;
+  const safeRating = Number(rating) || 0;
 
+<<<<<<< HEAD
   const imageUrl = foto
     ? `http://127.0.0.1:8000/storage/${foto}`
     : 'https://via.placeholder.com/300x300?text=No+Image';
+=======
+  const hasDiskon = safeDiskon > 0;
+
+  const hargaFinal = hasDiskon
+    ? safeHarga - (safeHarga * safeDiskon) / 100
+    : safeHarga;
+>>>>>>> dev
 
   return (
     <div
@@ -24,8 +34,13 @@ export default function ProductCard({
       <div className="relative aspect-square overflow-hidden">
         <Link to={`/product/${id}`} className="block w-full h-full">
           <img
+<<<<<<< HEAD
             src={imageUrl}
             alt={nama}
+=======
+            src={imageSrc || "/no-image.png"}
+            alt={nama || "product"}
+>>>>>>> dev
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />

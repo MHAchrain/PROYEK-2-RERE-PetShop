@@ -7,8 +7,13 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    try {
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (err) {
+      console.error('Error parsing stored user:', err);
+      localStorage.removeItem('user'); // reset jika rusak
     }
   }, []);
 
