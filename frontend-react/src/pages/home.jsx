@@ -39,13 +39,13 @@ export default function Home() {
 
           <ProductSection visibleCount={visibleCount} isLoading={isLoading} />
 
-          {/* <div className="flex justify-center">
+          <div className="flex justify-center">
             <button
               onClick={handleClick}
               className="m-10 px-12 py-3 rounded-sm bg-primary text-white hover:bg-primary-700 transition">
               {isShowingAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua'}
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
