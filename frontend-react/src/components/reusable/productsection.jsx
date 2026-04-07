@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
 import { getProducts } from '../../services/productservice';
+import { useEffect, useState } from 'react';
 import ProductCard from './productcard';
+import Skeleton from '../ui/skeleton';
 
 export default function ProductSection({ visibleCount = 8 }) {
-  // 1. Pastikan BASE_URL mengarah ke folder storage
-  const BASE_URL = 'http://127.0.0.1:8000/storage/';
+  const BASE_URL = "http://127.0.0.1:8000/storage/";
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -12,42 +12,41 @@ export default function ProductSection({ visibleCount = 8 }) {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
+
         const data = await getProducts();
-        // 2. Gunakan data.data karena Laravel membungkusnya dalam objek
-        setProducts(data.data ?? data);
+        setProducts(data);
+
       } catch (err) {
         console.error(err);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchProducts();
   }, []);
 
-  const displayedProducts = Array.isArray(products)
-    ? products.slice(0, visibleCount)
-    : [];
+  const displayedProducts = products.slice(0, visibleCount);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
       {isLoading ? (
-        <p>Loading...</p>
+        [...Array(8)].map((_, i) => (
+          <Skeleton key={i} className="w-full h-64 rounded-lg" />
+        ))
       ) : (
         displayedProducts.map((item) => (
           <ProductCard
-            key={item.id_produk || item.id}
-            id={item.id_produk || item.id}
+            key={item.id_produk}
+            id={item.id_produk}
             nama={item.nama_produk}
             harga={item.harga}
-            // 3. Gabungkan URL dengan kolom 'foto' dari database
-            image={
-              item.foto
-                ? `${BASE_URL}${item.foto}`
-                : 'https://via.placeholder.com/150'
-            }
+            image={`${BASE_URL}${item.foto}`}
           />
         ))
       )}
+
     </div>
   );
 }
