@@ -29,8 +29,8 @@ export default function ProductCard({
         {/* Link Gambar */}
         <Link to={detailPath} className="block w-full h-full">
           <img
-            src={image || '/no-image.png'}
-            alt={nama}
+            src={imageSrc || "../assets/no-image.png"}
+            alt={nama || "product"}
             loading="lazy"
             className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110"
             onError={(e) => {
