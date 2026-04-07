@@ -31,7 +31,7 @@ export default function ProductCard({
         {/* Clickable Area */}
         <Link to={`/product/${id}`} className="block w-full h-full">
           <img
-            src={imageSrc || "/no-image.png"}
+            src={imageSrc || "../assets/no-image.png"}
             alt={nama || "product"}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
