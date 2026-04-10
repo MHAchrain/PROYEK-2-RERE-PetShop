@@ -28,8 +28,7 @@ return new class extends Migration
         $table->foreign('id_produk')
               ->references('id_produk')
               ->on('produk')
-              ->onUpdate('cascade')
-              ->onDelete('restrict');
+              ->onUpdate('cascade');
     });
 }
 

@@ -15,6 +15,7 @@ class PelangganInfolist
                 TextEntry::make('email')
                     ->label('Email address'),
                 TextEntry::make('no_hp'),
+                TextEntry::make('alamat'),
                 TextEntry::make('created_at')
                     ->dateTime(),
                 TextEntry::make('updated_at')
@@ -22,3 +23,4 @@ class PelangganInfolist
             ]);
     }
 }
+ 

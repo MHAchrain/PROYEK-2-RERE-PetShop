@@ -15,7 +15,7 @@ class CartController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'id_produk' => 'required|exists:produk,id_produk',
+            'id_produk' => 'required',
             'qty' => 'required|integer|min:1'
         ]);
 
@@ -68,23 +68,10 @@ class CartController extends Controller
         ]);
     }
 
-    public function remove(Request $request, $id)
+    public function remove($id)
     {
-        $user = $request->user();
-
-        $item = KeranjangItem::where('id', $id)
-            ->whereHas('keranjang', function ($q) use ($user) {
-                $q->where('id_pelanggan', $user->id);
-            })
-            ->firstOrFail();
-
-        $keranjang = $item->keranjang;
-
+        $item = KeranjangItem::findOrFail($id);
         $item->delete();
-
-        // update total
-        $keranjang->total = $keranjang->items()->sum('subtotal');
-        $keranjang->save();
 
         return response()->json([
             'success' => true,

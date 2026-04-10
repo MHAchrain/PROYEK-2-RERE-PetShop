@@ -20,11 +20,11 @@ class KeranjangItem extends Model
 
     public function produk()
     {
-        return $this->belongsTo(Produk::class, 'id_produk');
+        return $this->belongsTo(Produk::class, 'id_produk', 'id_produk');
     }
 
     public function keranjang()
     {
-        return $this->belongsTo(Keranjang::class, 'id_keranjang');
+        return $this->belongsTo(Keranjang::class, 'id_keranjang', 'id_keranjang');
     }
 }

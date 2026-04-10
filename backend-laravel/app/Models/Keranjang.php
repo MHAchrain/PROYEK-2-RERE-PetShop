@@ -16,6 +16,6 @@ class Keranjang extends Model
 
     public function items()
     {
-        return $this->hasMany(KeranjangItem::class, 'id_keranjang');
+        return $this->hasMany(KeranjangItem::class, 'id_keranjang', 'id_keranjang');
     }
 }

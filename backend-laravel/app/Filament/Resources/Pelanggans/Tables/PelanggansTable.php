@@ -49,7 +49,7 @@ class PelanggansTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -58,3 +58,4 @@ class PelanggansTable
             ]);
     }
 }
+ 

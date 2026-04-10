@@ -37,6 +37,7 @@ class ProdukForm
                     ->disk('public')
                     ->directory('produk')
                     ->imagePreviewHeight('200')
+                    ->visibility('public'),
             ]);
     }
 }
