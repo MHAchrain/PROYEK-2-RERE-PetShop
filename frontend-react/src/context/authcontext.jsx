@@ -1,19 +1,28 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [token, setToken] = useState(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
+        const storedToken = localStorage.getItem("token");
+
         try {
             if (storedUser) {
                 setUser(JSON.parse(storedUser));
             }
+            if (storedToken) {
+                setToken(storedToken);
+            }
         } catch (err) {
             console.error("Error parsing stored user:", err);
-            localStorage.removeItem("user"); // reset jika rusak
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
         }
     }, []);
 
@@ -21,16 +30,24 @@ export function AuthProvider({ children }) {
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("token", token);
         setUser(userData);
+        setToken(token);
     };
 
-    const logout = () => {
+    const logout = async () => {
+        setLoading(true);
+
+        await new Promise((res) => setTimeout(res, 500));
+
         localStorage.removeItem("user");
         localStorage.removeItem("token");
         setUser(null);
+        setToken(null);
+        toast.success("Berhasil logout");
+        setLoading(false);
     };
 
     return(
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     )

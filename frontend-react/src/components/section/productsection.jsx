@@ -1,6 +1,6 @@
 import { getProducts } from '../../services/productservice';
 import { useEffect, useState } from 'react';
-import ProductCard from './productcard';
+import ProductCard from '../ui/productcard';
 import Skeleton from '../ui/skeleton';
 
 export default function ProductSection({ visibleCount = 8 }) {

@@ -2,7 +2,7 @@ import { Phone, Mail } from "lucide-react"
 
 export default function ContactPage(){
     return(
-        <div className="min-h-screen p-10">
+        <div className="min-h-screen flex flex-col my-15 mx-20">
 
             <div className="flex items-center gap-5 mb-16">
                 <div className="bg-primary w-5 h-10 rounded-sm"></div>

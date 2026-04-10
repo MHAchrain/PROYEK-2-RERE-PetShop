@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 
-export default function CategoryCard({ id, nama, Icon}) {
+export default function CategoryCard({ id, nama, Icon, path}) {
+    const finalPath = path || `/category/${id}`;
     return (
-        <Link to={`/category/${id}`}>
+        <Link to={finalPath}>
             <div className="w-full h-40 border rounded-md 
             flex flex-col items-center justify-center
             border-gray-300 hover:bg-primary hover:text-white 

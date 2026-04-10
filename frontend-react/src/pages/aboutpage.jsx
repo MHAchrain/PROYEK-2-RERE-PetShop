@@ -6,14 +6,14 @@ import { BenefitList } from "../Data"
 
 export default function AboutPage(){
     return(
-        <div className="min-h-screen flex flex-col p-10">
+        <div className="min-h-screen flex flex-col my-15 mx-20">
 
             <div className="flex items-center gap-5">
                 <div className="bg-primary w-5 h-10 rounded-sm"></div>
                 <p className="text-primary font-semibold">Tentang Kami</p>
             </div>
 
-            <div className="flex flex-col lg:flex-row items-center gap-16 px-10 py-16 max-w-6xl mx-auto">
+            <div className="flex flex-col lg:flex-row items-center gap-16 px-10 py-16 mx-auto">
                 <div className="flex-1 space-y-6">
                     <h1 className="text-5xl font-bold">Cerita Kami</h1>
                     <p className="text-gray-600 leading-relaxed">
@@ -33,7 +33,7 @@ export default function AboutPage(){
             </div>
 
             <div className="py-16">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-10">
+                <div className="mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-10">
                     {Statistic.map((item) =>{
                         const Icon = item.icon;
                         return(
@@ -66,7 +66,7 @@ export default function AboutPage(){
             </div>
 
             <div className="py-20">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-10">
+                <div className="mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-10">
                     {TeamList.map((member) => (
                         <div key={member.id} className="text-left group">
 
@@ -99,8 +99,8 @@ export default function AboutPage(){
                 </div>
             </div>
 
-            <div className="bg-gray-50 py-20">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-10 text-center">
+            <div className="py-20">
+                <div className=" mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-10 text-center">
 
                     {BenefitList.map((item) => {
                         const Icon = item.icon;

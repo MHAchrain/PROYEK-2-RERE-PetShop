@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { HeroSlides as HeroSlidesData } from "../../Data";
-import HeroSlide from "./heroslide";
+import HeroSlide from "../ui/heroslide";
 import Skeleton from "../ui/skeleton";
 
 export default function HeroSlider() {

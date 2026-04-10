@@ -1,6 +1,9 @@
 import { Heart, Eye, Star } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import axios from "../../api/axios";
+import toast from "react-hot-toast";
+import { useAuth } from "../../context/authcontext";
+import { useCart } from "../../context/cartcontext";
 
 export default function ProductCard({
   id,
@@ -21,6 +24,57 @@ export default function ProductCard({
   const hargaFinal = hasDiskon
     ? safeHarga - (safeHarga * safeDiskon) / 100
     : safeHarga;
+
+  const { token } = useAuth();
+  const { setCart } = useCart();
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+
+    try {
+      const res = await axios.post(
+        "/cart/add",
+        {
+          id_produk: id,
+          qty: 1,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setCart((prev) => {
+        // 🛑 kalau belum ada cart → langsung pakai dari backend
+        if (!prev || !prev.items) {
+          return res.data.data;
+        }
+
+        const existing = prev.items.find(i => i.id_produk === id);
+
+        let newItems;
+
+        if (existing) {
+          newItems = prev.items.map(i =>
+            i.id_produk === id ? { ...i, qty: i.qty + 1 } : i
+          );
+        } else {
+          newItems = [...prev.items, { id_produk: id, qty: 1 }];
+        }
+
+        return {
+          ...prev,
+          items: newItems,
+        };
+      });
+
+      toast.success("Berhasil masuk ke keranjang 🛒");
+    } catch (error) {
+      toast.error("Gagal masuk ke keranjang");
+      console.log(error);
+    }
+  };
 
   return (
     <div
@@ -71,15 +125,15 @@ export default function ProductCard({
           className="absolute bottom-0 left-0 w-full 
             translate-y-full group-hover:translate-y-0
             transition-transform duration-300 z-20">
+
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log('add to cart');
-            }}
+            onClick={handleAddToCart}
             className="w-full bg-black text-white py-3 font-medium transition">
             Add to Cart
           </button>
+
         </div>
+
       </div>
 
       {/* PRODUCT INFO */}

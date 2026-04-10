@@ -13,11 +13,14 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/authcontext";
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logorere.png";
+import { useCart } from "../../context/cartcontext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-
+  const navigate = useNavigate();
+  const { cart } = useCart();
   const [open, setOpen] = useState(false); // dropdown user
   const [mobileOpen, setMobileOpen] = useState(false); // mobile menu
   const dropdownRef = useRef(null);
@@ -41,11 +44,15 @@ export default function Navbar() {
     { name: "Tentang Kami", path: "/about"},
   ];
 
+  const totalQty = cart?.items?.reduce((sum, item) => {
+    return sum + (item.qty || 0);
+  }, 0);
+
   return (
     <nav className="w-full border-b border-gray-200 bg-white z-50 sticky top-0">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
-          
+
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="Logo" className="h-12 w-auto" />
@@ -81,13 +88,22 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <Heart className="cursor-pointer hover:text-primary-600 transition" size={20} />
+                <Heart
+                  onClick={() => navigate('/wishlist')}
+                  className="cursor-pointer hover:text-primary-600 transition" 
+                  size={20} />
 
-                <div className="relative cursor-pointer">
-                  <ShoppingCart size={20} />
-                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 rounded-full">
-                    2
-                  </span>
+                <div 
+                  className="relative cursor-pointer group" 
+                  onClick={() => navigate('/cart')}
+                >
+                  <ShoppingCart size={20} className="group-hover:text-primary transition-colors"/>
+
+                  {totalQty > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-primary text-white text-xs px-1.5 rounded-full">
+                      {totalQty}
+                    </span>
+                  )}
                 </div>
 
                 {/* User Dropdown */}

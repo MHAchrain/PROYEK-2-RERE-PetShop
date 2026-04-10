@@ -1,41 +1,35 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import ProductSection from "../components/reusable/productsection";
+import ProductSectionByCategory from "../components/section/productbycategorysection";
 import NotFoundPage from "./notfoundpage";
-import { getProductsByCategory, getCategoriesById } from "../services/categoryservice";
+import { getCategoriesById } from "../services/categoryservice";
 import Skeleton from "../components/ui/skeleton";
 
 export default function CategoryPage() {
 
     const { id } = useParams();
 
-    const [products, setProducts] = useState([]);
     const [category, setCategory] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
+        const fetchCategory = async () => {
+        try {
+            setIsLoading(true);
 
-                const [productData, categoryData] = await Promise.all([
-                    getProductsByCategory(id),
-                    getCategoriesById(id)
-                ]);
+            const data = await getCategoriesById(id);
+            setCategory(data);
 
-                setProducts(productData);
-                setCategory(categoryData);
-
-            } catch (err) {
-                console.error(err);
-                setNotFound(true);
-            } finally {
-                setIsLoading(false);
-            }
+        } catch (err) {
+            console.error(err);
+            setNotFound(true);
+        } finally {
+            setIsLoading(false);
+        }
         };
 
-        fetchData();
+        fetchCategory();
     }, [id]);
 
     if (notFound) {
@@ -43,8 +37,8 @@ export default function CategoryPage() {
     }
 
     return (
-        <div className="flex justify-center m-10">
-            <div className="w-full max-w-6xl space-y-4">
+        <div className="min-h-screen flex flex-col my-15 mx-20">
+            <div className="w-full px-4 md:px-10 space-y-4">
 
                 <div className="flex items-center gap-5">
                     <div className="bg-primary w-5 h-10 rounded-sm"></div>
@@ -61,10 +55,7 @@ export default function CategoryPage() {
                     </h2>
                 )}
 
-                <ProductSection
-                    products={products}
-                    isLoading={isLoading}
-                />
+                <ProductSectionByCategory categoryId={id} />
 
             </div>
         </div>

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ListBarang } from '../Data';
 import HeroSlider from '../components/section/herosection';
-import CategorySection from '../components/reusable/categorysection';
-import ProductSection from '../components/reusable/productsection';
+import CategorySection from '../components/section/categorysection';
+import ProductSection from '../components/section/productsection';
 
 export default function Home() {
   const [visibleCount, setVisibleCount] = useState(8);
@@ -25,14 +25,14 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-5 mb-20">
+    <div className="min-h-screen space-y-10">
       <HeroSlider />
       <CategorySection />
       <div className="flex justify-center px-4">
         <div className="max-w-6xl w-full space-y-4">
           <div className="flex items-center gap-5">
             <div className="bg-primary w-5 h-10 rounded-sm"></div>
-            <p className="text-primary font-semibold">Hari ini</p>
+            <p className="text-primary font-semibold capitalize">Hari ini</p>
           </div>
 
           <h2 className="text-2xl font-bold">Rekomendasi</h2>

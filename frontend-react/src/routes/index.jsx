@@ -7,6 +7,9 @@ import AboutPage from "../pages/aboutpage";
 import NotFoundPage from "../pages/notfoundpage";
 import ContactPage from "../pages/contactpage";
 import ProductPage from "../pages/productpage";
+import WishlistPage from "../pages/wishlistpage";
+import GroomingPage from "../pages/groomingpage";
+import CartPage from "../pages/cartpage";
 
 export default function AppRoutes() {
     return(
@@ -17,6 +20,9 @@ export default function AppRoutes() {
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/category/:id" element={<CategoryPage/>} />
                 <Route path="/product/:id" element={<ProductPage/>} />
+                <Route path="/wishlist" element={<WishlistPage/>} />
+                <Route path="/grooming" element={<GroomingPage/>} />
+                <Route path="/cart" element={<CartPage/>} />
 
                 {/* Taro di paling bawah */}
                 <Route path="*" element={<NotFoundPage/>} />

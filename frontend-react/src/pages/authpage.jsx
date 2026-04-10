@@ -1,55 +1,19 @@
 import { useState } from "react";
 import { useAuth } from "../context/authcontext";
 import { useNavigate } from "react-router-dom";
+import { useAuthForm } from "../hooks/useauthform";
+
 import catImage from "../assets/dummy.png";
 import Google from "../assets/google.svg";
-import axios from "axios";
-import toast from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function AuthPage() {
     const {login} = useAuth();
-
-    const [isLogin, setIsLogin] = useState(true);
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const navigate = useNavigate();
+    const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-
-        const endpoint = isLogin ? "login" : "register";
-
-        try {
-            const response = await axios.post(
-                `http://127.0.0.1:8000/api/${endpoint}`,
-                isLogin 
-                    ? { email, password } 
-                    : { name, email, password }
-            );
-
-            const user = response.data.data;
-            const token = response.data.token;
-
-            login(user, token);
-
-            toast.success("Selamat datang di ReRe PetShop!");
-
-            navigate("/");
-        } catch (error) {
-            console.error(error);
-
-            alert(
-                error.response?.data?.message || "Terjadi kesalahan"
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { form, handleChange, handleSubmit, loading } =
+        useAuthForm(isLogin, login, navigate);
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row">
@@ -71,15 +35,44 @@ export default function AuthPage() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {! isLogin && (
-                            <input type="text" placeholder="Nama" value={name} onChange={(e) => setName(e.target.value)}
+                            <input type="text" placeholder="Nama" value={form.name} onChange={(e) => handleChange("name", e.target.value)}
                             className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"/>
                         )}
 
-                        <input type="text" placeholder="Email atau Nomor Telepon" value={email} onChange={(e) => setEmail(e.target.value)}
-                        className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"/>
+                        {!isLogin && (
+                            <input
+                                type="text"
+                                placeholder="Nomor HP"
+                                value={form.noHp}
+                                onChange={(e) =>
+                                    handleChange(
+                                        "noHp",
+                                        e.target.value.replace(/[^0-9]/g, "")
+                                    )
+                                }
+                                className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                            />
+                        )}
+
+                        {!isLogin && (
+                            <textarea
+                                placeholder="Alamat"
+                                value={form.alamat}
+                                onChange={(e) => handleChange("alamat", e.target.value)}
+                                className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                            />
+                        )}
+
+                        <input
+                            type={isLogin ? "email" : "email"}
+                            placeholder={isLogin ? "Email" : "Email"}
+                            value={form.email}
+                            onChange={(e) => handleChange("email", e.target.value)}
+                            className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                        />
                         
                         <div className="relative w-full">
-                            <input type={showPassword ? "text" : "password"} placeholder="Kata Sandi" value={password} onChange={(e) => setPassword(e.target.value)}
+                            <input type={showPassword ? "text" : "password"} placeholder="Kata Sandi" value={form.password} onChange={(e) => handleChange("password", e.target.value)}
                             className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"/>
                             <button
                                 type="button"
@@ -89,6 +82,30 @@ export default function AuthPage() {
                                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                             </button>
                         </div>
+
+                        {!isLogin && (
+                            <div className="w-full">
+                                <input
+                                    type="password"
+                                    placeholder="Konfirmasi Password"
+                                    value={form.confirmPassword}
+                                    onChange={(e) => handleChange("confirmPassword", e.target.value)}
+                                    className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                                />
+
+                                {form.confirmPassword && (
+                                    <p className={`text-md mt-1 ${
+                                        form.password === form.confirmPassword
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                    }`}>
+                                        {form.password === form.confirmPassword
+                                            ? "Password cocok ✔"
+                                            : "Password tidak sama ❌"}
+                                    </p>
+                                )}
+                            </div>
+                        )}
 
                         <button
                             type="submit"
