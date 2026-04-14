@@ -11,6 +11,16 @@ use App\Http\Controllers\Api\KategoriController;
 use App\Http\Controllers\Api\PembayaranController;
 use App\Http\Controllers\Api\PengirimanController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\PelangganController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/pelanggan/update', [PelangganController::class, 'updateProfile']);
+});
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::post('/favorites', [FavoriteController::class, 'store']);
+});
 
 Route::get('/test', function () {
     return response()->json([

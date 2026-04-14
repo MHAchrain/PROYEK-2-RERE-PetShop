@@ -15,41 +15,44 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email|unique:pelanggan,email',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email|unique:pelanggan,email',
             'password' => 'required|string|min:6',
-            'no_hp' => 'nullable|string|max:20',
-            'alamat' => 'nullable|string',
+            'no_hp'    => 'nullable|string|max:20',
+            'alamat'   => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
-                'errors' => $validator->errors(),
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+        // 1. Buat pelanggan dulu untuk dapat id_pelanggan
+        $pelanggan = Pelanggan::create([
+            'nama'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'customer',
+            'no_hp'    => $request->no_hp,
+            'alamat'   => $request->alamat,
         ]);
 
-        $pelanggan = Pelanggan::create([
-            'nama' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'no_hp' => $request->no_hp,
-            'alamat' => $request->alamat,
+        // 2. Buat user, langsung isi pelanggan_id
+        $user = User::create([
+            'name'         => $request->name,
+            'email'        => $request->email,
+            'password'     => Hash::make($request->password),
+            'role'         => 'customer',
+            'pelanggan_id' => $pelanggan->id_pelanggan, // sinkron
         ]);
 
         return response()->json([
             'success' => true,
             'message' => 'Register berhasil',
-            'data' => [
-                'user' => $user,
+            'data'    => [
+                'user'      => $user,
                 'pelanggan' => $pelanggan,
             ],
         ], 201);
@@ -58,7 +61,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
@@ -66,12 +69,12 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',
-                'errors' => $validator->errors(),
+                'errors'  => $validator->errors(),
             ], 422);
         }
 
         if (! Auth::attempt([
-            'email' => $request->email,
+            'email'    => $request->email,
             'password' => $request->password,
         ])) {
             return response()->json([
@@ -88,14 +91,46 @@ class AuthController extends Controller
                 'message' => 'Akun ini bukan customer',
             ], 403);
         }
+
+        // Hapus token lama, buat token baru
         $user->tokens()->delete();
         $token = $user->createToken('customer_token')->plainTextToken;
+
+        // Ambil data pelanggan sekalian untuk response
+        $pelanggan = Pelanggan::where('id_pelanggan', $user->pelanggan_id)->first();
 
         return response()->json([
             'success' => true,
             'message' => 'Login berhasil',
-            'token' => $token,
-            'data' => $user,
+            'token'   => $token,
+            'data'    => [
+                'user'      => $user,
+                'pelanggan' => $pelanggan,
+            ],
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout berhasil',
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        $user      = $request->user();
+        $pelanggan = Pelanggan::where('id_pelanggan', $user->pelanggan_id)->first();
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'user'      => $user,
+                'pelanggan' => $pelanggan,
+            ],
         ]);
     }
 }
