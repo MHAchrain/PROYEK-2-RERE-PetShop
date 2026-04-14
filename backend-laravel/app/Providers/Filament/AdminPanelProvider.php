@@ -42,6 +42,8 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
                 FilamentInfoWidget::class,
                 StatsOverview::class,
+                \App\Filament\Widgets\StatsOverview::class,
+                \App\Filament\Widgets\PenjualanChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,

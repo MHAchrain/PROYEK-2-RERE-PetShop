@@ -30,4 +30,8 @@ class Produk extends Model
     {
         return $this->hasMany(PesananDetail::class, 'id_produk', 'id_produk');
     }
+
+    public function difavoritkanOleh() {
+    return $this->belongsToMany(User::class, 'favorits', 'produk_id', 'user_id', 'id_produk');
+}
 }

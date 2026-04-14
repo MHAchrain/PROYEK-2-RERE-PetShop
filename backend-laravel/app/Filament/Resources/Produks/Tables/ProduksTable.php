@@ -57,6 +57,20 @@ class ProduksTable
                             ->success()
                             ->send();
                     }),
+
+                Action::make('resetViews')
+                    ->label('Reset Semua Views')
+                    ->color('danger')
+                    ->icon('heroicon-o-arrow-path')
+                    ->requiresConfirmation()
+                    ->action(function () {
+            \App\Models\Produk::query()->update(['views' => 0]);
+            
+            \Filament\Notifications\Notification::make()
+                ->title('Views berhasil di-reset!')
+                ->success()
+                ->send();
+        }),
             ])
             ->columns([
                 TextColumn::make('id_produk')

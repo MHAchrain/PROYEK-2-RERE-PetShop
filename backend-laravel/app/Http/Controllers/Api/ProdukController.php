@@ -40,8 +40,10 @@ class ProdukController extends Controller
                 'success' => false,
                 'message' => 'Produk tidak ditemukan',
             ], 404);
+            
         }
-
+        $produk->increment('views');
+        
         return response()->json([
             'success' => true,
             'message' => 'Detail produk berhasil diambil',
