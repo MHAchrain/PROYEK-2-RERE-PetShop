@@ -33,7 +33,7 @@ export default function ProductCard({
 
     try {
       const res = await axios.post(
-        "/cart/add",
+        "http://127.0.0.1:8000/api/cart/add",
         {
           id_produk: id,
           qty: 1,
@@ -46,7 +46,6 @@ export default function ProductCard({
       );
 
       setCart((prev) => {
-        // 🛑 kalau belum ada cart → langsung pakai dari backend
         if (!prev || !prev.items) {
           return res.data.data;
         }
@@ -72,7 +71,7 @@ export default function ProductCard({
       toast.success("Berhasil masuk ke keranjang 🛒");
     } catch (error) {
       toast.error("Gagal masuk ke keranjang");
-      console.log(error);
+      console.log("ERROR:", error.response?.data || error.message);
     }
   };
 
@@ -108,15 +107,6 @@ export default function ProductCard({
             }}
             className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition">
             <Heart size={18} />
-          </button>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log('quick view');
-            }}
-            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition">
-            <Eye size={18} />
           </button>
         </div>
 

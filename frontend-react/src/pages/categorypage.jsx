@@ -42,9 +42,13 @@ export default function CategoryPage() {
 
                 <div className="flex items-center gap-5">
                     <div className="bg-primary w-5 h-10 rounded-sm"></div>
-                    <p className="text-primary font-semibold">
-                        Kategori
-                    </p>
+                    {isLoading ? (
+                        <Skeleton className="w-40 h-6" />
+                        ) : (
+                        <p className="text-primary font-semibold capitalize">
+                            Kategori
+                        </p>
+                    )}
                 </div>
 
                 {isLoading ? (

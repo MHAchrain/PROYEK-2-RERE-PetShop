@@ -4,6 +4,7 @@ import { getProductById } from "../services/productservice";
 import ProductSection from "../components/section/productsection";
 import ProductGallerySection from "../components/section/productgallerysection";
 import ProductDetailSection from "../components/section/productdetailsection";
+import Skeleton from "../components/ui/skeleton";
 
 const BASE_URL = "http://127.0.0.1:8000/storage/";
 
@@ -16,6 +17,8 @@ export default function ProductPage() {
   useEffect(() => {
     const fetch = async () => {
       try {
+        setIsLoading(true);
+
         const data = await getProductById(id);
 
         const mapped = {
@@ -30,13 +33,17 @@ export default function ProductPage() {
         setProduct(mapped);
       } catch (err) {
         console.error(err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetch();
   }, [id]);
 
-  if (!product) return <p>Loading...</p>;
+  if (!product && !isLoading) {
+    return <p className="text-center mt-20">Produk tidak ditemukan</p>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col my-15 mx-20">
@@ -44,12 +51,18 @@ export default function ProductPage() {
 
         <div className="flex items-center gap-5 mb-16">
           <div className="bg-primary w-5 h-10 rounded-sm"></div>
-          <p className="text-primary font-semibold capitalize">{product.name}</p>
+          {isLoading ? (
+            <Skeleton className="w-40 h-6" />
+            ) : (
+            <p className="text-primary font-semibold capitalize">
+                {product?.name}
+            </p>
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 gap-20">
-          <ProductGallerySection product={product} />
-          <ProductDetailSection product={product} />
+          <ProductGallerySection product={product} isLoading={isLoading} />
+          <ProductDetailSection product={product} isLoading={isLoading} />
         </div>
 
         <div className="w-full">

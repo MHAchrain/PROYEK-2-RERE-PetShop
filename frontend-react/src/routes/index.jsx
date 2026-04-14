@@ -1,4 +1,7 @@
 import { Routes, Route } from "react-router-dom";
+import { useAuth } from "../context/authcontext";
+import { Navigate } from "react-router-dom";
+
 import Home from "../pages/home";
 import AuthPage from "../pages/authpage";
 import MainLayout from "../components/layouts/mainlayout";
@@ -12,6 +15,8 @@ import GroomingPage from "../pages/groomingpage";
 import CartPage from "../pages/cartpage";
 
 export default function AppRoutes() {
+    const { token } = useAuth();
+
     return(
         <Routes>
             <Route element={<MainLayout />}>
@@ -22,15 +27,17 @@ export default function AppRoutes() {
                 <Route path="/product/:id" element={<ProductPage/>} />
                 <Route path="/wishlist" element={<WishlistPage/>} />
                 <Route path="/grooming" element={<GroomingPage/>} />
-                <Route path="/cart" element={<CartPage/>} />
-
-                {/* Taro di paling bawah */}
+                <Route 
+                    path="/cart" 
+                    element={
+                        token 
+                        ? <CartPage/> 
+                        : <Navigate to="/auth" replace />
+                    } 
+                />
                 <Route path="*" element={<NotFoundPage/>} />
             </Route>
-            
             <Route path="/auth" element={<AuthPage />} />
-            
-            {/* Taro di paling bawah */}
             <Route path="*" element={<NotFoundPage/>} />
         </Routes>
     )

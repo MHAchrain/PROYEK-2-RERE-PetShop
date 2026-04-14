@@ -13,7 +13,7 @@ export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const { form, handleChange, handleSubmit, loading } =
-        useAuthForm(isLogin, login, navigate);
+        useAuthForm(isLogin, login, navigate, setIsLogin);
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row">

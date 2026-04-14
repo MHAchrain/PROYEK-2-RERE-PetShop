@@ -4,7 +4,7 @@ import { validateLogin, validateRegister } from "../utils/validation";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-export const useAuthForm = (isLogin, login, navigate) => {
+export const useAuthForm = (isLogin, login, navigate, setIsLogin) => {
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -53,19 +53,35 @@ export const useAuthForm = (isLogin, login, navigate) => {
                 `http://127.0.0.1:8000/api/${endpoint}`,
                 isLogin
                     ? {
-                          email: cleanIdentifier,
-                          password: form.password,
-                      }
+                        email: cleanIdentifier,
+                        password: form.password,
+                    }
                     : {
-                          ...form,
-                          email: cleanIdentifier,
-                          no_hp: formatPhone(cleanNoHp),
-                      }
+                        ...form,
+                        email: cleanIdentifier,
+                        no_hp: formatPhone(cleanNoHp),
+                    }
             );
 
-            login(response.data.data, response.data.token);
-            toast.success("Selamat datang di ReRe PetShop!");
-            navigate("/");
+            if (isLogin) {
+                login(response.data.data, response.data.token);
+                toast.success("Selamat datang di ReRe PetShop!");
+                navigate("/");
+            } else {
+                toast.success("Registrasi berhasil, silakan login");
+
+                setForm({
+                    name: "",
+                    email: "",
+                    password: "",
+                    confirmPassword: "",
+                    noHp: "",
+                    alamat: "",
+                });
+
+                setIsLogin(true);
+            }
+
         } catch (error) {
             const errors = error.response?.data?.errors;
 
