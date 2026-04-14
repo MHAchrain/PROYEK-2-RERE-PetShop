@@ -8,8 +8,12 @@ export default function WishlistPage() {
                             Produk Favorit
                         </p>
                     </div>
-    
 
+                    <div className="mt-10">
+                        <p className="text-gray-500 text-center">
+                            Belum ada produk favorit. Jelajahi produk kami dan tambahkan ke favoritmu!
+                        </p>
+                    </div>
             </div>
         );
 }

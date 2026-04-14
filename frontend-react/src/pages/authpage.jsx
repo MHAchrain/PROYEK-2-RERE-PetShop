@@ -42,7 +42,7 @@ export default function AuthPage() {
                         {!isLogin && (
                             <input
                                 type="text"
-                                placeholder="Nomor HP"
+                                placeholder="Nomor Handphone"
                                 value={form.noHp}
                                 onChange={(e) =>
                                     handleChange(

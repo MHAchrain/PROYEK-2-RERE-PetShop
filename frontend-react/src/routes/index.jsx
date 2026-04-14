@@ -1,7 +1,7 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/authcontext";
-import { Navigate } from "react-router-dom";
 
+// Import semua halaman dan layout yang dibutuhkan
 import Home from "../pages/home";
 import AuthPage from "../pages/authpage";
 import MainLayout from "../components/layouts/mainlayout";
@@ -13,6 +13,16 @@ import ProductPage from "../pages/productpage";
 import WishlistPage from "../pages/wishlistpage";
 import GroomingPage from "../pages/groomingpage";
 import CartPage from "../pages/cartpage";
+import ProfilePage from "../pages/profilepage";
+import OrderPage from "../pages/orderpage";
+
+// Route yang butuh proteksi (harus login)
+const ProtectedRoute = ({ token }) => {
+        if (!token) {
+            return <Navigate to="/auth" replace />;
+        }
+        return <Outlet />;
+    };
 
 export default function AppRoutes() {
     const { token } = useAuth();
@@ -25,16 +35,14 @@ export default function AppRoutes() {
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/category/:id" element={<CategoryPage/>} />
                 <Route path="/product/:id" element={<ProductPage/>} />
-                <Route path="/wishlist" element={<WishlistPage/>} />
                 <Route path="/grooming" element={<GroomingPage/>} />
-                <Route 
-                    path="/cart" 
-                    element={
-                        token 
-                        ? <CartPage/> 
-                        : <Navigate to="/auth" replace />
-                    } 
-                />
+                <Route element={<ProtectedRoute token={token} />}>
+                    <Route path="/wishlist" element={<WishlistPage/>} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/atur-akun" element={<ProfilePage />} />
+                    <Route path="/pesanan" element={<OrderPage />} />
+                    {/* Lu bisa tambah /pesanan, dsb di sini */}
+                </Route>
                 <Route path="*" element={<NotFoundPage/>} />
             </Route>
             <Route path="/auth" element={<AuthPage />} />

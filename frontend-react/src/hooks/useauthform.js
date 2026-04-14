@@ -83,14 +83,32 @@ export const useAuthForm = (isLogin, login, navigate, setIsLogin) => {
             }
 
         } catch (error) {
+            const status = error.response?.status;
+            const message = error.response?.data?.message;
             const errors = error.response?.data?.errors;
 
-            if (errors) {
-                Object.values(errors).forEach((err) =>
-                    toast.error(err[0])
-                );
+            if (status === 401) {
+                // Biasanya untuk Password Salah
+                toast.error(message || "Email atau password salah!");
+            } else if (status === 404) {
+                // Jika endpoint atau user tidak ditemukan
+                toast.error("Akun tidak ditemukan, silakan register terlebih dahulu");
+            } else if (status === 422) {
+                // Error validasi dari Laravel (email sudah ada, password kurang panjang, dll)
+                if (errors) {
+                    Object.values(errors).forEach((err) => toast.error(err[0]));
+                } else {
+                    toast.error(message || "Data yang kamu masukkan tidak valid");
+                }
+            } else if (status >= 500) {
+                // Error Server
+                toast.error("Server sedang bermasalah, coba lagi nanti");
+            } else if (!error.response) {
+                // Error Jaringan (backend mati atau tidak terjangkau)
+                toast.error("Koneksi gagal, pastikan backend sudah jalan");
             } else {
-                toast.error("Terjadi kesalahan");
+                // Error lainnya
+                toast.error(message || "Terjadi kesalahan sistem");
             }
         } finally {
             setLoading(false);

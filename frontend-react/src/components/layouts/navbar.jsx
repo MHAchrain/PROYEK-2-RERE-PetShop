@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/authcontext";
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/logorere.png";
 import { useCart } from "../../context/cartcontext";
 
@@ -24,6 +24,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false); // dropdown user
   const [mobileOpen, setMobileOpen] = useState(false); // mobile menu
   const dropdownRef = useRef(null);
+  const location = useLocation();
 
   // Close dropdown kalau klik luar
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function Navbar() {
   }, 0);
 
   return (
-    <nav className="w-full border-b border-gray-200 bg-white z-50 sticky top-0">
+    <nav className="w-full border-b border-gray-200 bg-white z-50 sticky top-0 shadow-sm">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
 
@@ -60,17 +61,27 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-12 text-sm font-medium">
-            {menuItems.map((item) => (
-              <Link 
-              key={item.name} 
-              to={item.path}
-              className="relative group">
-                <span className="relative z-10">{item.name}</span>
-                <span className="absolute left-0 -bottom-1 h-0.5 w-0 
-                              bg-gray-700 transition-all duration-300 
-                              group-hover:w-full"></span>
-              </Link>
-            ))}
+            {menuItems.map((item) => {
+              // Cek apakah path menu sama dengan path URL saat ini
+              const isActive = location.pathname === item.path;
+
+              return (
+                <Link 
+                  key={item.name} 
+                  to={item.path}
+                  className={`relative group transition-colors duration-300 ${
+                    isActive ? "text-primary" : "text-gray-600 hover:text-black"
+                  }`}
+                >
+                  <span className="relative z-10">{item.name}</span>
+                  
+                  {/* Underline aktif atau hover */}
+                  <span className={`absolute left-0 -bottom-1 h-0.5 bg-current transition-all duration-300 ${
+                    isActive ? "w-full" : "w-0 group-hover:w-full"
+                  }`}></span>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right Section */}
@@ -90,7 +101,7 @@ export default function Navbar() {
               <>
                 <Heart
                   onClick={() => navigate('/wishlist')}
-                  className="cursor-pointer hover:text-primary-600 transition" 
+                  className="cursor-pointer hover:text-primary transition" 
                   size={20} />
 
                 <div 
@@ -110,18 +121,17 @@ export default function Navbar() {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setOpen(!open)}
-                    className="p-2 transition"
+                    className="cursor-pointer p-2"
                   >
                     <User
-                      className="cursor-pointer hover:text-primary-600 transition"
+                      className={`transition hover:text-primary ${open ? 'text-primary' : 'text-black'}`}
                       size={20}
                     />
                   </button>
 
                   <div
-                    className={`absolute right-0 top-full mt-3 w-56
-                    backdrop-blur-xl bg-white/20
-                    border border-white/30 shadow-xl rounded-xl
+                    className={`absolute right-0 top-full mt-2 w-56
+                    bg-white border border-gray-100 shadow-2xl rounded-xl
                     transition-all duration-200 z-50
                     ${
                       open
@@ -129,29 +139,33 @@ export default function Navbar() {
                         : "opacity-0 translate-y-2 pointer-events-none"
                     }`}
                   >
-                    <div className=" text-white bg-black/30 rounded-xl">
-
+                    {/* Container Utama Putih Bersih */}
+                    <div className="p-1.5 text-gray-700">
+                      
                       {[
-                        { icon: <User size={18} />, label: "Atur Akun" },
-                        { icon: <Package size={18} />, label: "Pesanan" },
-                        { icon: <XCircle size={18} />, label: "Pembatalan" },
-                        { icon: <Star size={18} />, label: "Ulasan" },
+                        { icon: <User size={18} />, label: "Atur Akun", path: "/atur-akun?tab=profil" },
+                        { icon: <Package size={18} />, label: "Pesanan Saya", path: "/pesanan" },
                       ].map((item) => (
                         <Link
                           key={item.label}
-                          className="flex items-center gap-3 px-4 py-3 w-full hover:bg-white/20 transition rounded-lg"
+                          to={item.path} // Tambahkan ini
+                          onClick={() => setOpen(false)} // Tips: Tutup dropdown pas diklik
+                          className="flex items-center gap-3 px-4 py-2.5 w-full hover:bg-gray-50 hover:text-primary transition rounded-lg group"
                         >
-                          {item.icon}
-                          <span>{item.label}</span>
+                          <span className="text-gray-400 group-hover:text-primary">{item.icon}</span>
+                          <span className="text-sm font-medium">{item.label}</span>
                         </Link>
                       ))}
 
+                      {/* Divider tipis untuk memisahkan menu Logout */}
+                      <hr className="my-1.5 border-gray-100" />
+
                       <button
                         onClick={logout}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/30 transition rounded-lg"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-red-500 hover:bg-red-50 transition rounded-lg"
                       >
                         <LogOut size={18} />
-                        <span>Keluar</span>
+                        <span className="text-sm font-medium">Keluar</span>
                       </button>
                     </div>
                   </div>

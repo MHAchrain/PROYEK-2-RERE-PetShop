@@ -4,27 +4,20 @@ import toast from "react-hot-toast";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [token, setToken] = useState(null);
-
-    useEffect(() => {
+    const [user, setUser] = useState(() => {
         const storedUser = localStorage.getItem("user");
-        const storedToken = localStorage.getItem("token");
-
-        try {
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
+        if (storedUser) {
+            try {
+                return JSON.parse(storedUser);
+            } catch (err) {
+                return null;
             }
-            if (storedToken) {
-                setToken(storedToken);
-            }
-        } catch (err) {
-            console.error("Error parsing stored user:", err);
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
         }
-    }, []);
+        return null;
+    });
+
+    const [token, setToken] = useState(() => localStorage.getItem("token") || null);
+    const [loading, setLoading] = useState(false);
 
     const login = (userData, token) => {
         localStorage.setItem("user", JSON.stringify(userData));

@@ -37,7 +37,7 @@ export const validateLogin = (identifier, password) => {
     const isPhone = /^[0-9]{10,15}$/.test(identifier);
 
     if (!isEmail && !isPhone) {
-        return "Masukkan email atau nomor HP yang valid!";
+        return "Masukkan email yang valid!";
     }
 
     return null;

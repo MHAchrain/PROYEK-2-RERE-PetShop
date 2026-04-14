@@ -27,7 +27,6 @@ export default function ProductSection({ visibleCount = 8 }) {
   }, []);
 
   const displayedProducts = products.slice(0, visibleCount);
-
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 
