@@ -18,6 +18,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Widgets\KataKata;
 
@@ -30,8 +31,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('Admin Rere Petshop')
-            ->favicon(asset('images/logopetshop.jpeg')) 
-            ->brandLogo(asset('images/logopetshop.jpeg'))
+            ->favicon(asset('images/logorere.png')) 
+            ->brandLogo(new HtmlString(sprintf(
+                '<div style="height: 100%%; padding-block: 0.5rem; 
+                box-sizing: border-box;">
+                <img src="%s" alt="Admin Rere Petshop" style="height: 100%%; width: auto;" />
+                </div>',
+                asset('images/logorere.png'),
+            )))
             ->brandLogoHeight('5rem')
             ->login()
             ->colors([
