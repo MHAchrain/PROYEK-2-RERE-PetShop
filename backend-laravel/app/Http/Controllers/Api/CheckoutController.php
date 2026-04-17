@@ -15,6 +15,11 @@ class CheckoutController extends Controller
 {
     public function checkout(Request $request)
     {
+        $request->validate([
+            'alamat_kirim' => 'required|string',
+            'no_telp' => 'required|string|max:20',
+        ]);
+
         $user = $request->user();
 
         $pelanggan = Pelanggan::where('email', $user->email)->first();
@@ -50,8 +55,8 @@ class CheckoutController extends Controller
             $pesanan = Pesanan::create([
                 'id_pelanggan' => $pelanggan->id_pelanggan,
                 'tanggal_pesanan' => now(),
-                'alamat_kirim' => $pelanggan->alamat, 
-                'no_telp' => $pelanggan->no_telp,
+                'alamat_kirim' => $request->alamat_kirim,
+                'no_telp' => $request->no_telp,
                 'total' => $items->sum('subtotal'),
                 'status_pesanan' => 'baru',
             ]);
@@ -79,6 +84,7 @@ class CheckoutController extends Controller
             ], 201);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Checkout gagal',

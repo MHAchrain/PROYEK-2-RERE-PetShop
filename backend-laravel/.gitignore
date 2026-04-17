@@ -5,7 +5,6 @@
 #/public/storage
 /storage/*.key
 /storage/pail
-!/storage/app/public/produk/
 /vendor
 .env
 .env.backup
