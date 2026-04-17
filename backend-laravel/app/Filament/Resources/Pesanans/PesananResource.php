@@ -22,6 +22,12 @@ class PesananResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
+    protected static ?string $navigationLabel = 'Pesanan';
+
+    protected static ?string $modelLabel = 'Pesanan';
+
+    protected static ?string $pluralModelLabel = 'Pesanan';
+
     protected static ?string $recordTitleAttribute = 'id_pesanan';
 
     public static function form(Schema $schema): Schema

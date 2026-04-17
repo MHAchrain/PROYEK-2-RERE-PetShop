@@ -20,6 +20,12 @@ class KategoriResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-tag';
 
+    protected static ?string $navigationLabel = 'Kategori';
+
+    protected static ?string $modelLabel = 'Kategori';
+
+    protected static ?string $pluralModelLabel = 'Kategori';
+
     protected static ?string $recordTitleAttribute = 'Kategori';
 
     public static function form(Schema $schema): Schema

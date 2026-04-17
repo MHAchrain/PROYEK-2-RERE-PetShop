@@ -25,7 +25,7 @@ class PengirimanResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'resi';
 
-    protected static ?string $navigationLabel = 'Pengirimans';
+    protected static ?string $navigationLabel = 'Pengiriman';
     protected static ?string $modelLabel = 'Pengiriman';
     protected static ?string $pluralModelLabel = 'Pengiriman';
     protected static string|UnitEnum|null $navigationGroup = 'Manajemen Toko';

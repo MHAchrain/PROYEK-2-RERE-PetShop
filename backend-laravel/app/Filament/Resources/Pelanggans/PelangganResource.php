@@ -22,6 +22,12 @@ class PelangganResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 
+    protected static ?string $navigationLabel = 'Pelanggan';
+
+    protected static ?string $modelLabel = 'Pelanggan';
+
+    protected static ?string $pluralModelLabel = 'Pelanggan';
+
     protected static ?string $recordTitleAttribute = 'Pelanggan';
 
     public static function form(Schema $schema): Schema

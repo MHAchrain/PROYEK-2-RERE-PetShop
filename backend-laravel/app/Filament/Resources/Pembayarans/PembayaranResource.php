@@ -22,6 +22,12 @@ class PembayaranResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-credit-card';
 
+    protected static ?string $navigationLabel = 'Pembayaran';
+
+    protected static ?string $modelLabel = 'Pembayaran';
+
+    protected static ?string $pluralModelLabel = 'Pembayaran';
+
     protected static ?string $recordTitleAttribute = 'id_pembayaran';
 
     public static function form(Schema $schema): Schema

@@ -169,7 +169,7 @@ export default function OrderDetailPage() {
               disabled={!canCancel || isCancelling}
               className={`inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm font-bold text-white transition ${
                 canCancel && !isCancelling
-                  ? "bg-rose-500 hover:bg-rose-600"
+                  ? "bg-primary hover:bg-primary-600"
                   : "cursor-not-allowed bg-gray-300"
               }`}
             >
@@ -187,7 +187,7 @@ export default function OrderDetailPage() {
                 <p className="mt-2 text-sm text-gray-500">Dibuat pada {formattedDate}</p>
               </div>
 
-              <div className={`inline-flex w-fit rounded-full px-4 py-2 text-sm font-bold ${statusClass}`}>
+              <div className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${statusClass}`}>
                 {statusLabel}
               </div>
             </div>
@@ -319,7 +319,7 @@ export default function OrderDetailPage() {
       {isCancelModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm print:hidden">
           <div className="w-full max-w-md rounded-[28px] bg-white p-6 shadow-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-rose-500">Konfirmasi Pembatalan</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Konfirmasi Pembatalan</p>
             <h2 className="mt-3 text-2xl font-bold text-gray-900">Batalkan pesanan ini?</h2>
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
               Pesanan <span className="font-semibold text-gray-900">#{order.id_pesanan}</span> akan dibatalkan dan stok produk akan dikembalikan.
@@ -339,7 +339,7 @@ export default function OrderDetailPage() {
                 type="button"
                 onClick={handleCancel}
                 disabled={isCancelling}
-                className="inline-flex items-center justify-center rounded-2xl bg-rose-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-rose-600 disabled:cursor-not-allowed disabled:bg-rose-300"
+                className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-primary-300"
               >
                 {isCancelling ? "Membatalkan..." : "Ya, batalkan pesanan"}
               </button>

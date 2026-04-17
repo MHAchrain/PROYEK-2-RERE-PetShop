@@ -39,7 +39,15 @@ class PesanansTable
                 ->searchable(),
 
             TextColumn::make('status_pesanan')
-                ->badge(),
+                ->badge()
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'baru' => 'Baru',
+                    'diproses' => 'Diproses',
+                    'dikirim' => 'Dikirim',
+                    'selesai' => 'Selesai',
+                    'batal' => 'Dibatalkan',
+                    default => $state,
+                }),
 
         ])
         ->filters([

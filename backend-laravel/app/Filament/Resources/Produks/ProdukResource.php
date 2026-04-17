@@ -20,6 +20,12 @@ class ProdukResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
 
+    protected static ?string $navigationLabel = 'Produk';
+
+    protected static ?string $modelLabel = 'Produk';
+
+    protected static ?string $pluralModelLabel = 'Produk';
+
     protected static ?string $recordTitleAttribute = 'Produk';
 
     public static function form(Schema $schema): Schema

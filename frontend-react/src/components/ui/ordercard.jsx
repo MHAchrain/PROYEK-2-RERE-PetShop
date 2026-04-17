@@ -78,7 +78,7 @@ export default function OrderCard({ order }) {
             </div>
           </div>
 
-          <div className={`inline-flex w-fit rounded-full px-4 py-2 text-sm font-bold ${statusClass}`}>
+          <div className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${statusClass}`}>
             {statusLabel}
           </div>
         </div>

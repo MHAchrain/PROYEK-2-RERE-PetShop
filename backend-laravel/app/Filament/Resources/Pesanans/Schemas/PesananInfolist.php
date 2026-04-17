@@ -17,7 +17,15 @@ class PesananInfolist
                     ->dateTime(),
                 TextEntry::make('total')
                     ->numeric(),
-                TextEntry::make('status_pesanan'),
+                TextEntry::make('status_pesanan')
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'baru' => 'Baru',
+                        'diproses' => 'Diproses',
+                        'dikirim' => 'Dikirim',
+                        'selesai' => 'Selesai',
+                        'batal' => 'Dibatalkan',
+                        default => $state,
+                    }),
                 TextEntry::make('created_at')
                     ->dateTime(),
                 TextEntry::make('updated_at')
