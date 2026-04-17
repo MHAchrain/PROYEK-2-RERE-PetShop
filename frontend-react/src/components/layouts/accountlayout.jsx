@@ -1,17 +1,15 @@
-import SidebarAcc from '../ui/sidebaracc';
+import SidebarAcc from "../ui/sidebaracc";
 
 export default function AccountLayout({ children, activeTab, setActiveTab }) {
   return (
-    <div className="min-h-screen bg-gray-50/50 py-10 px-4">
-      <div className="mx-auto flex flex-col md:flex-row gap-8">
-        {/* Sidebar di kiri */}
+    <div className="rounded-[32px] border border-gray-200 bg-[linear-gradient(180deg,#fffdf8_0%,#f8fafc_100%)] p-3 shadow-sm sm:p-4 lg:p-5">
+      <div className="mx-auto flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
         <SidebarAcc activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {/* Konten di kanan */}
-        <div className="max-w-6xl flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10 min-h-125">
+        <div className="min-h-[32rem] flex-1 rounded-[28px] border border-white/70 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,0.06)] sm:p-6 lg:p-8">
           {children}
         </div>
       </div>
     </div>
   );
-};
+}

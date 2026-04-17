@@ -16,6 +16,7 @@ import GroomingPage from "../pages/groomingpage";
 import CartPage from "../pages/cartpage";
 import ProfilePage from "../pages/profilepage";
 import OrderPage from "../pages/orderpage";
+import OrderDetailPage from "../pages/orderdetailpage";
 
 // Route yang butuh proteksi (harus login)
 const ProtectedRoute = ({ token }) => {
@@ -43,6 +44,7 @@ export default function AppRoutes() {
                     <Route path="/cart" element={<CartPage />} />
                     <Route path="/atur-akun" element={<ProfilePage />} />
                     <Route path="/pesanan" element={<OrderPage />} />
+                    <Route path="/pesanan/:id" element={<OrderDetailPage />} />
                     {/* Lu bisa tambah /pesanan, dsb di sini */}
                 </Route>
                 <Route path="*" element={<NotFoundPage/>} />

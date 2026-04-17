@@ -20,7 +20,7 @@ export default function ContactPage(){
                 {isLoading ? (
                     <Skeleton className="w-32 h-8 bg-gray-200" />
                 ) : (
-                    <p className="text-primary font-bold text-xl capitalize">Kontak</p>
+                    <p className="text-xl font-bold capitalize text-primary sm:text-2xl">Kontak</p>
                 )}
             </div>
 

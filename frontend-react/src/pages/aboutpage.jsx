@@ -24,7 +24,7 @@ export default function AboutPage(){
                 {isLoading ? (
                     <Skeleton className="w-40 h-6" />
                     ) : (
-                    <p className="text-primary font-semibold capitalize">
+                    <p className="text-xl font-bold capitalize text-primary sm:text-2xl">
                         Tentang Kami
                     </p>
                 )}

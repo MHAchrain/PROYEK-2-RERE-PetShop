@@ -1,5 +1,9 @@
 import { Truck, RefreshCcw, Heart, Plus, Minus } from "lucide-react";
-export default function ProductDetail({ product, qty, setQty }) {
+export default function ProductDetail({ product, qty, setQty, onBuyNow, isBuyingNow = false }) {
+    const safeStock = Number(product.stock) || 0;
+    const isOutOfStock = safeStock < 1;
+    const isAtMaxQty = qty >= safeStock && safeStock > 0;
+
     return (
         <div className="w-full">
 
@@ -30,7 +34,9 @@ export default function ProductDetail({ product, qty, setQty }) {
                 {/* Quantity */}
                 <div className="flex h-12 w-full sm:w-fit items-stretch border border-gray-300 rounded-md overflow-hidden shadow-sm">
                     <button
+                        type="button"
                         onClick={() => setQty(Math.max(1, qty - 1))}
+                        disabled={isOutOfStock || qty <= 1}
                         className="flex-1 sm:w-12 flex items-center justify-center hover:bg-gray-100 active:bg-primary active:text-white transition-all"
                     >
                         <Minus size={20} />
@@ -41,8 +47,10 @@ export default function ProductDetail({ product, qty, setQty }) {
                     </div>
 
                     <button
+                        type="button"
                         onClick={() => setQty(qty + 1)}
-                        className="flex-1 sm:w-12 flex items-center justify-center hover:bg-gray-100 active:bg-primary active:text-white transition-all"
+                        disabled={isOutOfStock || isAtMaxQty}
+                        className="flex-1 sm:w-12 flex items-center justify-center hover:bg-gray-100 active:bg-primary active:text-white transition-all disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300"
                     >
                         <Plus size={20} />
                     </button>
@@ -50,8 +58,13 @@ export default function ProductDetail({ product, qty, setQty }) {
 
                 {/* Button */}
                 <div className="flex flex-1 gap-3">
-                    <button className="min-w-40 max-w-60 h-12 bg-primary text-white px-6 rounded-md font-bold hover:bg-primary/90 shadow-md active:scale-95 transition-all text-sm md:text-base">
-                        Buy Now
+                    <button
+                        type="button"
+                        onClick={onBuyNow}
+                        disabled={isOutOfStock || isBuyingNow}
+                        className="min-w-40 max-w-60 h-12 bg-primary text-white px-6 rounded-md font-bold hover:bg-primary/90 shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
+                    >
+                        {isBuyingNow ? "Processing..." : "Buy Now"}
                     </button>
 
                     <button

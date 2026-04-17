@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy']);
     Route::post('/cart/add', [CartController::class, 'add']);
     Route::get('/cart', [CartController::class, 'cart']);
+    Route::patch('/cart/item/{id}', [CartController::class, 'update']);
     Route::delete('/cart/item/{id}', [CartController::class, 'remove']);
     Route::post('/checkout', [CheckoutController::class, 'checkout']);
     Route::get('/pesanan', [PesananController::class, 'index']);

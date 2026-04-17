@@ -1,9 +1,51 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import ProductDetail from "../ui/productdetail";
 import Skeleton from "../ui/skeleton";
+import { useAddToCart } from "../../hooks/useaddtocart";
 
 export default function ProductDetailSection({ product, isLoading }) {
     const [qty, setQty] = useState(1);
+    const [isBuyingNow, setIsBuyingNow] = useState(false);
+    const navigate = useNavigate();
+    const { addToCart } = useAddToCart();
+
+    const safeStock = Number(product?.stock) || 0;
+    const maxQty = safeStock > 0 ? safeStock : 1;
+
+    const handleSetQty = (nextQty) => {
+        setQty(Math.min(maxQty, Math.max(1, Number(nextQty) || 1)));
+    };
+
+    const handleBuyNow = async () => {
+        if (!product?.id) return;
+
+        if (safeStock < 1) {
+            toast.error("Produk sedang habis.");
+            return;
+        }
+
+        try {
+            setIsBuyingNow(true);
+
+            const success = await addToCart({
+                productId: product.id,
+                quantity: qty,
+                requireAuth: true,
+                onSuccess: async () => {
+                    toast.success("Produk masuk ke keranjang.");
+                    navigate("/cart");
+                },
+            });
+
+            if (!success) {
+                toast.error("Gagal menambahkan produk ke keranjang.");
+            }
+        } finally {
+            setIsBuyingNow(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -51,7 +93,9 @@ export default function ProductDetailSection({ product, isLoading }) {
         <ProductDetail
         product={product}
         qty={qty}
-        setQty={setQty}
+        setQty={handleSetQty}
+        onBuyNow={handleBuyNow}
+        isBuyingNow={isBuyingNow}
         />
     );
 }

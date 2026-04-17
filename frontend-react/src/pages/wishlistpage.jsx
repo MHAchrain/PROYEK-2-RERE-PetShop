@@ -20,7 +20,7 @@ export default function WishlistPage() {
     <div className="min-h-screen flex flex-col my-15 mx-20">
       <div className="flex items-center gap-5">
         <div className="bg-primary w-5 h-10 rounded-sm"></div>
-        <p className="text-primary font-semibold">Produk Favorit ({wishlistCount})</p>
+        <p className="text-xl font-bold capitalize text-primary sm:text-2xl">Produk Favorit ({wishlistCount})</p>
       </div>
 
       <div className="mt-10">

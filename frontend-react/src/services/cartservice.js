@@ -15,7 +15,12 @@ export const removeCartItem = async (itemId) => {
   return res.data;
 };
 
-export const checkoutCart = async () => {
-  const res = await api.post("/checkout", {});
+export const updateCartItemQty = async (itemId, qty) => {
+  const res = await api.patch(`/cart/item/${itemId}`, { qty });
+  return res.data;
+};
+
+export const checkoutCart = async (payload = {}) => {
+  const res = await api.post("/checkout", payload);
   return res.data;
 };

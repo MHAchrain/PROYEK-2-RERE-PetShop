@@ -53,8 +53,8 @@ export default function ProductPage() {
           {isLoading ? (
             <Skeleton className="w-40 h-6" />
             ) : (
-            <p className="text-primary font-semibold capitalize">
-                {product?.name}
+            <p className="text-xl font-bold capitalize text-primary sm:text-2xl">
+                Produk
             </p>
           )}
         </div>

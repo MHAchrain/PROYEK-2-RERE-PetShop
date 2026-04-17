@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Pelanggan;
 use App\Models\Pesanan;
+use App\Models\Produk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PesananController extends Controller
 {
@@ -167,7 +169,7 @@ public function status(Request $request, $id)
             ], 404);
         }
 
-        $pesanan = Pesanan::with('pembayaran')
+        $pesanan = Pesanan::with(['pembayaran', 'details'])
             ->where('id_pelanggan', $pelanggan->id_pelanggan)
             ->where('id_pesanan', $id)
             ->first();
@@ -190,13 +192,26 @@ public function status(Request $request, $id)
             ], 422);
         }
 
-        $pesanan->status_pesanan = 'dibatalkan';
-        $pesanan->save();
+        DB::transaction(function () use ($pesanan) {
+            foreach ($pesanan->details as $detail) {
+                $produk = Produk::where('id_produk', $detail->id_produk)
+                    ->lockForUpdate()
+                    ->first();
 
-        if ($pesanan->pembayaran && $pesanan->pembayaran->status_bayar === 'pending') {
-            $pesanan->pembayaran->status_bayar = 'failed';
-            $pesanan->pembayaran->save();
-        }
+                if ($produk) {
+                    $produk->stok += (int) $detail->qty;
+                    $produk->save();
+                }
+            }
+
+            $pesanan->status_pesanan = 'batal';
+            $pesanan->save();
+
+            if ($pesanan->pembayaran && $pesanan->pembayaran->status_bayar === 'pending') {
+                $pesanan->pembayaran->status_bayar = 'failed';
+                $pesanan->pembayaran->save();
+            }
+        });
 
         return response()->json([
             'message' => 'Pesanan berhasil dibatalkan.',
