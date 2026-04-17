@@ -5,8 +5,7 @@ import ProductSection from "../components/section/productsection";
 import ProductGallerySection from "../components/section/productgallerysection";
 import ProductDetailSection from "../components/section/productdetailsection";
 import Skeleton from "../components/ui/skeleton";
-
-const BASE_URL = "http://127.0.0.1:8000/storage/";
+import { getStorageUrl } from "../utils/appconfig";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -27,7 +26,7 @@ export default function ProductPage() {
           price: Number(data.harga),
           stock: data.stok,
           description: data.deskripsi,
-          images: data.foto ? [BASE_URL + data.foto] : [],
+          images: data.foto ? [getStorageUrl(data.foto)] : [],
         };
 
         setProduct(mapped);

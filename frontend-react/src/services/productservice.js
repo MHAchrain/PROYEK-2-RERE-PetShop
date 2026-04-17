@@ -1,4 +1,5 @@
 import api from "../api/axios";
+import { normalizeSearchQuery } from "../utils/searchutils";
 
 const shuffleProducts = (products = []) => {
   const shuffled = [...products];
@@ -16,6 +17,22 @@ export const getProducts = async ({ shuffle = true } = {}) => {
   const products = Array.isArray(res.data.data) ? res.data.data : [];
 
   return shuffle ? shuffleProducts(products) : products;
+};
+
+export const searchProducts = async (query) => {
+  const normalizedQuery = normalizeSearchQuery(query);
+
+  if (!normalizedQuery) {
+    return [];
+  }
+
+  const res = await api.get("/produk", {
+    params: {
+      search: normalizedQuery,
+    },
+  });
+
+  return Array.isArray(res.data.data) ? res.data.data : [];
 };
 
 export const getProductById = async (id) => {

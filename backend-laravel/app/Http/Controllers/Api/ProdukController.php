@@ -5,19 +5,35 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Produk;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ProdukController extends Controller
 {
     public function index(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'id_kategori' => 'nullable|integer',
+            'search' => 'nullable|string|max:80',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Parameter pencarian tidak valid',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         $query = Produk::with('kategori');
 
         if ($request->filled('id_kategori')) {
             $query->where('id_kategori', $request->id_kategori);
         }
 
-        if ($request->filled('search')) {
-            $query->where('nama_produk', 'like', '%' . $request->search . '%');
+        $search = trim((string) $request->input('search', ''));
+
+        if ($search !== '') {
+            $query->where('nama_produk', 'like', '%' . $search . '%');
         }
 
         $produk = $query

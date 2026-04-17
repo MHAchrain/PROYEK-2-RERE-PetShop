@@ -5,6 +5,7 @@ import logo from "../../assets/logorere.png";
 import { useCart } from "../../context/cartcontext";
 import { accountMenuItems, menuItems } from "../../constants/navbaritems";
 import { useNavbarState } from "../../hooks/usenavbarstate";
+import { useNavbarSearch } from "../../hooks/usenavbarsearch";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -12,6 +13,14 @@ export default function Navbar() {
   const location = useLocation();
   const { cart } = useCart();
   const { open, setOpen, mobileOpen, setMobileOpen, dropdownRef } = useNavbarState();
+  const {
+    desktopQuery,
+    setDesktopQuery,
+    mobileQuery,
+    setMobileQuery,
+    handleDesktopSubmit,
+    handleMobileSubmit,
+  } = useNavbarSearch(setMobileOpen);
 
   const totalQty = cart?.items?.reduce((sum, item) => sum + (item.qty || 0), 0);
 
@@ -47,14 +56,23 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-4 md:gap-8">
-            <div className="hidden md:flex items-center rounded-md px-4 py-2 bg-gray-100">
+            <form
+              onSubmit={handleDesktopSubmit}
+              className="hidden md:flex items-center rounded-md px-4 py-2 bg-gray-100"
+            >
               <input
-                type="text"
-                placeholder="What are you looking for?"
+                type="search"
+                placeholder="Apa yang kamu cari?"
+                value={desktopQuery}
+                onChange={(event) => setDesktopQuery(event.target.value)}
+                autoComplete="off"
+                maxLength={80}
                 className="bg-transparent outline-none text-sm w-48"
               />
-              <Search size={18} className="text-gray-500" />
-            </div>
+              <button type="submit" className="text-gray-500 transition hover:text-black" aria-label="Cari produk">
+                <Search size={18} className="text-current" />
+              </button>
+            </form>
 
             {user ? (
               <>
@@ -139,14 +157,20 @@ export default function Navbar() {
         }`}
       >
         <div className="flex flex-col gap-4 px-6 text-sm font-medium">
-          <div className="flex items-center rounded-md px-4 py-2 bg-gray-100 mt-2">
+          <form onSubmit={handleMobileSubmit} className="flex items-center rounded-md px-4 py-2 bg-gray-100 mt-2">
             <input
-              type="text"
+              type="search"
               placeholder="What are you looking for?"
+              value={mobileQuery}
+              onChange={(event) => setMobileQuery(event.target.value)}
+              autoComplete="off"
+              maxLength={80}
               className="bg-transparent outline-none text-sm w-full"
             />
-            <Search size={18} className="text-gray-500" />
-          </div>
+            <button type="submit" className="text-gray-500 transition hover:text-black" aria-label="Cari produk">
+              <Search size={18} className="text-current" />
+            </button>
+          </form>
 
           {menuItems.map((item) => (
             <Link

@@ -29,6 +29,9 @@ Route::get('/produk/{id}', [ProdukController::class, 'show']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password/send-code', [AuthController::class, 'sendResetCode']);
+Route::post('/forgot-password/verify-code', [AuthController::class, 'verifyResetCode']);
+Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword']);
 
 
 

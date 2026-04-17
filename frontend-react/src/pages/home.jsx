@@ -26,9 +26,6 @@ export default function Home() {
   }, []);
 
   const toggleVisible = () => {
-    console.log("Tombol diklik!"); // Tambahin ini buat tes
-    console.log("Visible saat ini:", visibleCount);
-    console.log("Total produk:", products.length);
     if (visibleCount < products.length) {
       setIsBtnLoading(true);
       setTimeout(() => {

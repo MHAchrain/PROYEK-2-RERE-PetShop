@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../api/axios";
+import { AUTH_SESSION_EXPIRED_EVENT } from "../utils/appconfig";
 
 const AuthContext = createContext();
 
@@ -76,6 +77,22 @@ export function AuthProvider({ children }) {
         toast.success("Berhasil logout");
         setLoading(false);
     };
+
+    useEffect(() => {
+        const handleSessionExpired = () => {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            setUser(null);
+            setToken(null);
+            toast.error("Sesi login berakhir. Silakan masuk lagi.");
+        };
+
+        window.addEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+
+        return () => {
+            window.removeEventListener(AUTH_SESSION_EXPIRED_EVENT, handleSessionExpired);
+        };
+    }, []);
 
     useEffect(() => {
         if (!token) return;

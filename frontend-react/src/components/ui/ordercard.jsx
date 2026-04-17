@@ -1,6 +1,6 @@
-export default function OrderCard({ order }) {
-    const BASE_URL = "http://127.0.0.1:8000/storage/";
+import { getStorageUrl } from "../../utils/appconfig";
 
+export default function OrderCard({ order }) {
     const detailPertama = order.details?.[0] || {}; 
     const produk = detailPertama.produk || {};
 
@@ -38,7 +38,7 @@ export default function OrderCard({ order }) {
         <div className="flex flex-col lg:flex-row gap-6">
             <div className="w-28 h-28 shrink-0 bg-gray-50 rounded-xl overflow-hidden">
                 <img
-                    src={`${BASE_URL}${produk.foto}`}
+                    src={getStorageUrl(produk.foto)}
                     alt={produk.nama_produk}
                     className="w-full h-full object-cover"
                 />

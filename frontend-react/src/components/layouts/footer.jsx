@@ -1,114 +1,150 @@
-import { Facebook, X, Instagram, Linkedin, Send } from "lucide-react";
-import {FaGooglePlay, FaApple} from "react-icons/fa";
-import QrCode from "../../assets/Qr.png";
+import { Clock3, Instagram, MapPin, Phone, ShieldCheck, Truck, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
-export default function Footer(){
-    return(
-        <footer className="bg-black text-gray-300 pt-16 pb-6 px-6 md:px-18">
-            {/* Top Section */}
+const navigationLinks = [
+  { label: "Beranda", to: "/" },
+  { label: "Kategori", to: "/category/1" },
+  { label: "Grooming", to: "/grooming" },
+  { label: "Kontak", to: "/contact" },
+];
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-                {/* Subs */}
-                <div>
-                    <h2 className="text-white text-xl font-semibold mb-4">
-                        ReRe Petshop
-                    </h2>
-                    <h3 className="text-white font-medium mb-3">Berlangganan</h3>
-                    <p className="text-sm mb-4">
-                        Dapatkan Diskon 10% pada pemesanan pertama
-                    </p>
+const accountLinks = [
+  { label: "Akun Saya", to: "/atur-akun" },
+  { label: "Favorit", to: "/wishlist" },
+  { label: "Keranjang", to: "/cart" },
+  { label: "Pesanan", to: "/pesanan" },
+];
 
-                    <div className="flex items-center border border-gray-200 rounded-md overflow-hidden">
-                        <input type="email" placeholder="Masukan Email Kamu"
-                        className="bg-transparent px-4 py-2 w-full outline-none text-sm"/>
-                        <button className="px-4 text-white hover:text-primary transition">
-                            <Send size={18}/>
-                        </button>
-                    </div>
-                </div>
+const serviceHighlights = [
+  {
+    icon: Truck,
+    title: "Pengiriman Cepat",
+    description: "Pesanan harian diproses lebih cepat untuk area sekitar toko.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Produk Terpilih",
+    description: "Makanan, vitamin, dan kebutuhan grooming dipilih untuk hewan kesayangan.",
+  },
+  {
+    icon: Clock3,
+    title: "Layanan Ramah",
+    description: "Bisa tanya stok dan perawatan sebelum checkout lewat kontak toko.",
+  },
+];
 
-                {/* Support */}
-                <div>
-                    <h3 className="text-white text-lg font-medium mb-4">Beri Dukungan</h3>
-                    <p className="text-sm leading-6">
-                        Jl. Kecubung 1 No.14, <br />
-                        Kuta Baru, Kec. Ps. Kemis, <br />
-                        Kabupaten Tangerang, Banten 15560
-                    </p>
-                    <p className="mt-4 text-sm">rereps@gmail.com</p>
-                    <p className="mt-2 text-sm underline cursor-pointer">0813-1941-0250</p>
-                </div>
-
-                {/* Account */}
-                <div>
-                    <h3 className="text-white text-lg font-medium mb-4">Akun</h3>
-                    <ul className="space-y-4 text-sm">
-                        <li className="hover:text-white cursor-pointer">Akun Saya</li>
-                        <li className="hover:text-white cursor-pointer">Masuk / Daftar</li>
-                        <li className="hover:text-white cursor-pointer">Keranjang</li>
-                        <li className="hover:text-white cursor-pointer">Daftar Keinginan</li>
-                        <li className="hover:text-white cursor-pointer">Toko</li>
-                    </ul>
-                </div>
-
-                {/* Quick Link */}
-                <div>
-                    <h3 className="text-white text-lg font-medium mb-4">Tautan Cepat</h3>
-                    <ul className="space-y-4 text-sm">
-                        <li className="hover:text-white cursor-pointer">Kebijakan Privasi</li>
-                        <li className="hover:text-white cursor-pointer">Ketentuan Penggunaan</li>
-                        <li className="hover:text-white cursor-pointer">FAQ</li>
-                        <li className="hover:text-white cursor-pointer">Kontak</li>
-                    </ul>
-                </div>
-
-                {/* Download App */}
-                <div>
-                    <h3 className="text-white font-medium mb-4 text-lg">Unduh Aplikasi</h3>
-                    <p className="text-sm text-gray-400 mb-4">Hemat Rp 45.000 dengan Aplikasi (Hanya untuk Pengguna Baru)</p>
-
-                    {/* QR Placeholder */}
-                    <div className="flex items-center gap-4 mb-6">
-                        <img src={QrCode} alt="QR-Code" className="w-24 h-24 object-cover bg-white"/>
-
-                        <div className="flex flex-col gap-3">
-                            <div className="flex items-center gap-3 border 
-                            border-white rounded-lg p-1 cursor-pointer 
-                            hover:bg-white hover:text-black transition-all 
-                            duration-300">
-                                <FaGooglePlay size={20}/>
-                                <div className="leading-tight">
-                                    <p className="text-[8px] uppercase">Get it on</p>
-                                    <p className="text-sm font-semibold">Google Play</p>
-                                </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-3 border 
-                            border-white rounded-lg p-1 cursor-pointer 
-                            hover:bg-white hover:text-black transition-all 
-                            duration-300">
-                                <FaApple size={20}/>
-                                <div className="leading-tight">
-                                    <p className="text-[8px] uppercase">Download on the</p>
-                                    <p className="text-sm font-semibold">App Store</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Social Icons */}
-                    <div className="flex gap-6 mt-4 text-gray-300">
-                        <Facebook size={20} className="hover:text-white cursor-pointer"/>
-                        <X size={20} className="hover:text-white cursor-pointer"/>
-                        <Instagram size={20} className="hover:text-white cursor-pointer"/>
-                        <Linkedin size={20} className="hover:text-white cursor-pointer"/>
-                    </div>
-                </div>
+export default function Footer() {
+  return (
+    <footer className="bg-neutral-950 text-neutral-300">
+      <div className="mx-auto max-w-7xl px-6 py-12 md:px-10">
+        <div className="grid gap-10 border-b border-white/10 pb-10 lg:grid-cols-[1.4fr_1fr_1fr]">
+          <div className="space-y-5">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
+                ReRe Petshop
+              </p>
+              <h2 className="mt-3 max-w-md text-2xl font-bold text-white">
+                Kebutuhan anabul, pakan, dan grooming dalam satu tempat.
+              </h2>
             </div>
 
-            <div className="border-t border-gray-800 mt-12 pt-6 text-center text-sm text-gray-500">
-                © Copyright KicauMania 2026. All right reserved
+            <p className="max-w-xl text-sm leading-7 text-neutral-400">
+              ReRe Petshop hadir untuk bantu pemilik hewan belanja lebih mudah, cepat,
+              dan nyaman, mulai dari makanan hingga layanan grooming.
+            </p>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {serviceHighlights.map(({ icon: Icon, title, description }) => (
+                <div
+                  key={title}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-4"
+                >
+                  <Icon size={18} className="text-primary" />
+                  <p className="mt-3 text-sm font-semibold text-white">{title}</p>
+                  <p className="mt-2 text-xs leading-6 text-neutral-400">{description}</p>
+                </div>
+              ))}
             </div>
-        </footer>
-    )
+          </div>
+
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-1">
+            <div>
+              <h3 className="text-lg font-semibold text-white">Navigasi</h3>
+              <ul className="mt-4 space-y-3 text-sm">
+                {navigationLinks.map((item) => (
+                  <li key={item.label}>
+                    <Link className="transition hover:text-white" to={item.to}>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-white">Akun</h3>
+              <ul className="mt-4 space-y-3 text-sm">
+                {accountLinks.map((item) => (
+                  <li key={item.label}>
+                    <Link className="transition hover:text-white" to={item.to}>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-white">Hubungi Kami</h3>
+            <div className="mt-4 space-y-4 text-sm text-neutral-400">
+              <div className="flex items-start gap-3">
+                <MapPin size={18} className="mt-0.5 shrink-0 text-primary" />
+                <p className="leading-6">
+                  Jl. Kecubung 1 No.14, Kuta Baru, Kec. Ps. Kemis, Kabupaten Tangerang,
+                  Banten 15560
+                </p>
+              </div>
+
+              <a
+                className="flex items-center gap-3 transition hover:text-white"
+                href="mailto:rereps@gmail.com"
+              >
+                <Mail size={18} className="text-primary" />
+                rereps@gmail.com
+              </a>
+
+              <a
+                className="flex items-center gap-3 transition hover:text-white"
+                href="tel:081319410250"
+              >
+                <Phone size={18} className="text-primary" />
+                0813-1941-0250
+              </a>
+
+              <div className="flex items-center gap-3">
+                <Clock3 size={18} className="text-primary" />
+                <p>Setiap hari, 09.00 - 20.00 WIB</p>
+              </div>
+
+              <a
+                className="inline-flex items-center gap-3 rounded-full border border-white/15 px-4 py-2 text-white transition hover:border-primary hover:bg-primary hover:text-black"
+                href="https://instagram.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Instagram size={16} />
+                Instagram Kami
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 pt-6 text-sm text-neutral-500 md:flex-row md:items-center md:justify-between">
+          <p>&copy; 2026 ReRe Petshop. Semua hak dilindungi.</p>
+          <p>Dibuat untuk pengalaman belanja pet shop yang lebih sederhana dan nyaman.</p>
+        </div>
+      </div>
+    </footer>
+  );
 }

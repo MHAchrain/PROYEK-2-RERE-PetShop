@@ -1,3 +1,5 @@
+import { getStorageUrl } from "../../utils/appconfig";
+
 export default function CartCard({ item, removeItem, updateQty }) {
     const harga = Number(item.produk?.harga) || 0;
     const qty = Number(item.qty) || 0;
@@ -14,7 +16,7 @@ export default function CartCard({ item, removeItem, updateQty }) {
                         ✕
                     </button>
                     <img
-                        src={item.produk?.foto ? `http://127.0.0.1:8000/storage/${item.produk.foto}` : "/no-image.png"}
+                        src={item.produk?.foto ? getStorageUrl(item.produk.foto) : "/no-image.png"}
                         className="w-16 h-16 object-contain"
                         alt={item.produk?.nama_produk || "product"}
                     />

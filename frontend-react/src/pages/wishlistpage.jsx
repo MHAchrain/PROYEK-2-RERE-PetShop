@@ -2,6 +2,7 @@ import ProductSection from "../components/section/productsection";
 import Skeleton from "../components/ui/skeleton";
 import WishlistCard from "../components/ui/wishlistcard";
 import { useWishlistPage } from "../hooks/usewishlistpage";
+import { getStorageUrl } from "../utils/appconfig";
 
 export default function WishlistPage() {
   const {
@@ -37,7 +38,7 @@ export default function WishlistPage() {
                 id={item.id_produk}
                 nama={item.nama_produk}
                 harga={item.harga}
-                image={item.foto ? `http://127.0.0.1:8000/storage/${item.foto}` : ""}
+                image={getStorageUrl(item.foto)}
                 diskon={item.diskon}
                 rating={item.rating}
                 onRemove={removeWishlistItem}
