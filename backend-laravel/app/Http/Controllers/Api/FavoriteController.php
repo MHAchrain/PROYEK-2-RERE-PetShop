@@ -31,12 +31,16 @@ class FavoriteController extends Controller
     public function store(Request $request)
     {
         $user = auth('sanctum')->user();
+    
+    // DEBUG: Cek apakah user dapet dan punya id_pelanggan
+    if (!$user->id_pelanggan) {
+        return response()->json([
+            'message' => 'User tidak memiliki ID Pelanggan. Cek database tabel users lu.',
+            'user_data' => $user
+        ], 500);
+    }
 
-        if (! $user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $pelangganId = $user->id_pelanggan;
+    $pelangganId = $user->id_pelanggan;
 
         $request->validate([
             'produk_id' => 'required|exists:produk,id_produk',

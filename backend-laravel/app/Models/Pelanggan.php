@@ -15,11 +15,7 @@ class Pelanggan extends Authenticatable
     protected $keyType = 'int';
 
     protected $fillable = [
-        'nama',
-        'email',
-        'password',
-        'no_hp',
-        'alamat',
+        'nama', 'email', 'no_hp', 'password', 'alamat'
     ];
 
     protected $hidden = ['password'];
@@ -34,7 +30,7 @@ class Pelanggan extends Authenticatable
 {
     return $this->belongsToMany(
         Produk::class,
-        'favorits',
+        'favorites',
         'pelanggan_id',
         'produk_id',
         'id_pelanggan',

@@ -123,14 +123,11 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user      = $request->user();
-        $pelanggan = Pelanggan::where('id_pelanggan', $user->pelanggan_id)->first();
-
+        $pelanggan = Pelanggan::where('email', $user->email)->first();
         return response()->json([
             'success' => true,
-            'data'    => [
-                'user'      => $user,
-                'pelanggan' => $pelanggan,
-            ],
+            'user'      => $user,
+            'pelanggan' => $pelanggan,
         ]);
     }
 }

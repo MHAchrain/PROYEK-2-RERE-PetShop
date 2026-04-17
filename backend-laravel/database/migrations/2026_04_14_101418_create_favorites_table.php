@@ -19,14 +19,14 @@ return new class extends Migration
         
         // Pakai unsignedInteger (bukan BigInteger) biar pas sama INT(11) di phpMyAdmin
         $table->unsignedInteger('pelanggan_id');
-        $table->unsignedInteger('product_id');
+        $table->unsignedInteger('produk_id');
 
         $table->foreign('pelanggan_id')
               ->references('id_pelanggan')
               ->on('pelanggan')
               ->onDelete('cascade');
 
-        $table->foreign('product_id')
+        $table->foreign('produk_id')
               ->references('id_produk')
               ->on('produk')
               ->onDelete('cascade');

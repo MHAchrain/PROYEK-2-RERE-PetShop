@@ -150,7 +150,7 @@ export default function Navbar() {
                           key={item.label}
                           to={item.path} // Tambahkan ini
                           onClick={() => setOpen(false)} // Tips: Tutup dropdown pas diklik
-                          className="flex items-center gap-3 px-4 py-2.5 w-full hover:bg-gray-50 hover:text-primary transition rounded-lg group"
+                          className="flex items-center gap-3 px-4 py-2.5 w-full hover:bg-gray-200 hover:text-primary transition rounded-lg group"
                         >
                           <span className="text-gray-400 group-hover:text-primary">{item.icon}</span>
                           <span className="text-sm font-medium">{item.label}</span>
@@ -162,7 +162,7 @@ export default function Navbar() {
 
                       <button
                         onClick={logout}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-red-500 hover:bg-red-50 transition rounded-lg"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-red-500 hover:bg-red-100 transition rounded-lg"
                       >
                         <LogOut size={18} />
                         <span className="text-sm font-medium">Keluar</span>

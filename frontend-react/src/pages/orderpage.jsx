@@ -1,44 +1,83 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import Skeleton from "../components/ui/skeleton";
+import OrderSection from "../components/section/ordersection";
+import { getOrders } from "../services/orderservice";
 
-export  default function OrderPage() {
-  // Default langsung ke 'semua'
+export default function OrderPage() {
   const [activeTab, setActiveTab] = useState("semua");
+  const [isLoading, setIsLoading] = useState(true);
+  const [orders, setOrders] = useState([]);
 
   const tabs = [
-    { id: "semua", label: "Pesanan" },
-    { id: "pembatalan", label: "Pembatalan" },
+    { id: "semua", label: "Semua" },
+    { id: "dikirim", label: "Dikirim" },
+    { id: "pembatalan", label: "Dibatalkan" },
+    { id: "selesai", label: "Selesai" },
     { id: "ulasan", label: "Ulasan" },
   ];
 
-  return (
-    <div className="max-w-5xl mx-auto py-10 px-6 min-h-screen">
-      <h1 className="text-2xl font-bold mb-8 text-gray-800">Riwayat Belanja</h1>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getOrders();
+        setOrders(data);
+      } catch (err) {
+        console.error("Error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-      {/* Tab Navigasi Horizontal */}
-      <div className="flex gap-10 border-b border-gray-100 mb-8 overflow-x-auto">
+    fetchData();
+  }, []);
+
+  // --- LOGIKA FILTER TERPUSAT ---
+  const renderContent = () => {
+    const filteredOrders = orders.filter(order => {
+      if (activeTab === "semua") return true;
+      if (activeTab === "pembatalan") return order.status_pesanan === "dibatalkan"; 
+      if (activeTab === "selesai") return order.status_pesanan === "selesai";
+      if (activeTab === "dikirim") return order.status_pesanan === "dikirim";
+      if (activeTab === "ulasan") return order.status_pesanan === "selesai"; 
+      return true;
+    });
+
+    return <OrderSection orders={filteredOrders} isLoading={isLoading} />;
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col my-15 mx-20">
+      <div className="flex items-center gap-5 mb-16">
+        <div className="bg-primary w-5 h-10 rounded-sm"></div>
+        {isLoading ? (
+          <Skeleton className="w-32 h-8 bg-gray-200" />
+        ) : (
+          <p className="text-primary font-bold text-xl capitalize">Riwayat Pesanan</p>
+        )}
+      </div>
+
+      {/* Navigasi Tab */}
+      <div className="flex gap-4 mb-8 overflow-x-auto pb-2 scrollbar-hide">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`pb-4 text-sm font-bold transition-all whitespace-nowrap relative ${
-              activeTab === tab.id ? "text-primary-600" : "text-gray-400 hover:text-gray-600"
+            className={`px-6 py-2 text-sm font-bold transition-all rounded-md whitespace-nowrap ${
+              activeTab === tab.id 
+                ? "bg-primary text-white shadow-md shadow-primary/20" 
+                : "text-gray-500 hover:bg-gray-100"
             }`}
           >
             {tab.label}
-            {/* Garis bawah aktif yang lebih smooth */}
-            {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-primary-600 animate-in slide-in-from-left duration-300" />
-            )}
           </button>
         ))}
       </div>
 
-      {/* Area Konten */}
-      <div className="bg-white rounded-2xl p-2 min-h-100">
-        {activeTab === "semua" && <section className="animate-in fade-in duration-500"> {/* Map data pesanan lu */} </section>}
-        {activeTab === "pembatalan" && <section className="animate-in fade-in duration-500"> {/* Map data pembatalan */} </section>}
-        {activeTab === "ulasan" && <section className="animate-in fade-in duration-500"> {/* Map data ulasan */} </section>}
+      {/* Konten Utama - Cukup panggil renderContent */}
+      <div className="bg-white rounded-2xl min-h-100">
+        {renderContent()}
       </div>
     </div>
   );
-};
+}

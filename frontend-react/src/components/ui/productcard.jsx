@@ -1,9 +1,10 @@
-import { Heart, Eye, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Heart, Star } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from "../../api/axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/authcontext";
 import { useCart } from "../../context/cartcontext";
+import { wishlistService } from '../../services/wishlistservice';
 
 export default function ProductCard({
   id,
@@ -18,6 +19,7 @@ export default function ProductCard({
   const safeHarga = Number(harga) || 0;
   const safeDiskon = Number(diskon) || 0;
   const safeRating = Number(rating) || 0;
+  const navigate = useNavigate();
 
   const hasDiskon = safeDiskon > 0;
 
@@ -25,7 +27,7 @@ export default function ProductCard({
     ? safeHarga - (safeHarga * safeDiskon) / 100
     : safeHarga;
 
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { setCart } = useCart();
 
   const handleAddToCart = async (e) => {
@@ -101,11 +103,27 @@ export default function ProductCard({
         {/* Right Icons */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
           <button
-            onClick={(e) => {
+            onClick={async (e) => {
               e.stopPropagation();
-              console.log('wishlist');
+console.log("ID DIKIRIM:", id);
+              if (!user) {
+                toast.error("Login dulu buat tambah ke wishlist");
+                navigate("/auth");
+                return;
+              }
+
+              try {
+                await wishlistService.add(id);
+
+                toast.success("Berhasil ditambahkan ke wishlist ❤️");
+              } catch (error) {
+                console.error(error);
+                console.log("ERROR ASLI:", error.response?.data);
+                toast.error("Gagal menambahkan ke wishlist");
+              }
             }}
-            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition">
+            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition"
+          >
             <Heart size={18} />
           </button>
         </div>
@@ -118,7 +136,9 @@ export default function ProductCard({
 
           <button
             onClick={handleAddToCart}
-            className="w-full bg-black text-white py-3 font-medium transition">
+            className="w-full bg-black text-white py-3 font-medium transition-all
+             hover:bg-primary
+             active:bg-primary-600 active:scale-[0.98]">
             Add to Cart
           </button>
 

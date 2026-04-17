@@ -16,7 +16,7 @@ export default function NotFoundPage() {
 
                 <Link to="/"
                     className="px-12 py-3 rounded-sm 
-                    bg-primary text-white hover:bg-primary-700 transition">
+                    bg-primary text-white hover:bg-primary-600 transition">
                         Kembali ke Beranda
                 </Link>
             </div>
