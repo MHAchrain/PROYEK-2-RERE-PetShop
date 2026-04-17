@@ -5,9 +5,34 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Favorite;
+use App\Models\Pelanggan;
 
 class FavoriteController extends Controller
 {
+    protected function resolvePelangganId($user): ?int
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if (! empty($user->pelanggan_id)) {
+            return (int) $user->pelanggan_id;
+        }
+
+        $pelanggan = Pelanggan::where('email', $user->email)->first();
+
+        if (! $pelanggan) {
+            return null;
+        }
+
+        if ($user->pelanggan_id !== $pelanggan->id_pelanggan) {
+            $user->pelanggan_id = $pelanggan->id_pelanggan;
+            $user->save();
+        }
+
+        return (int) $pelanggan->id_pelanggan;
+    }
+
     public function index()
     {
         $user = auth('sanctum')->user();
@@ -16,7 +41,14 @@ class FavoriteController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $pelangganId = $user->id_pelanggan;
+        $pelangganId = $this->resolvePelangganId($user);
+
+        if (! $pelangganId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelanggan tidak ditemukan',
+            ], 404);
+        }
 
         $favorites = Favorite::with('produk')
             ->where('pelanggan_id', $pelangganId)
@@ -31,16 +63,22 @@ class FavoriteController extends Controller
     public function store(Request $request)
     {
         $user = auth('sanctum')->user();
-    
-    // DEBUG: Cek apakah user dapet dan punya id_pelanggan
-    if (!$user->id_pelanggan) {
-        return response()->json([
-            'message' => 'User tidak memiliki ID Pelanggan. Cek database tabel users lu.',
-            'user_data' => $user
-        ], 500);
-    }
 
-    $pelangganId = $user->id_pelanggan;
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $pelangganId = $this->resolvePelangganId($user);
+
+        if (! $pelangganId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelanggan tidak ditemukan',
+            ], 404);
+        }
 
         $request->validate([
             'produk_id' => 'required|exists:produk,id_produk',
@@ -57,15 +95,49 @@ class FavoriteController extends Controller
             $exists->delete();
             return response()->json([
                 'success' => true,
-                'message' => 'Dihapus dari favorit'
+                'message' => 'Dihapus dari favorit',
+                'is_favorite' => false,
             ]);
         }
 
-        Favorite::create($data);
+        $favorite = Favorite::create($data);
 
         return response()->json([
             'success' => true,
-            'message' => 'Ditambahkan ke favorit'
+            'message' => 'Ditambahkan ke favorit',
+            'data' => $favorite,
+            'is_favorite' => true,
+        ]);
+    }
+
+    public function destroy($productId)
+    {
+        $user = auth('sanctum')->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $pelangganId = $this->resolvePelangganId($user);
+
+        if (! $pelangganId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelanggan tidak ditemukan',
+            ], 404);
+        }
+
+        Favorite::where('pelanggan_id', $pelangganId)
+            ->where('produk_id', $productId)
+            ->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dihapus dari favorit',
+            'is_favorite' => false,
         ]);
     }
 }

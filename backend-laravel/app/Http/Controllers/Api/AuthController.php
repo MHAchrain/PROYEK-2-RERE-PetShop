@@ -12,6 +12,23 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    protected function buildAuthPayload(User $user): array
+    {
+        $pelanggan = $user->pelanggan_id
+            ? Pelanggan::find($user->pelanggan_id)
+            : Pelanggan::where('email', $user->email)->first();
+
+        if ($pelanggan && $user->pelanggan_id !== $pelanggan->id_pelanggan) {
+            $user->pelanggan_id = $pelanggan->id_pelanggan;
+            $user->save();
+        }
+
+        return [
+            'user' => $user,
+            'pelanggan' => $pelanggan,
+        ];
+    }
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -30,13 +47,6 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'customer',
-        ]);
-
         $pelanggan = Pelanggan::create([
             'nama' => $request->name,
             'email' => $request->email,
@@ -45,13 +55,18 @@ class AuthController extends Controller
             'alamat' => $request->alamat,
         ]);
 
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'customer',
+            'pelanggan_id' => $pelanggan->id_pelanggan,
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Register berhasil',
-            'data' => [
-                'user' => $user,
-                'pelanggan' => $pelanggan,
-            ],
+            'data' => $this->buildAuthPayload($user),
         ], 201);
     }
 
@@ -95,7 +110,15 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Login berhasil',
             'token' => $token,
-            'data' => $user,
+            'data' => $this->buildAuthPayload($user),
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $this->buildAuthPayload($request->user()),
         ]);
     }
 }

@@ -1,7 +1,7 @@
 import ProductCard from '../ui/productcard';
 import Skeleton from '../ui/skeleton';
 
-export default function ProductSection({ products = [], isLoading, visibleCount }) {
+export default function ProductSection({ products = [], isLoading, visibleCount, onWishlistAdded }) {
   const BASE_URL = "http://127.0.0.1:8000/storage/";
 
   return (
@@ -19,7 +19,10 @@ export default function ProductSection({ products = [], isLoading, visibleCount 
             nama={item.nama_produk}
             harga={item.harga}
             image={`${BASE_URL}${item.foto}`}
-            products={item}
+            diskon={item.diskon}
+            rating={item.rating}
+            product={item}
+            onWishlistAdded={onWishlistAdded}
           />
         ))
       )}

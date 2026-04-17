@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { formatPhone } from "../utils/formatphone";
 import { validateLogin, validateRegister } from "../utils/validation";
-import axios from "axios";
 import toast from "react-hot-toast";
+import { loginUser, registerUser } from "../services/authservice";
 
 export const useAuthForm = (isLogin, login, navigate, setIsLogin) => {
     const [form, setForm] = useState({
@@ -46,22 +46,17 @@ export const useAuthForm = (isLogin, login, navigate, setIsLogin) => {
             return;
         }
 
-        const endpoint = isLogin ? "login" : "register";
-
         try {
-            const response = await axios.post(
-                `http://127.0.0.1:8000/api/${endpoint}`,
-                isLogin
-                    ? {
-                        email: cleanIdentifier,
-                        password: form.password,
-                    }
-                    : {
-                        ...form,
-                        email: cleanIdentifier,
-                        no_hp: formatPhone(cleanNoHp),
-                    }
-            );
+            const response = isLogin
+                ? await loginUser({
+                    email: cleanIdentifier,
+                    password: form.password,
+                })
+                : await registerUser({
+                    ...form,
+                    email: cleanIdentifier,
+                    no_hp: formatPhone(cleanNoHp),
+                });
 
             if (isLogin) {
                 login(response.data.data, response.data.token);

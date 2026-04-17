@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\KategoriController;
 use App\Http\Controllers\Api\PembayaranController;
 use App\Http\Controllers\Api\PengirimanController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\PelangganController;
+use App\Http\Controllers\Api\FavoriteController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -30,15 +32,14 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 
-Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
-    return response()->json([
-        'success' => true,
-        'data' => $request->user(),
-    ]);
-});
+Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    Route::post('/pelanggan/update', [PelangganController::class, 'updateProfile']);
+    Route::get('/favorites', [FavoriteController::class, 'index']);
+    Route::post('/favorites', [FavoriteController::class, 'store']);
+    Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy']);
     Route::post('/cart/add', [CartController::class, 'add']);
     Route::get('/cart', [CartController::class, 'cart']);
     Route::delete('/cart/item/{id}', [CartController::class, 'remove']);

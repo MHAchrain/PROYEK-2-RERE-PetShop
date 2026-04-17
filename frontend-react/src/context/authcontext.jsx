@@ -1,7 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import api from "../api/axios";
 
 const AuthContext = createContext();
+
+const mergeNested = (previousValue, nextValue) => {
+    if (!nextValue) return previousValue;
+    if (!previousValue || typeof previousValue !== "object" || typeof nextValue !== "object") {
+        return nextValue;
+    }
+
+    return { ...previousValue, ...nextValue };
+};
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
@@ -28,10 +38,30 @@ export function AuthProvider({ children }) {
 
     const updateUser = (newData) => {
         setUser((prevUser) => {
-        const updatedUser = { ...prevUser, ...newData };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        return updatedUser;
-    });
+            if (!prevUser) {
+                localStorage.setItem("user", JSON.stringify(newData));
+                return newData;
+            }
+
+            const updatedUser = {
+                ...prevUser,
+                ...newData,
+                user: mergeNested(prevUser.user, newData?.user),
+                pelanggan: mergeNested(prevUser.pelanggan, newData?.pelanggan),
+                data: mergeNested(prevUser.data, newData?.data),
+            };
+
+            if (updatedUser.data) {
+                updatedUser.data = {
+                    ...updatedUser.data,
+                    user: mergeNested(prevUser.data?.user, newData?.data?.user ?? newData?.user),
+                    pelanggan: mergeNested(prevUser.data?.pelanggan, newData?.data?.pelanggan ?? newData?.pelanggan),
+                };
+            }
+
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            return updatedUser;
+        });
     };
 
     const logout = async () => {
@@ -46,6 +76,28 @@ export function AuthProvider({ children }) {
         toast.success("Berhasil logout");
         setLoading(false);
     };
+
+    useEffect(() => {
+        if (!token) return;
+
+        const syncUser = async () => {
+            try {
+                const res = await api.get("/me");
+
+                if (res.data?.success && res.data?.data) {
+                    localStorage.setItem("user", JSON.stringify(res.data.data));
+                    setUser(res.data.data);
+                }
+            } catch (error) {
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
+                setUser(null);
+                setToken(null);
+            }
+        };
+
+        syncUser();
+    }, [token]);
 
     return(
         <AuthContext.Provider value={{ user, token, login, logout, loading, updateUser }}>

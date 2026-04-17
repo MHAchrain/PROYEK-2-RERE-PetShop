@@ -1,28 +1,23 @@
-import { Heart, Star } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Trash2, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAuth } from "../../context/authcontext";
-import { wishlistService } from "../../services/wishlistservice";
 import { useAddToCart } from "../../hooks/useaddtocart";
 
-export default function ProductCard({
+export default function WishlistCard({
   id,
   nama,
   harga,
   image,
   diskon,
   rating,
-  product,
-  onWishlistAdded,
+  onRemove,
+  onAddedToCart,
+  isRemoving = false,
 }) {
-  const imageSrc = Array.isArray(image) ? image[0] : image;
   const safeHarga = Number(harga) || 0;
   const safeDiskon = Number(diskon) || 0;
   const safeRating = Number(rating) || 0;
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { addToCart } = useAddToCart();
-
   const hasDiskon = safeDiskon > 0;
   const hargaFinal = hasDiskon
     ? safeHarga - (safeHarga * safeDiskon) / 100
@@ -31,7 +26,11 @@ export default function ProductCard({
   const handleAddToCart = async (e) => {
     e.stopPropagation();
 
-    const success = await addToCart({ productId: id });
+    const success = await addToCart({
+      productId: id,
+      requireAuth: true,
+      onSuccess: async () => onAddedToCart?.(id),
+    });
 
     if (success) {
       toast.success("Berhasil masuk ke keranjang");
@@ -40,46 +39,9 @@ export default function ProductCard({
     }
   };
 
-  const handleAddToWishlist = async (e) => {
-    e.stopPropagation();
-
-    if (!user) {
-      toast.error("Login dulu buat tambah ke wishlist");
-      navigate("/auth");
-      return;
-    }
-
-    try {
-      await wishlistService.add(id);
-      onWishlistAdded?.(
-        product ?? {
-          id_produk: id,
-          nama_produk: nama,
-          harga,
-          foto: image,
-          diskon,
-          rating,
-        }
-      );
-      toast.success("Berhasil ditambahkan ke wishlist");
-    } catch (error) {
-      console.error(error);
-      toast.error("Gagal menambahkan ke wishlist");
-    }
-  };
-
   return (
     <div className="relative group rounded-sm overflow-hidden transition-all duration-500 hover:scale-105">
       <div className="relative aspect-square overflow-hidden">
-        <Link to={`/product/${id}`} className="block w-full h-full">
-          <img
-            src={imageSrc || "../assets/no-image.png"}
-            alt={nama || "product"}
-            loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        </Link>
-
         {hasDiskon && (
           <div className="absolute top-3 left-3 bg-red-700 text-white text-xs px-3 py-1 rounded-md z-20">
             -{safeDiskon}%
@@ -89,12 +51,25 @@ export default function ProductCard({
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
           <button
             type="button"
-            onClick={handleAddToWishlist}
-            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove?.(id);
+            }}
+            disabled={isRemoving}
+            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <Heart size={18} />
+            <Trash2 size={18} className="text-red-500" />
           </button>
         </div>
+
+        <Link to={`/product/${id}`} className="block w-full h-full">
+          <img
+            src={image || "../assets/no-image.png"}
+            alt={nama || "product"}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        </Link>
 
         <div className="absolute bottom-0 left-0 w-full translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20">
           <button
