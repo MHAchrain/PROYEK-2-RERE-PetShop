@@ -45,7 +45,7 @@ export default function Home() {
       <div id="today-section" className="flex justify-center px-4">
         <div className="max-w-6xl w-full space-y-4">
           <div className="flex items-center gap-5">
-            <div className="bg-primary w-5 h-10 rounded-sm"></div>
+            <div className="bg-primary- w-5 h-10 rounded-sm"></div>
             <p className="text-xl font-bold capitalize text-primary sm:text-2xl">Hari ini</p>
           </div>
 
