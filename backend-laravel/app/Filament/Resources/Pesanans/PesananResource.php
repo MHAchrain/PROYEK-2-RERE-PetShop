@@ -20,7 +20,7 @@ class PesananResource extends Resource
 {
     protected static ?string $model = Pesanan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $recordTitleAttribute = 'id_pesanan';
 

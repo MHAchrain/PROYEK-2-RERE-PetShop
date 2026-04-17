@@ -50,7 +50,7 @@ class PesananForm
                         'diproses' => 'Diproses',
                         'dikirim' => 'Dikirim',
                         'selesai' => 'Selesai',
-                        'batal' => 'Dibatalkan',
+                        'dibatalkan' => 'Dibatalkan',
                     ])
                     ->required(),
             ]);

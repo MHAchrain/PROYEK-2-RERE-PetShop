@@ -20,7 +20,7 @@ class PembayaranResource extends Resource
 {
     protected static ?string $model = Pembayaran::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-credit-card';
 
     protected static ?string $recordTitleAttribute = 'id_pembayaran';
 
