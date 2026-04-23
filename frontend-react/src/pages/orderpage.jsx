@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Skeleton from "../components/ui/skeleton";
 import OrderSection from "../components/section/ordersection";
 import { getOrders } from "../services/orderservice";
+import SectionTitle from "../components/ui/sectiontitle";
 
 export default function OrderPage() {
   const [activeTab, setActiveTab] = useState("semua");
@@ -50,18 +51,16 @@ export default function OrderPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-3">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-4 rounded-sm bg-primary sm:w-5"></div>
               {isLoading ? (
                 <Skeleton className="h-7 w-40 bg-gray-200" />
               ) : (
-                <div>
-                  <p className="text-xl font-bold capitalize text-primary sm:text-2xl">Riwayat Pesanan</p>
-                </div>
+                <SectionTitle
+                  eyebrow="Pesanan"
+                  title="Riwayat Pesanan"
+                  description="Pantau pesanan terbaru, cek status pengiriman, dan lihat kembali produk yang pernah kamu beli."
+                />
               )}
             </div>
-            <p className="max-w-2xl text-sm leading-relaxed text-gray-500 sm:text-base">
-              Pantau pesanan terbaru, cek status pengiriman, dan lihat kembali produk yang pernah kamu beli.
-            </p>
           </div>
 
           <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm">

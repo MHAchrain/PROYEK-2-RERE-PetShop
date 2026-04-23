@@ -27,6 +27,18 @@ const statusClassMap = {
   batal: "bg-rose-100 text-rose-700",
 };
 
+const paymentStatusLabelMap = {
+  pending: "Menunggu Verifikasi",
+  paid: "Sudah Dibayar",
+  failed: "Pembayaran Gagal",
+};
+
+const paymentStatusClassMap = {
+  pending: "bg-amber-100 text-amber-700",
+  paid: "bg-emerald-100 text-emerald-700",
+  failed: "bg-rose-100 text-rose-700",
+};
+
 export default function OrderDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -80,6 +92,10 @@ export default function OrderDetailPage() {
 
   const statusLabel = statusLabelMap[order?.status_pesanan] || order?.status_pesanan || "-";
   const statusClass = statusClassMap[order?.status_pesanan] || "bg-gray-100 text-gray-700";
+  const paymentStatusLabel =
+    paymentStatusLabelMap[order?.pembayaran?.status_bayar] || order?.pembayaran?.status_bayar || "-";
+  const paymentStatusClass =
+    paymentStatusClassMap[order?.pembayaran?.status_bayar] || "bg-gray-100 text-gray-700";
   const canCancel = ["baru", "menunggu_verifikasi"].includes(order?.status_pesanan);
   const printedAtLabel = printedAt.toLocaleString("id-ID", {
     day: "2-digit",
@@ -290,11 +306,24 @@ export default function OrderDetailPage() {
             {order.pembayaran ? (
               <div className="space-y-3 text-sm text-gray-700">
                 <p>Metode: <span className="font-semibold">{order.pembayaran.metode_bayar || "-"}</span></p>
-                <p>Status: <span className="font-semibold">{order.pembayaran.status_bayar || "-"}</span></p>
+                <div className="flex items-center gap-2">
+                  <span>Status:</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${paymentStatusClass}`}>
+                    {paymentStatusLabel}
+                  </span>
+                </div>
                 <p>Jumlah bayar: <span className="font-semibold">Rp {Number(order.pembayaran.jumlah_bayar || 0).toLocaleString("id-ID")}</span></p>
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Data pembayaran belum tersedia.</p>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-500">Data pembayaran belum tersedia.</p>
+                <Link
+                  to={`/payment/${order.id_pesanan}`}
+                  className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600"
+                >
+                  Lanjut ke Pembayaran
+                </Link>
+              </div>
             )}
           </div>
 

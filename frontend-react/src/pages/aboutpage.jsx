@@ -94,10 +94,10 @@ export default function AboutPage() {
 
           <div className="w-full flex-1">
             {isLoading ? (
-              <Skeleton className="h-[28rem] w-full rounded-3xl bg-gray-200 animate-pulse" />
+              <Skeleton className="h-112 w-full rounded-3xl bg-gray-200 animate-pulse" />
             ) : (
               <div className="relative group">
-                <img src={examp} alt="Tentang ReRe Petshop" className="h-[28rem] w-full rounded-3xl object-cover shadow-2xl" />
+                <img src={examp} alt="Tentang ReRe Petshop" className="h-112 w-full rounded-3xl object-cover shadow-2xl" />
               </div>
             )}
           </div>
@@ -144,8 +144,7 @@ export default function AboutPage() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">Navigasi Cabang</p>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                  Menampilkan {visibleBranches.length} cabang dari total {branchList.length} lokasi. Di HP ditampilkan satu per halaman
-                  supaya alamat dan tombol arah lebih mudah dibaca dan ditekan.
+                  Menampilkan {visibleBranches.length} cabang dari total {branchList.length} lokasi.
                 </p>
               </div>
 

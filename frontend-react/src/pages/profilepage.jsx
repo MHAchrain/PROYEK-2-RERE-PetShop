@@ -5,6 +5,7 @@ import AddressSection from "../components/section/addresssection";
 import SecuritySection from "../components/section/securitysection";
 import FAQSection from "../components/section/faqsection";
 import Skeleton from "../components/ui/skeleton";
+import SectionTitle from "../components/ui/sectiontitle";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profil");
@@ -14,13 +15,14 @@ export default function ProfilePage() {
     <div className="min-h-screen px-4 py-8 sm:px-6 lg:px-10 xl:px-16">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center gap-4 sm:gap-5">
-          <div className="h-10 w-3 rounded-sm bg-primary sm:w-4" />
           {isLoading ? (
             <Skeleton className="h-6 w-40" />
           ) : (
-            <div>
-              <p className="text-xl font-bold capitalize text-primary sm:text-2xl">Profil</p>
-            </div>
+            <SectionTitle
+              eyebrow="Profil"
+              title="Atur Akunmu"
+              description="Kelola informasi akun, alamat, dan pengaturan keamanan untuk pengalaman belanja yang lebih personal."
+            />
           )}
         </div>
 

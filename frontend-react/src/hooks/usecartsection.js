@@ -115,9 +115,13 @@ export const useCartSection = ({ token }) => {
       });
 
       if (response.success) {
-        toast.success("Pesanan berhasil dibuat.");
+        toast.success("Pesanan berhasil dibuat. Lanjut ke pembayaran.");
         setCart({ items: [], total: 0 });
-        navigate("/pesanan");
+        navigate(`/payment/${response.data.id_pesanan}`, {
+          state: {
+            order: response.data,
+          },
+        });
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Checkout gagal.");

@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { HeroSlides as HeroSlidesData } from "../../Data";
 import HeroSlide from "../ui/heroslide";
 import Skeleton from "../ui/skeleton";
-import SectionTitle from "../ui/sectiontitle";
 
 export default function HeroSlider() {
     const [slides, setSlides] = useState([]);
@@ -47,10 +46,10 @@ export default function HeroSlider() {
         <section className="px-4 py-4 md:px-8 lg:px-16 xl:px-20">
         <div className="mx-auto w-full max-w-7xl space-y-4 sm:space-y-6">
 
-            <div className="relative overflow-hidden rounded-[28px] border border-primary/10 bg-white shadow-sm sm:rounded-[32px]">
-            <div className="relative h-[24rem] sm:h-[28rem] lg:h-[32rem]">
+            <div className="relative overflow-hidden rounded-[28px] border border-primary/10 bg-white shadow-sm sm:rounded-4xl">
+            <div className="relative h-96 overflow-hidden rounded-[28px] sm:h-112 sm:rounded-4xl lg:h-128">
                 {isLoading ? (
-                <Skeleton className="h-full w-full rounded-[28px] sm:rounded-[32px]" />
+                <Skeleton className="h-full w-full rounded-[28px] sm:rounded-4xl" />
                 ) : (
                 <div
                     className="flex h-full transition-transform duration-700 ease-in-out"
@@ -63,7 +62,7 @@ export default function HeroSlider() {
                 )}
             </div>
 
-            <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-3 p-3 sm:p-5">
+            <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-3 rounded-t-[28px] p-3 sm:rounded-t-4xl sm:p-5">
                 <div className="max-w-[70%] rounded-full border border-white/70 bg-white/85 px-3 py-1.5 shadow-sm backdrop-blur sm:max-w-none sm:px-4 sm:py-2">
                 <p className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80 sm:text-xs">
                     Highlight minggu ini
@@ -93,7 +92,7 @@ export default function HeroSlider() {
                 </div>
             </div>
 
-            <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-3 bg-[linear-gradient(180deg,rgba(17,24,39,0)_0%,rgba(17,24,39,0.82)_100%)] px-3 pb-3 pt-20 sm:px-5 sm:pb-5">
+            <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-3 rounded-b-[28px] bg-[linear-gradient(180deg,rgba(17,24,39,0)_0%,rgba(17,24,39,0.82)_100%)] px-3 pb-3 pt-20 sm:rounded-b-4xl sm:px-5 sm:pb-5">
                 <div className="hidden rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-white backdrop-blur md:block">
                 <p className="text-xs uppercase tracking-[0.18em] text-white/70">Slide aktif</p>
                 <p className="mt-1 text-sm font-semibold">
