@@ -13,17 +13,17 @@ class Favorite extends Model
 
     protected $table = 'favorites';
 
-    protected $fillable = ['pelanggan_id', 'produk_id'];
+    protected $fillable = ['id_pelanggan', 'id_produk'];
 
     // Relasi ke Produk
     public function produk()
     {
-        return $this->belongsTo(Produk::class, 'produk_id', 'id_produk');
+        return $this->belongsTo(Produk::class, 'id_produk', 'id_produk');
     }
 
     // Relasi ke Pelanggan
     public function pelanggan()
     {
-        return $this->belongsTo(Pelanggan::class, 'pelanggan_id', 'id_pelanggan');
+        return $this->belongsTo(Pelanggan::class, 'id_pelanggan', 'id_pelanggan');
     }
 }

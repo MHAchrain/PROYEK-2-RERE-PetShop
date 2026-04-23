@@ -43,7 +43,7 @@ export default function WishlistCard({
     <div className="relative group rounded-sm overflow-hidden transition-all duration-500 hover:scale-105">
       <div className="relative aspect-square overflow-hidden">
         {hasDiskon && (
-          <div className="absolute top-3 left-3 bg-red-700 text-white text-xs px-3 py-1 rounded-md z-20">
+          <div className="absolute top-3 left-3 z-20 rounded-md bg-primary px-3 py-1 text-xs text-white">
             -{safeDiskon}%
           </div>
         )}
@@ -75,9 +75,9 @@ export default function WishlistCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className="w-full bg-black text-white py-3 font-medium transition-all hover:bg-primary active:bg-primary-600 active:scale-[0.98]"
+            className="w-full bg-primary py-3 font-medium text-white transition-all hover:bg-primary-600 active:scale-[0.98]"
           >
-            Add to Cart
+            Tambah ke Keranjang
           </button>
         </div>
       </div>

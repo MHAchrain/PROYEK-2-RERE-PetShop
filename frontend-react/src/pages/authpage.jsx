@@ -3,7 +3,7 @@ import { useAuth } from "../context/authcontext";
 import { useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useauthform";
 
-import catImage from "../assets/dummy.png";
+import catImage from "../assets/catcool.jpg";
 import Google from "../assets/google.svg";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -20,6 +20,7 @@ export default function AuthPage() {
     handleSendResetCode,
     resetForgotPasswordState,
     loading,
+    googleLoading,
     sendingCode,
     verifyingCode,
     codeSent,
@@ -30,6 +31,7 @@ export default function AuthPage() {
     isRegister,
     isForgotPassword,
     handleVerifyResetCode,
+    handleGoogleAuth,
   } = useAuthForm(authMode, login, navigate, setAuthMode);
 
   const switchToMode = (mode) => {
@@ -118,7 +120,11 @@ export default function AuthPage() {
 
             {isLogin && (
               <div className="flex justify-end -mt-3">
-                <button onClick={() => switchToMode("forgot")} className="underline cursor-pointer text-sm text-gray-600 hover:text-black">
+                <button
+                  type="button"
+                  onClick={() => switchToMode("forgot")}
+                  className="underline cursor-pointer text-sm text-gray-600 hover:text-black"
+                >
                   Lupa password?
                 </button>
               </div>
@@ -253,10 +259,18 @@ export default function AuthPage() {
             {!isForgotPassword && (
               <button
                 type="button"
-                className="w-full border-2 border-gray-400 py-3 rounded-md flex items-center justify-center gap-2 hover:bg-gray-200 transition cursor-pointer"
+                onClick={handleGoogleAuth}
+                disabled={googleLoading}
+                className={`w-full border-2 border-gray-400 py-3 rounded-md flex items-center justify-center gap-2 transition ${
+                  googleLoading ? "cursor-not-allowed bg-gray-100 text-gray-400" : "hover:bg-gray-200 cursor-pointer"
+                }`}
               >
                 <img src={Google} alt="Google Logo" className="w-5" />
-                {isLogin ? "Masuk dengan Google" : "Daftar dengan Google"}
+                {googleLoading
+                  ? "Memproses Google..."
+                  : isLogin
+                    ? "Masuk dengan Google"
+                    : "Daftar dengan Google"}
               </button>
             )}
           </form>
@@ -265,7 +279,7 @@ export default function AuthPage() {
             {isLogin && (
               <p>
                 Belum punya akun?
-                <button onClick={() => switchToMode("register")} className="ml-2 underline cursor-pointer">
+                <button type="button" onClick={() => switchToMode("register")} className="ml-2 underline cursor-pointer">
                   Daftar di sini
                 </button>
               </p>
@@ -274,7 +288,7 @@ export default function AuthPage() {
             {isRegister && (
               <p>
                 Sudah punya akun?
-                <button onClick={() => switchToMode("login")} className="ml-2 underline cursor-pointer">
+                <button type="button" onClick={() => switchToMode("login")} className="ml-2 underline cursor-pointer">
                   Masuk di sini
                 </button>
               </p>
@@ -283,7 +297,7 @@ export default function AuthPage() {
             {isForgotPassword && (
               <p>
                 Ingat password?
-                <button onClick={() => switchToMode("login")} className="ml-2 underline cursor-pointer">
+                <button type="button" onClick={() => switchToMode("login")} className="ml-2 underline cursor-pointer">
                   Kembali ke login
                 </button>
               </p>

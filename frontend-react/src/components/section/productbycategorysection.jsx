@@ -18,7 +18,9 @@ export default function ProductSectionByCategory({ products = [], isLoading }) {
             nama={item.nama_produk}
             harga={item.harga}
             image={getStorageUrl(item.foto)}
-            products={item}
+            diskon={item.diskon}
+            rating={item.rating}
+            product={item}
           />
         ))
       ) : (

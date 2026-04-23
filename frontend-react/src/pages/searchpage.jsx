@@ -1,11 +1,9 @@
-import ProductSection from "../components/section/productsection";
-import { useSearchPage } from "../hooks/usesearchpage";
+import ProductSection from '../components/section/productsection';
+import { useSearchPage } from '../hooks/usesearchpage';
+import SectionTitle from '../components/ui/sectiontitle';
 
 export default function SearchPage() {
   const {
-    searchInput,
-    setSearchInput,
-    submitSearch,
     submittedQuery,
     results,
     recommendedProducts,
@@ -20,28 +18,18 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen px-4 py-10 md:px-10 lg:px-20">
       <div className="mx-auto space-y-10">
-
         <section className="space-y-5">
-          <div className="flex items-center gap-5 mb-16">
-            <div className="bg-primary w-5 h-10 rounded-sm"></div>
-            {isLoading ? (
-              <div className="space-y-0">
-                <p className="text-primary font-bold text-xl capitalize">Hasil pencarian untuk "{submittedQuery}"</p>
-                <p className="text-sm text-gray-500">Mencari produk...</p>
-              </div>
-            ) : (
-              <div className="space-y-0">
-                <p className="text-primary font-bold text-xl capitalize">
-                  {hasQuery ? `Hasil pencarian untuk "${submittedQuery}"` : 'Hasil pencarian untuk ""'}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {hasQuery
-                    ? `${results.length} produk ditemukan`
-                    : "Masukkan kata kunci untuk mulai mencari produk."}
-                </p>
-              </div>
-            )}
-          </div>
+          <SectionTitle
+            eyebrow="Pencarian"
+            title={hasQuery ? `Hasil untuk "${submittedQuery}"` : 'Cari Produk'}
+            description={
+              isLoading
+                ? 'Mencari produk...'
+                : hasQuery
+                  ? `${results.length} produk ditemukan.`
+                  : 'Masukkan kata kunci untuk mulai mencari produk.'
+            }
+          />
 
           {errorMessage && (
             <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-600">
@@ -68,28 +56,17 @@ export default function SearchPage() {
         </section>
 
         <section className="space-y-5">
-          <div className="flex items-center gap-5 mb-16">
-            <div className="bg-black w-5 h-10 rounded-sm"></div>
-            {isRecommendedLoading ? (
-              <div className="space-y-0">
-                <p className="text-black font-bold text-xl capitalize">Rekomendasi untuk Kamu</p>
-                <p className="text-sm text-gray-500">Memuat rekomendasi produk...</p>
-              </div>
-            ) : (
-              <div className="space-y-0">
-                <p className="text-black font-bold text-xl capitalize">Rekomendasi untuk Kamu</p>
-                <p className="text-sm text-gray-500">
-                  Produk pilihan yang bisa kamu lihat sambil mencari produk lain.
-                </p>
-              </div>
-            )}
-          </div>
-
-          <ProductSection
-            products={recommendedProducts}
-            isLoading={isRecommendedLoading}
-            visibleCount={4}
+          <SectionTitle
+            eyebrow="Rekomendasi"
+            title="Pilihan Untuk Kamu"
+            description={
+              isRecommendedLoading
+                ? 'Memuat rekomendasi produk...'
+                : 'Produk pilihan yang bisa kamu lihat sambil mencari produk lain.'
+            }
           />
+
+          <ProductSection products={recommendedProducts} isLoading={isRecommendedLoading} visibleCount={4} />
         </section>
       </div>
     </div>

@@ -6,6 +6,7 @@ const apiOrigin = trimTrailingSlash(
 
 export const API_BASE_URL = `${apiOrigin}/api`;
 export const STORAGE_BASE_URL = `${apiOrigin}/storage`;
+export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 export const getStorageUrl = (path) => {
   if (!path) return "";

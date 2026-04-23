@@ -2,7 +2,8 @@ import { useState } from "react";
 import { formatPhone } from "../utils/formatphone";
 import { validateLogin, validateRegister } from "../utils/validation";
 import toast from "react-hot-toast";
-import { loginUser, registerUser, resetPassword, sendResetCode, verifyResetCode } from "../services/authservice";
+import { loginUser, loginWithGoogle, registerUser, resetPassword, sendResetCode, verifyResetCode } from "../services/authservice";
+import { requestGoogleAccessToken } from "../services/googleservice";
 
 export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
   const [form, setForm] = useState({
@@ -18,6 +19,7 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
@@ -283,6 +285,30 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
     }
   };
 
+  const handleGoogleAuth = async () => {
+    setGoogleLoading(true);
+
+    try {
+      const accessToken = await requestGoogleAccessToken();
+      const response = await loginWithGoogle(accessToken);
+
+      login(response.data, response.token);
+      toast.success(
+        isLogin ? "Berhasil masuk dengan Google" : "Akun Google berhasil digunakan untuk mendaftar"
+      );
+      navigate("/");
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Gagal melanjutkan autentikasi Google";
+
+      toast.error(message);
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   return {
     form,
     handleChange,
@@ -296,9 +322,11 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
     codeVerified,
     remainingResetAttempts,
     resetLockMinutes,
+    googleLoading,
     isLogin,
     isRegister,
     isForgotPassword,
     handleVerifyResetCode,
+    handleGoogleAuth,
   };
 };

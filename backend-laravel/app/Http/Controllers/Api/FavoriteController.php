@@ -51,7 +51,7 @@ class FavoriteController extends Controller
         }
 
         $favorites = Favorite::with('produk')
-            ->where('pelanggan_id', $pelangganId)
+            ->where('id_pelanggan', $pelangganId)
             ->get();
 
         return response()->json([
@@ -85,8 +85,8 @@ class FavoriteController extends Controller
         ]);
 
         $data = [
-            'pelanggan_id' => $pelangganId,
-            'produk_id'    => $request->input('produk_id'),
+            'id_pelanggan' => $pelangganId,
+            'id_produk'    => $request->input('produk_id'),
         ];
 
         $exists = Favorite::where($data)->first();
@@ -130,8 +130,8 @@ class FavoriteController extends Controller
             ], 404);
         }
 
-        Favorite::where('pelanggan_id', $pelangganId)
-            ->where('produk_id', $productId)
+        Favorite::where('id_pelanggan', $pelangganId)
+            ->where('id_produk', $productId)
             ->delete();
 
         return response()->json([

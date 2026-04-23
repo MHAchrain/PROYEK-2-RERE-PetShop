@@ -25,6 +25,13 @@ export const resetPassword = async (data) => {
   return res.data;
 };
 
+export const loginWithGoogle = async (accessToken) => {
+  const res = await api.post("/login/google", {
+    access_token: accessToken,
+  });
+  return res.data;
+};
+
 export const getUser = async () => {
   const res = await api.get("/me");
   return res.data.data;

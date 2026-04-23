@@ -160,7 +160,7 @@ export default function Navbar() {
           <form onSubmit={handleMobileSubmit} className="flex items-center rounded-md px-4 py-2 bg-gray-100 mt-2">
             <input
               type="search"
-              placeholder="What are you looking for?"
+              placeholder="Apa yang kamu cari?"
               value={mobileQuery}
               onChange={(event) => setMobileQuery(event.target.value)}
               autoComplete="off"

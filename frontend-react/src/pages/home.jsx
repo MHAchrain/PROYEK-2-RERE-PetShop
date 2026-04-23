@@ -4,6 +4,7 @@ import HeroSlider from '../components/section/herosection';
 import CategorySection from '../components/section/categorysection';
 import ProductSection from '../components/section/productsection';
 import LoadMoreButton from '../components/ui/loadmorebutton';
+import SectionTitle from '../components/ui/sectiontitle';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -17,7 +18,7 @@ export default function Home() {
         const data = await getProducts();
         setProducts(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Gagal load produk:", err);
+        console.error('Gagal load produk:', err);
       } finally {
         setIsLoading(false);
       }
@@ -42,14 +43,13 @@ export default function Home() {
     <div className="min-h-screen space-y-10">
       <HeroSlider />
       <CategorySection />
-      <div id="today-section" className="flex justify-center px-4">
-        <div className="max-w-6xl w-full space-y-4">
-          <div className="flex items-center gap-5">
-            <div className="bg-primary- w-5 h-10 rounded-sm"></div>
-            <p className="text-xl font-bold capitalize text-primary sm:text-2xl">Hari ini</p>
-          </div>
-
-          <h2 className="text-2xl font-bold">Rekomendasi</h2>
+      <div id="today-section" className="px-4 py-4 md:px-8 lg:px-16 xl:px-20">
+        <div className="mx-auto w-full max-w-7xl space-y-6">
+          <SectionTitle
+            eyebrow="Pilihan Hari Ini"
+            title="Rekomendasi Produk"
+            description="Produk pilihan untuk kebutuhan harian anabul, mulai dari pakan, vitamin, sampai perlengkapan favorit."
+          />
 
           <ProductSection products={products.slice(0, visibleCount)} isLoading={isLoading} />
 

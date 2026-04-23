@@ -1,8 +1,9 @@
-import ProductSection from "../components/section/productsection";
-import Skeleton from "../components/ui/skeleton";
-import WishlistCard from "../components/ui/wishlistcard";
-import { useWishlistPage } from "../hooks/usewishlistpage";
-import { getStorageUrl } from "../utils/appconfig";
+import ProductSection from '../components/section/productsection';
+import Skeleton from '../components/ui/skeleton';
+import WishlistCard from '../components/ui/wishlistcard';
+import { useWishlistPage } from '../hooks/usewishlistpage';
+import { getStorageUrl } from '../utils/appconfig';
+import SectionTitle from '../components/ui/sectiontitle';
 
 export default function WishlistPage() {
   const {
@@ -17,54 +18,58 @@ export default function WishlistPage() {
   } = useWishlistPage();
 
   return (
-    <div className="min-h-screen flex flex-col my-15 mx-20">
-      <div className="flex items-center gap-5">
-        <div className="bg-primary w-5 h-10 rounded-sm"></div>
-        <p className="text-xl font-bold capitalize text-primary sm:text-2xl">Produk Favorit ({wishlistCount})</p>
-      </div>
+    <div className="min-h-screen px-4 py-8 md:px-8 md:py-10 lg:px-16 xl:px-20">
+      <div className="mx-auto w-full max-w-7xl space-y-10">
+        <SectionTitle
+          eyebrow="Favorit"
+          title={`Produk Favorit (${wishlistCount})`}
+          description="Simpan produk yang ingin kamu lihat lagi nanti, lalu pindahkan ke keranjang saat sudah siap checkout."
+        />
 
-      <div className="mt-10">
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="w-full h-64 rounded-lg" />
-            ))}
-          </div>
-        ) : products.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products.map((item) => (
-              <WishlistCard
-                key={item.id_produk}
-                id={item.id_produk}
-                nama={item.nama_produk}
-                harga={item.harga}
-                image={getStorageUrl(item.foto)}
-                diskon={item.diskon}
-                rating={item.rating}
-                onRemove={removeWishlistItem}
-                onAddedToCart={(productId) => removeWishlistItem(productId, false)}
-                isRemoving={removingId === item.id_produk}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 text-center">
-            Belum ada produk favorit. Jelajahi produk kami dan tambahkan ke favoritmu!
-          </p>
-        )}
-      </div>
-
-      <div className="mt-16 space-y-6">
-        <div className="flex items-center gap-5">
-          <div className="bg-black w-5 h-10 rounded-sm"></div>
-          <p className="font-semibold text-gray-900">Just For You</p>
+        <div className="mt-10">
+          {isLoading ? (
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-64 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+              {products.map((item) => (
+                <WishlistCard
+                  key={item.id_produk}
+                  id={item.id_produk}
+                  nama={item.nama_produk}
+                  harga={item.harga}
+                  image={getStorageUrl(item.foto)}
+                  diskon={item.diskon}
+                  rating={item.rating}
+                  onRemove={removeWishlistItem}
+                  onAddedToCart={(productId) => removeWishlistItem(productId, false)}
+                  isRemoving={removingId === item.id_produk}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500">
+              Belum ada produk favorit. Jelajahi produk kami dan tambahkan item yang kamu suka ke daftar ini.
+            </p>
+          )}
         </div>
 
-        <ProductSection
-          products={justForYouProducts}
-          isLoading={isRecommendationLoading}
-          onWishlistAdded={handleAddFromJustForYou}
-        />
+        <div className="mt-16 space-y-6">
+          <SectionTitle
+            eyebrow="Rekomendasi"
+            title="Pilihan Untuk Kamu"
+            description="Produk yang mungkin cocok berdasarkan item yang sudah kamu simpan."
+          />
+
+          <ProductSection
+            products={justForYouProducts}
+            isLoading={isRecommendationLoading}
+            onWishlistAdded={handleAddFromJustForYou}
+          />
+        </div>
       </div>
     </div>
   );
