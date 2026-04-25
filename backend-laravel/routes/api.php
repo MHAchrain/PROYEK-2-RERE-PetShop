@@ -33,6 +33,7 @@ Route::post('/login/google', [AuthController::class, 'loginWithGoogle']);
 Route::post('/forgot-password/send-code', [AuthController::class, 'sendResetCode']);
 Route::post('/forgot-password/verify-code', [AuthController::class, 'verifyResetCode']);
 Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword']);
+Route::post('/midtrans/webhook', [PembayaranController::class, 'webhook']);
 
 
 
