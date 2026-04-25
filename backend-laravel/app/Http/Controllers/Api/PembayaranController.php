@@ -98,6 +98,7 @@ class PembayaranController extends Controller
                 'metode_bayar'  => $request->metode_bayar,
                 'status_bayar'  => 'pending',
                 'jumlah_bayar'  => (int) $pesanan->total,
+                'waktu_bayar'  => now(),
                 'ref_gateway'   => $transactionDetails['order_id'],
                 'snap_token'    => $snapToken,
             ]

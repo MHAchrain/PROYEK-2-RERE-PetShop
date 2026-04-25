@@ -6,6 +6,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
 
 class PembayaranForm
 {
@@ -48,11 +49,14 @@ class PembayaranForm
                         'paid' => 'Paid',
                         'failed' => 'Failed',
                         'expired' => 'Expired',
+
+                TextColumn::make('waktu_bayar') // Sesuaikan dengan nama kolom di DB kamu
+                ->label('Tanggal Pembayaran')
+                ->dateTime('M d, Y H:i:s') // Format agar rapi seperti di gambar
+                ->sortable(),        
                     ])
                     ->required(),
-
-                DateTimePicker::make('waktu_bayar')
-                    ->label('Tanggal Pembayaran'),
+                    
             ]);
     }
 }
