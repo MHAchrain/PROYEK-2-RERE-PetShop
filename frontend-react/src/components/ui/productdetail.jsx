@@ -1,5 +1,14 @@
 import { Truck, RefreshCcw, Heart, Plus, Minus } from "lucide-react";
-export default function ProductDetail({ product, qty, setQty, onBuyNow, isBuyingNow = false }) {
+export default function ProductDetail({
+    product,
+    qty,
+    setQty,
+    onBuyNow,
+    onAddToWishlist,
+    isBuyingNow = false,
+    isWishlistLoading = false,
+    isWishlisted = false,
+}) {
     const safeStock = Number(product.stock) || 0;
     const isOutOfStock = safeStock < 1;
     const isAtMaxQty = qty >= safeStock && safeStock > 0;
@@ -68,10 +77,22 @@ export default function ProductDetail({ product, qty, setQty, onBuyNow, isBuying
                     </button>
 
                     <button
-                        className="h-12 w-12 flex items-center justify-center border border-gray-300 rounded-md hover:border-primary hover:text-primary transition-all group"
-                        title="Add to Wishlist"
+                        type="button"
+                        onClick={onAddToWishlist}
+                        disabled={isWishlistLoading}
+                        className={`h-12 w-12 flex items-center justify-center rounded-md transition-all group ${
+                            isWishlisted
+                                ? "border border-primary bg-primary/10 text-primary"
+                                : "border border-gray-300 hover:border-primary hover:text-primary"
+                        } ${isWishlistLoading ? "cursor-not-allowed opacity-70" : ""}`}
+                        title={isWishlisted ? "Sudah di Wishlist" : "Add to Wishlist"}
                     >
-                        <Heart size={22} className="group-active:fill-primary transition-all" />
+                        <Heart
+                            size={22}
+                            className={`transition-all ${
+                                isWishlisted ? "fill-primary text-primary" : "group-active:fill-primary"
+                            }`}
+                        />
                     </button>
                 </div>
             </div>

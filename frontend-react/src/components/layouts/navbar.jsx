@@ -138,7 +138,7 @@ export default function Navbar() {
             ) : (
               <Link
                 to="/auth"
-                className="hidden md:block px-4 py-2 bg-primary text-white rounded-md hover:opacity-90 transition"
+                className="hidden md:block px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition"
               >
                 Masuk
               </Link>

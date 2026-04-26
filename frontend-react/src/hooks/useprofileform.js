@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { formatPhone } from "../utils/formatphone";
 import { updateCustomerProfile } from "../services/profileservice";
 
@@ -62,3 +62,5 @@ export const useProfileForm = ({ user, updateUser }) => {
     handleSubmit,
   };
 };
+
+

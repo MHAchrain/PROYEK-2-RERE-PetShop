@@ -8,22 +8,42 @@ export default function PromoPopup() {
   const [isMounted, setIsMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
+  const POPUP_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 jam
+
   useEffect(() => {
-    const isDismissed = window.localStorage.getItem(PROMO_POPUP_STORAGE_KEY);
-    if (isDismissed === "true") return;
+    const dismissedAt = window.localStorage.getItem(PROMO_POPUP_STORAGE_KEY);
+
+    if (dismissedAt) {
+      const now = Date.now();
+      const diff = now - Number(dismissedAt);
+
+      // kalau belum lewat 24 jam → jangan tampil
+      if (diff < POPUP_EXPIRY_MS) return;
+    }
 
     const mountTimer = window.setTimeout(() => {
       setIsMounted(true);
-      window.setTimeout(() => setIsVisible(true), 30);
-    }, 1800);
+
+      window.setTimeout(() => {
+        setIsVisible(true);
+      }, 30);
+    }, 2000); // 2 detik (lebih “natural”)
 
     return () => window.clearTimeout(mountTimer);
   }, []);
 
   const handleClose = () => {
-    window.localStorage.setItem(PROMO_POPUP_STORAGE_KEY, "true");
+    // simpan timestamp, bukan "true"
+    window.localStorage.setItem(
+      PROMO_POPUP_STORAGE_KEY,
+      Date.now().toString()
+    );
+
     setIsVisible(false);
-    window.setTimeout(() => setIsMounted(false), 220);
+
+    window.setTimeout(() => {
+      setIsMounted(false);
+    }, 220);
   };
 
   if (!isMounted) return null;

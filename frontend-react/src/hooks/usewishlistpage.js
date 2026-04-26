@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { wishlistService } from "../services/wishlistservice";
 import { getProducts } from "../services/productservice";
 
@@ -110,3 +110,5 @@ export const useWishlistPage = () => {
     handleAddFromJustForYou,
   };
 };
+
+

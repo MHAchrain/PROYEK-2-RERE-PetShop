@@ -1,9 +1,10 @@
 import { Heart, Star } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast from "../../utils/toast.jsx";
 import { useAuth } from "../../context/authcontext";
 import { wishlistService } from "../../services/wishlistservice";
 import { useAddToCart } from "../../hooks/useaddtocart";
+import noImage from "../../assets/no-image.png";
 
 export default function ProductCard({
   id,
@@ -31,11 +32,11 @@ export default function ProductCard({
   const handleAddToCart = async (e) => {
     e.stopPropagation();
 
-    const success = await addToCart({ productId: id });
+    const result = await addToCart({ productId: id, requireAuth: true });
 
-    if (success) {
+    if (result.ok) {
       toast.success("Berhasil masuk ke keranjang");
-    } else {
+    } else if (result.reason !== "auth_required") {
       toast.error("Gagal masuk ke keranjang");
     }
   };
@@ -73,9 +74,13 @@ export default function ProductCard({
       <div className="relative aspect-square overflow-hidden">
         <Link to={`/product/${id}`} className="block w-full h-full">
           <img
-            src={imageSrc || "../assets/no-image.png"}
+            src={imageSrc || noImage}
             alt={nama || "product"}
             loading="lazy"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = noImage;
+            }}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         </Link>

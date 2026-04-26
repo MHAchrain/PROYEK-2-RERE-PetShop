@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { formatPhone } from "../utils/formatphone";
 import { validateLogin, validateRegister } from "../utils/validation";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { loginUser, loginWithGoogle, registerUser, resetPassword, sendResetCode, verifyResetCode } from "../services/authservice";
 import { requestGoogleAccessToken } from "../services/googleservice";
 
@@ -330,3 +330,5 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
     handleGoogleAuth,
   };
 };
+
+

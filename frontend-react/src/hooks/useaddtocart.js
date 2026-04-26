@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { useAuth } from "../context/authcontext";
 import { useCart } from "../context/cartcontext";
 import { addCartItem } from "../services/cartservice";
@@ -13,7 +13,7 @@ export const useAddToCart = () => {
     if (requireAuth && !user) {
       toast.error("Login dulu buat tambah ke keranjang");
       navigate("/auth");
-      return false;
+      return { ok: false, reason: "auth_required" };
     }
 
     try {
@@ -40,11 +40,13 @@ export const useAddToCart = () => {
       });
 
       await onSuccess?.();
-      return true;
+      return { ok: true, reason: null };
     } catch (error) {
-      return false;
+      return { ok: false, reason: "request_failed", error };
     }
   };
 
   return { addToCart };
 };
+
+

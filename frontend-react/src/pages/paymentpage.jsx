@@ -10,7 +10,7 @@ import {
   ReceiptText,
   Smartphone,
 } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import Skeleton from "../components/ui/skeleton";
 import { getOrderDetail } from "../services/orderservice";
 import { createPayment, getPaymentByOrderId } from "../services/paymentservice";
@@ -454,3 +454,5 @@ export default function PaymentPage() {
     </div>
   );
 }
+
+
