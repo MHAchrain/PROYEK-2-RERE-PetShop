@@ -13,7 +13,9 @@ use App\Http\Controllers\Api\PengirimanController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PelangganController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\TrackingController;
 
+Route::get('/track-order/{id_pesanan}', [TrackingController::class, 'track']);
 Route::get('/test', function () {
     return response()->json([
         'message' => 'API jalan',
