@@ -45,9 +45,9 @@ class PembayaransTable
                                 Select::make('status_bayar')
                                     ->label('Ganti Status Pembayaran')
                                     ->options([
-                                        'pending' => 'Pending',
-                                        'paid'    => 'Paid',
-                                        'failed'  => 'Failed',
+                                        'pending' => 'ditunda',
+                                        'paid'    => 'sudah bayar',
+                                        'failed'  => 'gagal bayar',
                                     ])
                                     ->required(),
                             ])
