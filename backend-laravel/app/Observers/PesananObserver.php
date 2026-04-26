@@ -32,7 +32,7 @@ class PesananObserver
             ['id_pesanan' => $pesanan->id_pesanan],
             [
                 'status_kirim'  => 'diproses',
-                'kurir'         => null,
+                'kurir'         => 'menunggu_kurir',
                 'resi'          => 'RESI-' . now()->format('Ymd') . '-' . str_pad($pesanan->id_pesanan, 4, '0', STR_PAD_LEFT),
                 'tanggal_kirim' => now(),
             ]

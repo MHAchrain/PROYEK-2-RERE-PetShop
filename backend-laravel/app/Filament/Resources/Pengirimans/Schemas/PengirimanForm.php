@@ -32,7 +32,14 @@ class PengirimanForm
                     ->default('diproses')
                     ->required(),
 
-                TextInput::make('kurir'),
+                Select::make('kurir')
+                    ->options([
+                        'menunggu_kurir' => '⏳ Menunggu Kurir',
+                        'jne' => 'JNE Ekspress',
+                        'ojol' => 'Gosend/grab',
+                        'internal' => 'Kurir Internal',
+                    ])
+                    ->required(),
 
                 TextInput::make('resi'),
 

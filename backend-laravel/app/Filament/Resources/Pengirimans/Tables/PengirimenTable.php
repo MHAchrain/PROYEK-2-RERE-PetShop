@@ -72,9 +72,38 @@ class PengirimanTable
         ->wrap(),
         
         TextColumn::make('kurir')
-                    ->searchable(),
-
-
+                    ->label('Kurir')
+                    ->badge()
+                    ->color(fn ($state) => match($state) {
+                    'jne' => 'danger',
+                    'ojol'  => 'success',
+                    'internal' => 'success',
+                    default    => 'gray',
+                })
+                    ->formatStateUsing(fn ($state) => match($state) {
+                        'jne'      => 'JNE Ekspress',
+                        'ojol'     => 'Gosend/Grab',
+                        'internal' => 'Kurir Internal (Udin)',
+                        'menunggu_kurir'  => 'Pilih kurir',
+                        default    => $state ?? '-',
+                    })
+                    ->action(
+                        Action::make('ubah_kurir')
+                            ->form([
+                                Select::make('kurir')
+                                    ->label('Pilih Kurir')
+                                    ->options([
+                                        'jne'      => 'JNE Ekspress',
+                                        'ojol'     => 'Gosend/Grab',
+                                        'internal' => 'Kurir Internal (Udin)',
+                                        'menunggu_kurir'  => '⏳ Menunggu Kurir',
+                                    ])
+                                    ->required(),
+                            ])
+                            ->action(function ($record, array $data): void {
+                                $record->update(['kurir' => $data['kurir']]);
+                            })
+                    ),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -90,7 +119,6 @@ class PengirimanTable
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
