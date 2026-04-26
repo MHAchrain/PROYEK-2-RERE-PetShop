@@ -46,8 +46,8 @@ class PembayaransTable
                                     ->label('Ganti Status Pembayaran')
                                     ->options([
                                         'pending' => 'ditunda',
-                                        'paid'    => 'sudah bayar',
-                                        'failed'  => 'gagal bayar',
+                                        'paid'    => 'sudah dibayar',
+                                        'failed'  => 'gagal dibayar',
                                     ])
                                     ->required(),
                             ])

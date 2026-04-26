@@ -45,10 +45,10 @@ class PembayaranForm
                 Select::make('status_bayar')
                     ->label('Status Pembayaran')
                     ->options([
-                        'pending' => 'Pending',
-                        'paid' => 'Paid',
-                        'failed' => 'Failed',
-                        'expired' => 'Expired',
+                        'pending' => 'ditunda',
+                        'paid' => 'sudah dibayar',
+                        'failed' => 'gagal dibayar',
+                        'expired' => 'kadaluarsa',
 
                 TextColumn::make('waktu_bayar') // Sesuaikan dengan nama kolom di DB kamu
                 ->label('Tanggal Pembayaran')
