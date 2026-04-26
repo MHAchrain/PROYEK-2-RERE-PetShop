@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Printer, ReceiptText, ShoppingBag, Truck } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import Skeleton from "../components/ui/skeleton";
 import { cancelOrder, getOrderDetail } from "../services/orderservice";
 import { getStorageUrl } from "../utils/appconfig";
@@ -379,3 +379,5 @@ export default function OrderDetailPage() {
     </div>
   );
 }
+
+

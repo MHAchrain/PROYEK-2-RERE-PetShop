@@ -1,7 +1,8 @@
 import { Trash2, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast from "../../utils/toast.jsx";
 import { useAddToCart } from "../../hooks/useaddtocart";
+import noImage from "../../assets/no-image.png";
 
 export default function WishlistCard({
   id,
@@ -26,15 +27,15 @@ export default function WishlistCard({
   const handleAddToCart = async (e) => {
     e.stopPropagation();
 
-    const success = await addToCart({
+    const result = await addToCart({
       productId: id,
       requireAuth: true,
       onSuccess: async () => onAddedToCart?.(id),
     });
 
-    if (success) {
+    if (result.ok) {
       toast.success("Berhasil masuk ke keranjang");
-    } else {
+    } else if (result.reason !== "auth_required") {
       toast.error("Gagal masuk ke keranjang");
     }
   };
@@ -64,9 +65,13 @@ export default function WishlistCard({
 
         <Link to={`/product/${id}`} className="block w-full h-full">
           <img
-            src={image || "../assets/no-image.png"}
+            src={image || noImage}
             alt={nama || "product"}
             loading="lazy"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = noImage;
+            }}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         </Link>

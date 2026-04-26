@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { updateCustomerProfile } from "../services/profileservice";
 
 export const useAddressSection = ({ user, updateUser }) => {
@@ -42,3 +42,5 @@ export const useAddressSection = ({ user, updateUser }) => {
     handleUpdateAlamat,
   };
 };
+
+

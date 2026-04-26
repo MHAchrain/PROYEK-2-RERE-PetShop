@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { useCart } from "../context/cartcontext";
 import { useAuth } from "../context/authcontext";
 import { fetchCart, removeCartItem, checkoutCart, updateCartItemQty } from "../services/cartservice";
@@ -141,3 +141,5 @@ export const useCartSection = ({ token }) => {
     navigate,
   };
 };
+
+

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { updateCustomerProfile } from "../services/profileservice";
 
 export const useSecurityForm = ({ updateUser }) => {
@@ -57,3 +57,5 @@ export const useSecurityForm = ({ updateUser }) => {
     handleSubmit,
   };
 };
+
+
