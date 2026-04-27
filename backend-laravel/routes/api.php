@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pesanan/{id}', [PesananController::class, 'show']);
     Route::post('/pembayaran', [PembayaranController::class, 'store']);
     Route::get('/pembayaran/{id}', [PembayaranController::class, 'show']);
+    Route::patch('/pembayaran/{id}/sync', [PembayaranController::class, 'sync']);
     Route::get('/pesanan/{id}/pengiriman', [PengirimanController::class, 'show']);
     Route::post('/pesanan/{id}/selesai', [PesananController::class, 'selesai']);
     Route::post('/pesanan/{id}/batal', [PesananController::class, 'batal']);

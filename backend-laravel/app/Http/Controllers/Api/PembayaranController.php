@@ -23,6 +23,61 @@ class PembayaranController extends Controller
         Config::$is3ds = true;
     }
 
+    protected function resolvePelanggan(Request $request): ?Pelanggan
+    {
+        $user = $request->user();
+
+        return $user->pelanggan_id
+            ? Pelanggan::find($user->pelanggan_id)
+            : Pelanggan::where('email', $user->email)->first();
+    }
+
+    protected function formatPaymentMethod(string $paymentType, ?string $bank = null, ?string $store = null): string
+    {
+        return match ($paymentType) {
+            'bank_transfer' => trim(($bank ? strtoupper($bank) . ' ' : '') . 'Virtual Account'),
+            'echannel' => 'Mandiri Bill Payment',
+            'qris' => 'QRIS',
+            'gopay' => 'GoPay',
+            'shopeepay' => 'ShopeePay',
+            'cstore' => $store ? ucfirst($store) : 'Convenience Store',
+            'akulaku' => 'Akulaku',
+            'credit_card' => 'Kartu Kredit',
+            'bca_klikpay' => 'BCA KlikPay',
+            'bca_klikbca' => 'KlikBCA',
+            'bri_epay' => 'BRI e-Pay',
+            'cimb_clicks' => 'CIMB Clicks',
+            'danamon_online' => 'Danamon Online',
+            default => ucwords(str_replace('_', ' ', $paymentType)),
+        };
+    }
+
+    protected function resolveMidtransMethodFromData(?string $paymentType, ?array $vaNumbers = null, ?string $store = null): ?string
+    {
+        if (! $paymentType) {
+            return null;
+        }
+
+        $bank = $vaNumbers[0]['bank'] ?? $vaNumbers[0]->bank ?? null;
+
+        if ($paymentType === 'echannel') {
+            $bank = 'mandiri';
+        }
+
+        return $this->formatPaymentMethod($paymentType, $bank, $store);
+    }
+
+    protected function mapTransactionStatusToPaymentStatus(?string $transactionStatus, ?string $fraudStatus = null): ?string
+    {
+        return match ($transactionStatus) {
+            'capture' => $fraudStatus === 'challenge' ? 'pending' : 'paid',
+            'settlement' => 'paid',
+            'cancel', 'deny', 'expire' => 'failed',
+            'pending' => 'pending',
+            default => null,
+        };
+    }
+
     public function store(Request $request)
 {
     $request->validate([
@@ -30,8 +85,7 @@ class PembayaranController extends Controller
         'metode_bayar' => 'required|string|max:50',
     ]);
 
-    $user = $request->user();
-    $pelanggan = Pelanggan::where('email', $user->email)->first();
+    $pelanggan = $this->resolvePelanggan($request);
 
     if (!$pelanggan) {
         return response()->json([
@@ -61,6 +115,15 @@ class PembayaranController extends Controller
         ], 400);
     }
 
+    if ($existingPayment && $existingPayment->status_bayar === 'pending' && $existingPayment->snap_token) {
+        return response()->json([
+            'success' => true,
+            'snap_token' => $existingPayment->snap_token,
+            'ref_gateway' => $existingPayment->ref_gateway,
+            'is_existing' => true,
+        ]);
+    }
+
     // Siapkan data transaksi untuk Midtrans
     $transactionDetails = [
         'order_id'     => 'ORDER-' . $pesanan->id_pesanan . '-' . time(),
@@ -68,7 +131,7 @@ class PembayaranController extends Controller
     ];
 
     $customerDetails = [
-        'first_name' => $pelanggan->nama_pelanggan,
+        'first_name' => $pelanggan->nama,
         'email'      => $pelanggan->email,
         'phone'      => $pelanggan->no_hp ?? '',
     ];
@@ -95,10 +158,10 @@ class PembayaranController extends Controller
         Pembayaran::updateOrCreate(
             ['id_pesanan' => $pesanan->id_pesanan],
             [
-                'metode_bayar'  => $request->metode_bayar,
+                'metode_bayar'  => 'Menunggu Pilihan Metode',
                 'status_bayar'  => 'pending',
                 'jumlah_bayar'  => (int) $pesanan->total,
-                'waktu_bayar'  => now(),
+                'waktu_bayar'  => null,
                 'ref_gateway'   => $transactionDetails['order_id'],
                 'snap_token'    => $snapToken,
             ]
@@ -110,6 +173,8 @@ class PembayaranController extends Controller
         return response()->json([
             'success'    => true,
             'snap_token' => $snapToken,
+            'ref_gateway' => $transactionDetails['order_id'],
+            'is_existing' => false,
         ]);
 
     } catch (\Exception $e) {
@@ -128,10 +193,13 @@ public function webhook(Request $request)
         $notif = new Notification();
 
         $orderId       = $notif->order_id;        // "ORDER-4-1777111127"
-        $statusCode    = $notif->status_code;
-        $grossAmount   = $notif->gross_amount;
         $transactionStatus = $notif->transaction_status;
         $fraudStatus   = $notif->fraud_status;
+        $resolvedMethod = $this->resolveMidtransMethodFromData(
+            $notif->payment_type ?? null,
+            $notif->va_numbers ?? null,
+            $notif->store ?? null,
+        );
 
         // Ambil id_pesanan dari order_id
         // format order_id: ORDER-{id_pesanan}-{timestamp}
@@ -143,16 +211,18 @@ public function webhook(Request $request)
             return response()->json(['message' => 'Pembayaran tidak ditemukan'], 404);
         }
 
-        // Tentukan status berdasarkan response Midtrans
-        if ($transactionStatus == 'capture') {
-            $pembayaran->status_bayar = ($fraudStatus == 'challenge') ? 'pending' : 'paid';
-        } elseif ($transactionStatus == 'settlement') {
-            $pembayaran->status_bayar = 'paid';
+        if ($resolvedMethod) {
+            $pembayaran->metode_bayar = $resolvedMethod;
+        }
+
+        $resolvedStatus = $this->mapTransactionStatusToPaymentStatus($transactionStatus, $fraudStatus);
+
+        if ($resolvedStatus) {
+            $pembayaran->status_bayar = $resolvedStatus;
+        }
+
+        if ($resolvedStatus === 'paid') {
             $pembayaran->waktu_bayar  = now();
-        } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
-            $pembayaran->status_bayar = 'failed';
-        } elseif ($transactionStatus == 'pending') {
-            $pembayaran->status_bayar = 'pending';
         }
 
         $pembayaran->save(); // Model booted() akan auto update status_pesanan jadi 'diproses'
@@ -165,18 +235,84 @@ public function webhook(Request $request)
 }
     public function show(Request $request, $id)
     {
-        $user = $request->user();
-        $pelanggan = Pelanggan::where('email', $user->email)->first();
+        $pelanggan = $this->resolvePelanggan($request);
 
         if (!$pelanggan) {
             return response()->json(['success' => false, 'message' => 'Pelanggan tidak ditemukan'], 404);
         }
 
-        $pembayaran = Pembayaran::where('id_pesanan', $id)->first();
+        $pembayaran = Pembayaran::where('id_pesanan', $id)
+            ->whereHas('pesanan', function ($query) use ($pelanggan) {
+                $query->where('id_pelanggan', $pelanggan->id_pelanggan);
+            })
+            ->first();
 
         if (!$pembayaran) {
             return response()->json(['success' => false, 'message' => 'Data pembayaran belum ada'], 404);
         }
+
+        return response()->json([
+            'success' => true,
+            'data' => $pembayaran,
+        ]);
+    }
+
+    public function sync(Request $request, $id)
+    {
+        $pelanggan = $this->resolvePelanggan($request);
+
+        if (! $pelanggan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pelanggan tidak ditemukan',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'payment_type' => 'nullable|string|max:50',
+            'transaction_status' => 'nullable|string|max:50',
+            'fraud_status' => 'nullable|string|max:50',
+            'store' => 'nullable|string|max:50',
+            'va_numbers' => 'nullable|array',
+            'va_numbers.*.bank' => 'nullable|string|max:50',
+        ]);
+
+        $pembayaran = Pembayaran::where('id_pesanan', $id)
+            ->whereHas('pesanan', function ($query) use ($pelanggan) {
+                $query->where('id_pelanggan', $pelanggan->id_pelanggan);
+            })
+            ->first();
+
+        if (! $pembayaran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pembayaran belum ada',
+            ], 404);
+        }
+
+        $resolvedMethod = $this->resolveMidtransMethodFromData(
+            $validated['payment_type'] ?? null,
+            $validated['va_numbers'] ?? null,
+            $validated['store'] ?? null,
+        );
+        $resolvedStatus = $this->mapTransactionStatusToPaymentStatus(
+            $validated['transaction_status'] ?? null,
+            $validated['fraud_status'] ?? null,
+        );
+
+        if ($resolvedMethod) {
+            $pembayaran->metode_bayar = $resolvedMethod;
+        }
+
+        if ($resolvedStatus) {
+            $pembayaran->status_bayar = $resolvedStatus;
+        }
+
+        if ($resolvedStatus === 'paid') {
+            $pembayaran->waktu_bayar = now();
+        }
+
+        $pembayaran->save();
 
         return response()->json([
             'success' => true,

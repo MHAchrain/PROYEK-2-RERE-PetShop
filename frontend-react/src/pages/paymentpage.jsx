@@ -7,10 +7,13 @@ import {
   MapPin,
   ReceiptText,
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import Skeleton from '../components/ui/skeleton';
+import toast from '../utils/toast.jsx';
 import { getOrderDetail } from '../services/orderservice';
-import { createPayment, getPaymentByOrderId } from '../services/paymentservice';
+import {
+  createPayment,
+  getPaymentByOrderId,
+  syncPaymentByOrderId,
+} from '../services/paymentservice';
 import { getStorageUrl } from '../utils/appconfig';
 
 const paymentStatusMap = {
@@ -69,12 +72,61 @@ export default function PaymentPage() {
     loadData();
   }, [id, navigate, state?.order]);
 
-  const activePaymentStatus = payment?.status_bayar || 'pending';
+  useEffect(() => {
+    if (!order?.id_pesanan) return;
+
+    const shouldPoll =
+      payment?.status_bayar === 'pending' ||
+      payment?.metode_bayar === 'Menunggu Pilihan Metode';
+
+    if (!shouldPoll) return;
+
+    const intervalId = window.setInterval(async () => {
+      try {
+        const latestPayment = await getPaymentByOrderId(order.id_pesanan);
+        setPayment((currentPayment) => {
+          if (!latestPayment) return currentPayment;
+          return { ...currentPayment, ...latestPayment };
+        });
+      } catch (error) {
+        if (error.response?.status !== 404) {
+          console.error(error);
+        }
+      }
+    }, 3000);
+
+    return () => window.clearInterval(intervalId);
+  }, [order?.id_pesanan, payment?.metode_bayar, payment?.status_bayar]);
+
+  const activePaymentStatus = payment?.status_bayar || null;
   const paymentStatus = paymentStatusMap[activePaymentStatus] || {
     label: 'Belum Dibuat',
     className: 'bg-gray-100 text-gray-700',
     helper:
       "Klik 'Bayar Sekarang' untuk memunculkan pilihan metode pembayaran.",
+  };
+
+  const activePaymentMethod =
+    payment?.metode_bayar || (payment ? 'Menunggu Pilihan Metode' : '-');
+
+  const syncPaymentState = async (result, fallbackStatus = null) => {
+    if (!order?.id_pesanan) return null;
+
+    try {
+      const updatedPayment = await syncPaymentByOrderId(order.id_pesanan, {
+        payment_type: result?.payment_type,
+        transaction_status: result?.transaction_status || fallbackStatus,
+        fraud_status: result?.fraud_status,
+        store: result?.store,
+        va_numbers: result?.va_numbers,
+      });
+
+      setPayment(updatedPayment);
+      return updatedPayment;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
   };
 
   const handleCreatePayment = async () => {
@@ -94,26 +146,43 @@ export default function PaymentPage() {
         throw new Error('Snap Token tidak ditemukan dalam response.');
       }
 
+      const latestPayment = await getPaymentByOrderId(order.id_pesanan).catch(
+        () => null,
+      );
+
+      if (latestPayment) {
+        setPayment(latestPayment);
+      }
+
+      if (!window.snap?.pay) {
+        throw new Error('Library pembayaran Midtrans belum termuat.');
+      }
+
       window.snap.pay(snapToken, {
-        onSuccess: function () {
+        onSuccess: async function (result) {
+          await syncPaymentState(result, 'settlement');
           toast.success('Pembayaran Berhasil!');
-          navigate('/pesanan');
-        },
-        onPending: function () {
-          toast('Selesaikan pembayaran Anda.');
           navigate(`/pesanan/${order.id_pesanan}`);
         },
-        onError: function () {
+        onPending: async function (result) {
+          await syncPaymentState(result, 'pending');
+          toast.success('Metode pembayaran berhasil dipilih.');
+          navigate(`/pesanan/${order.id_pesanan}`);
+        },
+        onError: async function (result) {
+          await syncPaymentState(result, 'deny');
           toast.error('Pembayaran Gagal.');
         },
         onClose: function () {
-          toast('Anda menutup jendela pembayaran.');
+          toast.error('Anda menutup jendela pembayaran.');
         },
       });
     } catch (error) {
       console.error(error);
       const message =
-        error.response?.data?.message || 'Gagal menghubungkan ke Midtrans.';
+        error.response?.data?.message ||
+        error.message ||
+        'Gagal menghubungkan ke Midtrans.';
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -238,7 +307,7 @@ export default function PaymentPage() {
                   <div className="flex justify-between py-2 border-b border-gray-50">
                     <span className="text-gray-500">Metode</span>
                     <span className="font-bold text-gray-900">
-                      {payment.metode_bayar}
+                      {activePaymentMethod}
                     </span>
                   </div>
                   <div className="flex justify-between py-2">
