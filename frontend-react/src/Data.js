@@ -1,6 +1,9 @@
 import * as icons from "lucide-react";
-import examp from "../src/assets/examp.jpeg";
-import dummy from "../src/assets/dummy.png";
+import examp from "./assets/examp.jpeg";
+import dummy from "./assets/dummy.png";
+import ba1 from "./assets/ba1.png"
+import ba2 from "./assets/ba2.png"
+import ba3 from "./assets/ba3.png"
 import profile_1  from "./assets/profile_1.jpeg"
 import profile_2  from "./assets/profile_2.jpeg"
 import profile_3  from "./assets/profile_3.jpeg"
@@ -47,9 +50,9 @@ export const ListKategori = [
 ]
 
 export const HeroSlides = [
-  { id: 1, text: "Promo Makanan Kucing!", image: examp },
-  { id: 2, text: "Diskon Mainan Anjing!", image: examp },
-  { id: 3, text: "Aksesoris Lucu untuk Hewan Peliharaan!", image: examp },
+  { id: 1, text: "Promo Makanan Kucing!", image: ba1 },
+  { id: 2, text: "Diskon Mainan Anjing!", image: ba2 },
+  { id: 3, text: "Aksesoris Lucu untuk Hewan Peliharaan!", image: ba3 },
   { id: 4, text: "Perawatan Grooming Terbaik!", image: examp},
   { id: 5, text: "Semua Kebutuhan Hewan Peliharaan Ada di Sini!", image: examp }
 ]
