@@ -1,10 +1,14 @@
 import * as icons from "lucide-react";
-import examp from "../src/assets/examp.jpeg";
-import dummy from "../src/assets/dummy.png";
+import { Truck, Headphones, ShieldCheck } from "lucide-react";
+// Assets
+import examp from "./assets/examp.jpeg";
+import dummy from "./assets/dummy.png";
+import hero1 from "./assets/ba1.png";
+import hero2 from "./assets/ba2.png";
+import hero3 from "./assets/ba3.png";
 import profile_1  from "./assets/profile_1.jpeg"
 import profile_2  from "./assets/profile_2.jpeg"
 import profile_3  from "./assets/profile_3.jpeg"
-import { Truck, Headphones, ShieldCheck } from "lucide-react";
 
 export const ListBarang = [
   { id: 1, nama: "Bolt Ikan Ungu", harga: 20000, stok: 20, image: [examp, dummy], rating: 5},
@@ -47,9 +51,9 @@ export const ListKategori = [
 ]
 
 export const HeroSlides = [
-  { id: 1, text: "Promo Makanan Kucing!", image: examp },
-  { id: 2, text: "Diskon Mainan Anjing!", image: examp },
-  { id: 3, text: "Aksesoris Lucu untuk Hewan Peliharaan!", image: examp },
+  { id: 1, text: "Promo Makanan Kucing!", image: hero1 },
+  { id: 2, text: "Diskon Mainan Anjing!", image: hero2 },
+  { id: 3, text: "Aksesoris Lucu untuk Hewan Peliharaan!", image: hero3 },
   { id: 4, text: "Perawatan Grooming Terbaik!", image: examp},
   { id: 5, text: "Semua Kebutuhan Hewan Peliharaan Ada di Sini!", image: examp }
 ]

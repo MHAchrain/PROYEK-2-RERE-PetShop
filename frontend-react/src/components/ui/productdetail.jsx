@@ -22,7 +22,7 @@ export default function ProductDetail({
 
             <div className="flex items-center gap-3 mt-2">
                 <span className={`text-sm font-medium ${product.stock > 0 ? "text-green-600" : "text-red-500"}`}>
-                    {product.stock > 0 ? "In Stock" : "Out of Stock"}
+                    {product.stock > 0 ? "Stok Tersedia" : "Stok Habis"}
                 </span>
             </div>
 
@@ -73,7 +73,7 @@ export default function ProductDetail({
                         disabled={isOutOfStock || isBuyingNow}
                         className="min-w-40 max-w-60 h-12 bg-primary text-white px-6 rounded-md font-bold hover:bg-primary/90 shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
                     >
-                        {isBuyingNow ? "Processing..." : "Buy Now"}
+                        {isBuyingNow ? "Memproses..." : "Beli Sekarang"}
                     </button>
 
                     <button

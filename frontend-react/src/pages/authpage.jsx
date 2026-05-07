@@ -247,7 +247,7 @@ export default function AuthPage() {
                   <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                 )}
                 {loading
-                  ? "Loading..."
+                  ? "Memproses..."
                   : isLogin
                     ? "Masuk"
                     : isRegister
