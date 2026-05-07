@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Printer, ReceiptText, ShoppingBag, Truck } from "lucide-react";
+import { ArrowLeft, ExternalLink, MapPin, Phone, Printer, ReceiptText, ShoppingBag, Truck } from "lucide-react";
 import toast from "../utils/toast.jsx";
 import Skeleton from "../components/ui/skeleton";
 import { cancelOrder, getOrderDetail } from "../services/orderservice";
+import { createPayment, syncPaymentByOrderId } from "../services/paymentservice";
 import { getStorageUrl } from "../utils/appconfig";
 import logo from "../assets/logorere.png";
 
@@ -28,7 +29,7 @@ const statusClassMap = {
 };
 
 const paymentStatusLabelMap = {
-  pending: "Menunggu Verifikasi",
+  pending: "Menunggu Pembayaran",
   paid: "Sudah Dibayar",
   failed: "Pembayaran Gagal",
 };
@@ -45,6 +46,7 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isOpeningPayment, setIsOpeningPayment] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [printedAt, setPrintedAt] = useState(() => new Date());
 
@@ -114,14 +116,101 @@ export default function OrderDetailPage() {
 
     try {
       setIsCancelling(true);
-      await cancelOrder(order.id_pesanan);
-      setOrder((prev) => (prev ? { ...prev, status_pesanan: "batal" } : prev));
+      const response = await cancelOrder(order.id_pesanan);
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              status_pesanan: response?.data?.status_pesanan || "batal",
+              pembayaran: prev.pembayaran
+                ? {
+                    ...prev.pembayaran,
+                    status_bayar:
+                      response?.data?.status_bayar || prev.pembayaran.status_bayar,
+                  }
+                : prev.pembayaran,
+            }
+          : prev
+      );
       setIsCancelModalOpen(false);
       toast.success("Pesanan berhasil dibatalkan.");
     } catch (error) {
       toast.error(error.message || "Gagal membatalkan pesanan.");
     } finally {
       setIsCancelling(false);
+    }
+  };
+
+  const refreshOrder = async () => {
+    const latestOrder = await getOrderDetail(id);
+    setOrder(latestOrder);
+    return latestOrder;
+  };
+
+  const syncPaymentState = async (result, fallbackStatus = null) => {
+    if (!order?.id_pesanan) return;
+
+    try {
+      await syncPaymentByOrderId(order.id_pesanan, {
+        payment_type: result?.payment_type,
+        transaction_status: result?.transaction_status || fallbackStatus,
+        fraud_status: result?.fraud_status,
+        store: result?.store,
+        va_numbers: result?.va_numbers,
+      });
+
+      await refreshOrder();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleOpenPaymentDetail = async () => {
+    if (!order?.id_pesanan) return;
+
+    try {
+      setIsOpeningPayment(true);
+
+      const response = await createPayment({
+        id_pesanan: order.id_pesanan,
+        metode_bayar: "Midtrans",
+      });
+
+      const snapToken = response.snap_token;
+
+      if (!snapToken) {
+        throw new Error("Snap Token tidak ditemukan dalam response.");
+      }
+
+      if (!window.snap?.pay) {
+        throw new Error("Library pembayaran Midtrans belum termuat.");
+      }
+
+      window.snap.pay(snapToken, {
+        onSuccess: async function (result) {
+          await syncPaymentState(result, "settlement");
+          toast.success("Pembayaran berhasil.");
+        },
+        onPending: async function (result) {
+          await syncPaymentState(result, "pending");
+          toast.success(
+            response.is_existing
+              ? "Detail pembayaran Midtrans berhasil dibuka."
+              : "Metode pembayaran berhasil dipilih."
+          );
+        },
+        onError: async function (result) {
+          await syncPaymentState(result, "deny");
+          toast.error("Pembayaran gagal.");
+        },
+        onClose: function () {
+          toast.error("Anda menutup jendela pembayaran.");
+        },
+      });
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message || "Gagal membuka detail pembayaran.");
+    } finally {
+      setIsOpeningPayment(false);
     }
   };
 
@@ -304,7 +393,7 @@ export default function OrderDetailPage() {
           <div className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
             <h2 className="mb-4 text-lg font-bold text-gray-900">Pembayaran</h2>
             {order.pembayaran ? (
-              <div className="space-y-3 text-sm text-gray-700">
+              <div className="space-y-4 text-sm text-gray-700">
                 <p>Metode: <span className="font-semibold">{order.pembayaran.metode_bayar || "-"}</span></p>
                 <div className="flex items-center gap-2">
                   <span>Status:</span>
@@ -313,6 +402,17 @@ export default function OrderDetailPage() {
                   </span>
                 </div>
                 <p>Jumlah bayar: <span className="font-semibold">Rp {Number(order.pembayaran.jumlah_bayar || 0).toLocaleString("id-ID")}</span></p>
+                {order.pembayaran.status_bayar !== "paid" && (
+                  <button
+                    type="button"
+                    onClick={handleOpenPaymentDetail}
+                    disabled={isOpeningPayment}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600 disabled:opacity-50"
+                  >
+                    <ExternalLink size={16} />
+                    {isOpeningPayment ? "Membuka..." : "Lihat Detail Pembayaran"}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
