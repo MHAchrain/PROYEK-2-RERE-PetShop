@@ -29,7 +29,7 @@ export default function ProductPage() {
           idKategori: data.id_kategori,
           name: data.nama_produk,
           price: Number(data.harga),
-          stock: data.stok,
+          stock: Number(data.stok) || 0,
           description: data.deskripsi,
           images: data.foto ? [getStorageUrl(data.foto)] : [],
         };

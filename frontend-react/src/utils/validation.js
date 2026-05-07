@@ -18,11 +18,11 @@ export const validateRegister = ({
     }
 
     if (password.length < 8) {
-        return "Password minimal 8 karakter!";
+        return "Kata sandi minimal 8 karakter!";
     }
 
     if (password !== confirmPassword) {
-        return "Password tidak sama!";
+        return "Kata sandi tidak sama!";
     }
 
     return null;
@@ -30,7 +30,7 @@ export const validateRegister = ({
 
 export const validateLogin = (identifier, password) => {
     if (!identifier || !password) {
-        return "Email / No HP dan password wajib diisi!";
+        return "Email / No HP dan kata sandi wajib diisi!";
     }
 
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);

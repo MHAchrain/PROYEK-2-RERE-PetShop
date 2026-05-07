@@ -23,6 +23,7 @@ export default function ProductSection({ products = [], isLoading, visibleCount,
             image={getStorageUrl(item.foto)}
             diskon={item.diskon}
             rating={item.rating}
+            stok={item.stok}
             product={item}
             onWishlistAdded={onWishlistAdded}
           />

@@ -101,7 +101,7 @@ export const useCartSection = ({ token }) => {
     const noTelp = pelanggan?.no_hp?.trim();
 
     if (!alamatKirim || !noTelp) {
-      toast.error("Lengkapi alamat dan nomor telepon dulu di profil sebelum checkout.");
+      toast.error("Lengkapi alamat dan nomor telepon dulu di profil sebelum membuat pesanan.");
       navigate("/atur-akun");
       return;
     }
@@ -124,7 +124,7 @@ export const useCartSection = ({ token }) => {
         });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Checkout gagal.");
+      toast.error(error.response?.data?.message || "Gagal membuat pesanan.");
     } finally {
       setIsCheckingOut(false);
     }

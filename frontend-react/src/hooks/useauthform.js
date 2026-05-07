@@ -2,8 +2,7 @@ import { useState } from "react";
 import { formatPhone } from "../utils/formatphone";
 import { validateLogin, validateRegister } from "../utils/validation";
 import toast from "../utils/toast.jsx";
-import { loginUser, loginWithGoogle, registerUser, resetPassword, sendResetCode, verifyResetCode } from "../services/authservice";
-import { requestGoogleAccessToken } from "../services/googleservice";
+import { loginUser, registerUser, resetPassword, sendResetCode, verifyResetCode } from "../services/authservice";
 
 export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
   const [form, setForm] = useState({
@@ -19,7 +18,6 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [verifyingCode, setVerifyingCode] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
@@ -135,7 +133,7 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
         setCodeVerified(true);
         setRemainingResetAttempts(5);
         setResetLockMinutes(0);
-        toast.success(response.message || "Kode siap digunakan. Silakan masukkan password baru.");
+        toast.success(response.message || "Kode siap digunakan. Silakan masukkan kata sandi baru.");
       }
     } catch (error) {
       const status = error.response?.status;
@@ -193,13 +191,13 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
       } else if (!form.resetCode) {
         error = "Kode reset wajib diisi";
       } else if (!codeVerified) {
-        error = "Konfirmasi kode reset dulu sebelum mengganti password";
+        error = "Konfirmasi kode reset dulu sebelum mengganti kata sandi";
       } else if (!form.newPassword || !form.confirmNewPassword) {
-        error = "Password baru dan konfirmasi password wajib diisi";
+        error = "Kata sandi baru dan konfirmasi kata sandi wajib diisi";
       } else if (form.newPassword.length < 6) {
-        error = "Password baru minimal 6 karakter";
+        error = "Kata sandi baru minimal 6 karakter";
       } else if (form.newPassword !== form.confirmNewPassword) {
-        error = "Konfirmasi password baru tidak cocok";
+        error = "Konfirmasi kata sandi baru tidak cocok";
       }
     }
 
@@ -247,7 +245,7 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
           password_confirmation: form.confirmNewPassword,
         });
 
-        toast.success(response.message || "Password berhasil direset");
+        toast.success(response.message || "Kata sandi berhasil direset");
         setAuthMode("login");
         resetForgotPasswordState();
         setForm((prev) => ({
@@ -264,7 +262,7 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
       const errors = error.response?.data?.errors;
 
       if (status === 401) {
-        toast.error(message || "Email atau password salah!");
+        toast.error(message || "Email atau kata sandi salah!");
       } else if (status === 404) {
         toast.error(message || "Akun tidak ditemukan");
       } else if (status === 422) {
@@ -285,30 +283,6 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
     }
   };
 
-  const handleGoogleAuth = async () => {
-    setGoogleLoading(true);
-
-    try {
-      const accessToken = await requestGoogleAccessToken();
-      const response = await loginWithGoogle(accessToken);
-
-      login(response.data, response.token);
-      toast.success(
-        isLogin ? "Berhasil masuk dengan Google" : "Akun Google berhasil digunakan untuk mendaftar"
-      );
-      navigate("/");
-    } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        error.message ||
-        "Gagal melanjutkan autentikasi Google";
-
-      toast.error(message);
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
   return {
     form,
     handleChange,
@@ -322,12 +296,10 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
     codeVerified,
     remainingResetAttempts,
     resetLockMinutes,
-    googleLoading,
     isLogin,
     isRegister,
     isForgotPassword,
     handleVerifyResetCode,
-    handleGoogleAuth,
   };
 };
 

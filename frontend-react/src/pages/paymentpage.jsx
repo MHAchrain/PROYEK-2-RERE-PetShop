@@ -215,7 +215,7 @@ export default function PaymentPage() {
           <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-primary/70">
-                Secure Payment
+                Pembayaran Aman
               </p>
               <h1 className="mt-3 text-3xl font-black text-gray-900">
                 Pembayaran Instan.

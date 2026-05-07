@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ExternalLink, MapPin, Phone, Printer, ReceiptText, ShoppingBag, Truck } from "lucide-react";
+import { ArrowLeft, CreditCard, ExternalLink, MapPin, Phone, Printer, ReceiptText, ShoppingBag, Truck } from "lucide-react";
 import toast from "../utils/toast.jsx";
 import Skeleton from "../components/ui/skeleton";
 import { cancelOrder, getOrderDetail } from "../services/orderservice";
@@ -38,6 +38,32 @@ const paymentStatusClassMap = {
   pending: "bg-amber-100 text-amber-700",
   paid: "bg-emerald-100 text-emerald-700",
   failed: "bg-rose-100 text-rose-700",
+};
+
+const shippingStatusLabelMap = {
+  diproses: "Sedang Diproses",
+  dikirim: "Sedang Dikirim",
+  diterima: "Sudah Diterima",
+};
+
+const shippingStatusClassMap = {
+  diproses: "bg-amber-100 text-amber-700",
+  dikirim: "bg-indigo-100 text-indigo-700",
+  diterima: "bg-emerald-100 text-emerald-700",
+};
+
+const formatCourierName = (courier) => {
+  const normalizedCourier = String(courier || "").trim().toLowerCase();
+
+  if (!normalizedCourier) return "-";
+  if (normalizedCourier.includes("internal")) return "Kurir Internal (Udin)";
+  if (normalizedCourier.includes("jne")) return "JNE Ekspress";
+  if (normalizedCourier.includes("ojol") || normalizedCourier.includes("gosend") || normalizedCourier.includes("grab")) {
+    return "Gosend/Grab";
+  }
+  if (normalizedCourier.includes("menunggu")) return "Menunggu Kurir";
+
+  return courier;
 };
 
 export default function OrderDetailPage() {
@@ -98,6 +124,11 @@ export default function OrderDetailPage() {
     paymentStatusLabelMap[order?.pembayaran?.status_bayar] || order?.pembayaran?.status_bayar || "-";
   const paymentStatusClass =
     paymentStatusClassMap[order?.pembayaran?.status_bayar] || "bg-gray-100 text-gray-700";
+  const shippingStatusLabel =
+    shippingStatusLabelMap[order?.pengiriman?.status_kirim] || order?.pengiriman?.status_kirim || "-";
+  const shippingStatusClass =
+    shippingStatusClassMap[order?.pengiriman?.status_kirim] || "bg-gray-100 text-gray-700";
+  const courierName = formatCourierName(order?.pengiriman?.kurir);
   const canCancel = ["baru", "menunggu_verifikasi"].includes(order?.status_pesanan);
   const printedAtLabel = printedAt.toLocaleString("id-ID", {
     day: "2-digit",
@@ -391,7 +422,10 @@ export default function OrderDetailPage() {
 
         <section className="grid gap-4 md:grid-cols-2 print:grid-cols-2">
           <div className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
-            <h2 className="mb-4 text-lg font-bold text-gray-900">Pembayaran</h2>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
+              <CreditCard size={18} />
+              Pembayaran
+            </h2>
             {order.pembayaran ? (
               <div className="space-y-4 text-sm text-gray-700">
                 <p>Metode: <span className="font-semibold">{order.pembayaran.metode_bayar || "-"}</span></p>
@@ -433,10 +467,15 @@ export default function OrderDetailPage() {
               Pengiriman
             </h2>
             {order.pengiriman ? (
-              <div className="space-y-3 text-sm text-gray-700">
-                <p>Kurir: <span className="font-semibold">{order.pengiriman.kurir || "-"}</span></p>
+              <div className="space-y-4 text-sm text-gray-700">
+                <p>Kurir: <span className="font-semibold">{courierName}</span></p>
+                <div className="flex items-center gap-2">
+                  <span>Status:</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${shippingStatusClass}`}>
+                    {shippingStatusLabel}
+                  </span>
+                </div>
                 <p>Resi: <span className="font-semibold">{order.pengiriman.resi || "-"}</span></p>
-                <p>Status kirim: <span className="font-semibold">{order.pengiriman.status_kirim || "-"}</span></p>
               </div>
             ) : (
               <p className="text-sm text-gray-500">Data pengiriman belum tersedia.</p>

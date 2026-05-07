@@ -20,6 +20,7 @@ export default function ProductSectionByCategory({ products = [], isLoading }) {
             image={getStorageUrl(item.foto)}
             diskon={item.diskon}
             rating={item.rating}
+            stok={item.stok}
             product={item}
           />
         ))

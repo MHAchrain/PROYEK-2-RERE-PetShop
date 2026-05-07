@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuthForm } from "../hooks/useauthform";
 
 import catImage from "../assets/catcool.jpg";
-import Google from "../assets/google.svg";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function AuthPage() {
@@ -20,7 +19,6 @@ export default function AuthPage() {
     handleSendResetCode,
     resetForgotPasswordState,
     loading,
-    googleLoading,
     sendingCode,
     verifyingCode,
     codeSent,
@@ -31,7 +29,6 @@ export default function AuthPage() {
     isRegister,
     isForgotPassword,
     handleVerifyResetCode,
-    handleGoogleAuth,
   } = useAuthForm(authMode, login, navigate, setAuthMode);
 
   const switchToMode = (mode) => {
@@ -44,13 +41,13 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       <div className="w-full md:w-1/2 h-64 md:h-screen">
-        <img src={catImage} alt="Auth Visual" className="w-full h-full object-cover" />
+        <img src={catImage} alt="Visual autentikasi" className="w-full h-full object-cover" />
       </div>
 
       <div className="w-full md:w-1/2 flex items-center justify-center px-6 py-10 md:py-0">
         <div className="w-full max-w-md">
           <h2 className="text-2xl md:text-3xl font-semibold mb-2">
-            {isLogin ? "Selamat Datang" : isRegister ? "Buat Akun Baru" : "Lupa Password"}
+            {isLogin ? "Selamat Datang" : isRegister ? "Buat Akun Baru" : "Lupa Kata Sandi"}
           </h2>
 
           <p className="mb-8 text-sm md:text-base">
@@ -58,7 +55,7 @@ export default function AuthPage() {
               ? "Masuk untuk melanjutkan ke PetShop"
               : isRegister
                 ? "Daftar untuk membuat akun baru"
-                : "Masukkan email, kirim kode reset, lalu buat password baru"}
+                : "Masukkan email, kirim kode reset, lalu buat kata sandi baru"}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -125,7 +122,7 @@ export default function AuthPage() {
                   onClick={() => switchToMode("forgot")}
                   className="underline cursor-pointer text-sm text-gray-600 hover:text-black"
                 >
-                  Lupa password?
+                  Lupa kata sandi?
                 </button>
               </div>
             )}
@@ -134,7 +131,7 @@ export default function AuthPage() {
               <div className="w-full">
                 <input
                   type="password"
-                  placeholder="Konfirmasi Password"
+                  placeholder="Konfirmasi Kata Sandi"
                   value={form.confirmPassword}
                   onChange={(e) => handleChange("confirmPassword", e.target.value)}
                   className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -146,7 +143,7 @@ export default function AuthPage() {
                       form.password === form.confirmPassword ? "text-green-600" : "text-red-600"
                     }`}
                   >
-                    {form.password === form.confirmPassword ? "Password cocok" : "Password tidak sama"}
+                    {form.password === form.confirmPassword ? "Kata sandi cocok" : "Kata sandi tidak sama"}
                   </p>
                 )}
               </div>
@@ -209,7 +206,7 @@ export default function AuthPage() {
                     <div className="relative w-full">
                       <input
                         type={showNewPassword ? "text" : "password"}
-                        placeholder="Password Baru"
+                        placeholder="Kata Sandi Baru"
                         value={form.newPassword}
                         onChange={(e) => handleChange("newPassword", e.target.value)}
                         className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -225,7 +222,7 @@ export default function AuthPage() {
 
                     <input
                       type="password"
-                      placeholder="Konfirmasi Password Baru"
+                      placeholder="Konfirmasi Kata Sandi Baru"
                       value={form.confirmNewPassword}
                       onChange={(e) => handleChange("confirmNewPassword", e.target.value)}
                       className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -252,25 +249,7 @@ export default function AuthPage() {
                     ? "Masuk"
                     : isRegister
                       ? "Daftar"
-                      : "Reset Password"}
-              </button>
-            )}
-
-            {!isForgotPassword && (
-              <button
-                type="button"
-                onClick={handleGoogleAuth}
-                disabled={googleLoading}
-                className={`w-full border-2 border-gray-400 py-3 rounded-md flex items-center justify-center gap-2 transition ${
-                  googleLoading ? "cursor-not-allowed bg-gray-100 text-gray-400" : "hover:bg-gray-200 cursor-pointer"
-                }`}
-              >
-                <img src={Google} alt="Google Logo" className="w-5" />
-                {googleLoading
-                  ? "Memproses Google..."
-                  : isLogin
-                    ? "Masuk dengan Google"
-                    : "Daftar dengan Google"}
+                      : "Reset Kata Sandi"}
               </button>
             )}
           </form>
@@ -296,7 +275,7 @@ export default function AuthPage() {
 
             {isForgotPassword && (
               <p>
-                Ingat password?
+                Ingat kata sandi?
                 <button type="button" onClick={() => switchToMode("login")} className="ml-2 underline cursor-pointer">
                   Kembali ke login
                 </button>

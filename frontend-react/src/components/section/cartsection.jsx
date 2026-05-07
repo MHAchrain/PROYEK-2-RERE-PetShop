@@ -58,18 +58,7 @@ export default function CartSection() {
         </button>
       </div>
 
-      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-        <div className="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
-          <input
-            type="text"
-            placeholder="Masukkan kode kupon"
-            className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none transition focus:border-black sm:flex-1 xl:w-72"
-          />
-          <button className="rounded-2xl bg-[#8B100E] px-6 py-3 font-medium whitespace-nowrap text-white transition hover:bg-[#6f0d0c]">
-            Pakai Kupon
-          </button>
-        </div>
-
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-end">
         <div className="w-full rounded-3xl border border-gray-200 bg-white p-6 shadow-sm xl:max-w-sm">
           <h3 className="mb-5 text-xl font-bold">Ringkasan Belanja</h3>
 
@@ -79,8 +68,8 @@ export default function CartSection() {
           </div>
 
           <div className="flex justify-between border-b border-gray-200 py-3">
-            <span>Shipping:</span>
-            <span className="text-gray-500">Free</span>
+            <span>Pengiriman:</span>
+            <span className="text-gray-500">Gratis</span>
           </div>
 
           <div className="flex justify-between pt-3 text-lg font-bold">

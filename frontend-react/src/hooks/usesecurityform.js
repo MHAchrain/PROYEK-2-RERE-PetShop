@@ -19,23 +19,23 @@ export const useSecurityForm = ({ updateUser }) => {
     e.preventDefault();
 
     if (pwdData.password.length < 6) {
-      toast.error("Password minimal 6 karakter");
+      toast.error("Kata sandi minimal 6 karakter");
       return;
     }
 
     if (pwdData.password !== pwdData.password_confirmation) {
-      toast.error("Konfirmasi password tidak cocok!");
+      toast.error("Konfirmasi kata sandi tidak cocok!");
       return;
     }
 
-    const toastId = toast.loading("Mengubah password...");
+    const toastId = toast.loading("Mengubah kata sandi...");
     setIsLoading(true);
 
     try {
       const response = await updateCustomerProfile(pwdData);
 
       if (response.success) {
-        toast.success("Password berhasil diubah!", { id: toastId });
+        toast.success("Kata sandi berhasil diubah!", { id: toastId });
         updateUser(response.data);
         setPwdData({ password: "", password_confirmation: "" });
       }

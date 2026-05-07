@@ -72,7 +72,7 @@ export default function OrderCard({ order }) {
             <div className="min-w-0">
               <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
                 <ShoppingBag size={14} />
-                Order ID
+                ID Pesanan
               </p>
               <p className="text-sm font-extrabold text-gray-900">#{order.id_pesanan}</p>
             </div>

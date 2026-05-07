@@ -44,32 +44,32 @@ export const ListBarang = [
 ];
 
 export const ListKategori = [
-  { id: 1, nama: "Food", icon: icons.Fish },
-  { id: 2, nama: "Toys", icon: icons.Puzzle },
-  { id: 3, nama: "Accessories", icon: icons.Tag },
+  { id: 1, nama: "Makanan", icon: icons.Fish },
+  { id: 2, nama: "Mainan", icon: icons.Puzzle },
+  { id: 3, nama: "Aksesori", icon: icons.Tag },
   { id: 4, nama: "Grooming", icon: icons.Scissors }
 ]
 
 export const HeroSlides = [
-  { id: 1, text: "Promo Makanan Kucing!", image: hero1 },
-  { id: 2, text: "Diskon Mainan Anjing!", image: hero2 },
-  { id: 3, text: "Aksesoris Lucu untuk Hewan Peliharaan!", image: hero3 },
-  { id: 4, text: "Perawatan Grooming Terbaik!", image: examp},
-  { id: 5, text: "Semua Kebutuhan Hewan Peliharaan Ada di Sini!", image: examp }
+  { id: 1, text: "Pilihan Makanan Kucing Favorit", image: hero1 },
+  { id: 2, text: "Mainan Seru untuk Anjing Aktif", image: hero2 },
+  { id: 3, text: "Aksesori Lucu untuk Hewan Peliharaan", image: hero3 },
+  { id: 4, text: "Perawatan Grooming yang Nyaman", image: examp},
+  { id: 5, text: "Semua Kebutuhan Anabul Ada di Sini", image: examp }
 ]
 
 export const Statistic = [
-  { id: 1, value: "10.5k", label: "Sellers active our site", icon: icons.Store },
-  { id: 2, value: "33k", label: "Monthly Product Sale", icon: icons.Banknote },
-  { id: 3, value: "45.5k", label: "Customer active in our site", icon: icons.Handbag },
-  { id: 4, value: "25k", label: "Annual gross sale in our site", icon: icons.DollarSign },
+  { id: 1, value: "10.5k", label: "Penjual aktif di situs kami", icon: icons.Store },
+  { id: 2, value: "33k", label: "Penjualan produk bulanan", icon: icons.Banknote },
+  { id: 3, value: "45.5k", label: "Pelanggan aktif di situs kami", icon: icons.Handbag },
+  { id: 4, value: "25k", label: "Penjualan kotor tahunan", icon: icons.DollarSign },
 ]
 
 export const TeamList = [
   {
     id: 1, 
     name: "MH Achrain", 
-    role: "Frontend Developer", 
+    role: "Pengembang Frontend", 
     image: profile_1, 
     instagram: "https://www.instagram.com/mhrain._?igsh=NnBvaWd4c3liOXNt",
     linkedin: "https://www.linkedin.com/in/muhammad-hikmaturrahman-achrain-02b3a0327?utm_source=share_via&utm_content=profile&utm_medium=member_android",
@@ -79,7 +79,7 @@ export const TeamList = [
   {
     id: 2, 
     name: "Sakhi Ardha Handaru", 
-    role: "Frontend Developer", 
+    role: "Pengembang Frontend", 
     image: profile_2,
     instagram: "https://www.instagram.com/mhrain._?igsh=NnBvaWd4c3liOXNt",
     linkedin: "https://www.linkedin.com/in/muhammad-hikmaturrahman-achrain-02b3a0327?utm_source=share_via&utm_content=profile&utm_medium=member_android",
@@ -89,7 +89,7 @@ export const TeamList = [
   {
     id: 3, 
     name: "Nabil Stani Syabana", 
-    role: "Frontend Developer", 
+    role: "Pengembang Frontend", 
     image: profile_3,
     instagram: "https://www.instagram.com/nstnsybn/",
     linkedin: "https://www.linkedin.com/in/nabilstanisyabana/",
@@ -101,20 +101,20 @@ export const BenefitList = [
   {
     id: 1,
     icon: Truck,
-    title: "FREE AND FAST DELIVERY",
-    desc: "Free delivery for all orders over $140",
+    title: "PENGIRIMAN GRATIS DAN CEPAT",
+    desc: "Gratis pengiriman untuk pesanan di atas Rp 200.000",
   },
   {
     id: 2,
     icon: Headphones,
-    title: "24/7 CUSTOMER SERVICE",
-    desc: "Friendly 24/7 customer support",
+    title: "LAYANAN PELANGGAN 24/7",
+    desc: "Dukungan pelanggan yang ramah setiap saat",
   },
   {
     id: 3,
     icon: ShieldCheck,
-    title: "MONEY BACK GUARANTEE",
-    desc: "We return money within 30 days",
+    title: "GARANSI UANG KEMBALI",
+    desc: "Pengembalian dana dapat diproses hingga 30 hari",
   },
 ];
 

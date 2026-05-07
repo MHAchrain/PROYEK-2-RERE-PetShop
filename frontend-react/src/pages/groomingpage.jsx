@@ -51,7 +51,7 @@ export default function GroomingPage() {
                         </div>
                         <div className="flex items-center gap-2 text-gray-500">
                             <MapPin size={18} />
-                            <span>Tersedia Home Service</span>
+                            <span>Tersedia layanan panggilan</span>
                         </div>
                     </div>
 
@@ -78,7 +78,7 @@ export default function GroomingPage() {
                         {/* Ganti src dengan gambar grooming asli lo */}
                         <img 
                             src={catbath} 
-                            alt="Grooming Service" 
+                            alt="Layanan grooming" 
                             className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
                         />
                     </div>
