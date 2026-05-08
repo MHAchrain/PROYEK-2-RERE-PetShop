@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\PengirimanController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PelangganController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\ImageController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -34,7 +35,7 @@ Route::post('/forgot-password/send-code', [AuthController::class, 'sendResetCode
 Route::post('/forgot-password/verify-code', [AuthController::class, 'verifyResetCode']);
 Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword']);
 
-
+Route::get('/image/{path}', [ImageController::class, 'show'])->where('path', '.*');
 
 Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
 
@@ -60,7 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pesanan/{id}/status', [PesananController::class, 'status']);
 });
 
-    Route::get('/cek-token', function (Request $request) {
+Route::get('/cek-token', function (Request $request) {
     $token = $request->bearerToken();
 
     $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
