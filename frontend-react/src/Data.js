@@ -65,38 +65,6 @@ export const Statistic = [
   { id: 4, value: "25k", label: "Penjualan kotor tahunan", icon: icons.DollarSign },
 ]
 
-export const TeamList = [
-  {
-    id: 1, 
-    name: "MH Achrain", 
-    role: "Pengembang Frontend", 
-    image: profile_1, 
-    instagram: "https://www.instagram.com/mhrain._?igsh=NnBvaWd4c3liOXNt",
-    linkedin: "https://www.linkedin.com/in/muhammad-hikmaturrahman-achrain-02b3a0327?utm_source=share_via&utm_content=profile&utm_medium=member_android",
-    github: "https://github.com/MHAchrain",
-  },
-
-  {
-    id: 2, 
-    name: "Sakhi Ardha Handaru", 
-    role: "Pengembang Frontend", 
-    image: profile_2,
-    instagram: "https://www.instagram.com/mhrain._?igsh=NnBvaWd4c3liOXNt",
-    linkedin: "https://www.linkedin.com/in/muhammad-hikmaturrahman-achrain-02b3a0327?utm_source=share_via&utm_content=profile&utm_medium=member_android",
-    github: "https://github.com/MHAchrain",
-  },
-
-  {
-    id: 3, 
-    name: "Nabil Stani Syabana", 
-    role: "Pengembang Frontend", 
-    image: profile_3,
-    instagram: "https://www.instagram.com/nstnsybn/",
-    linkedin: "https://www.linkedin.com/in/nabilstanisyabana/",
-    github: "https://github.com/nabilstanisyabana",
-  },
-];
-
 export const BenefitList = [
   {
     id: 1,
