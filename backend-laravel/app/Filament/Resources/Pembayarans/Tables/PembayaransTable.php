@@ -2,14 +2,9 @@
 
 namespace App\Filament\Resources\Pembayarans\Tables;
 
-use Filament\Actions\Action;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\View;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -19,6 +14,7 @@ class PembayaransTable
     {
         return $table
             ->columns([
+
                 TextColumn::make('id_pembayaran')
                     ->label('ID Pembayaran')
                     ->formatStateUsing(fn ($state) => 'PAY-' . str_pad($state, 4, '0', STR_PAD_LEFT))
@@ -27,34 +23,7 @@ class PembayaransTable
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
                     ->formatStateUsing(fn ($state) => 'ORD-' . str_pad($state, 4, '0', STR_PAD_LEFT))
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('status_bayar')
-                    ->label('Status Bayar')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'paid'    => 'success',
-                        'failed'  => 'danger',
-                        default   => 'gray',
-                    })
-                    ->action(
-                        Action::make('updateStatus')
-                            ->form([
-                                Select::make('status_bayar')
-                                    ->label('Ganti Status Pembayaran')
-                                    ->options([
-                                        'pending' => 'ditunda',
-                                        'paid'    => 'sudah bayar',
-                                        'failed'  => 'gagal bayar',
-                                    ])
-                                    ->required(),
-                            ])
-                            ->action(function ($record, array $data): void {
-                                $record->update($data);
-                            })
-                    ),
+                    ->sortable(),
 
                 TextColumn::make('metode_bayar')
                     ->label('Metode')
@@ -65,14 +34,24 @@ class PembayaransTable
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
 
+                TextColumn::make('ref_gateway')
+                    ->label('Ref Gateway'),
+
+                TextColumn::make('status_bayar')
+                    ->label('Status')
+                    ->badge(),
+
                 TextColumn::make('waktu_bayar')
                     ->label('Tanggal Pembayaran')
-                    ->dateTime('d M Y H:i')
+                    ->dateTime()
                     ->sortable(),
+
             ])
-            ->filters([])
+            ->filters([
+                //
+            ])
             ->recordActions([
-                ViewAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

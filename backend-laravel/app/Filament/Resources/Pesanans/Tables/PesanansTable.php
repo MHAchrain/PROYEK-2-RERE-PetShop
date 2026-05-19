@@ -40,40 +40,14 @@ class PesanansTable
 
             TextColumn::make('status_pesanan')
                 ->badge()
-                ->color(fn ($state) => match($state) {
-                    'baru'     => 'info',
-                    'diproses' => 'warning',
-                    'dikirim'  => 'primary',
-                    'selesai'  => 'success',
-                    'batal'    => 'danger',
-                    default    => 'gray',
-                })
-                ->action(
-                \Filament\Actions\Action::make('ubah_status')
-                ->form([
-                \Filament\Forms\Components\Select::make('status_pesanan')
-                    ->label('Ubah Status')
-                    ->options([
-                        'baru'     => 'Baru',
-                        'diproses' => 'Diproses',
-                        'dikirim'  => 'Dikirim',
-                        'selesai'  => 'Selesai',
-                        'batal'    => 'Dibatalkan',
-                    ])
-                    ->required(),
-            ])
-            ->action(function ($record, array $data) {
-                $record->update(['status_pesanan' => $data['status_pesanan']]);
-            })
-    )
-    ->formatStateUsing(fn (string $state): string => match ($state) {
-        'baru'     => 'Baru',
-        'diproses' => 'Diproses',
-        'dikirim'  => 'Dikirim',
-        'selesai'  => 'Selesai',
-        'batal'    => 'Dibatalkan',
-        default    => $state,
-    }),
+                ->formatStateUsing(fn (string $state): string => match ($state) {
+                    'baru' => 'Baru',
+                    'diproses' => 'Diproses',
+                    'dikirim' => 'Dikirim',
+                    'selesai' => 'Selesai',
+                    'batal' => 'Dibatalkan',
+                    default => $state,
+                }),
 
         ])
         ->filters([
@@ -81,6 +55,7 @@ class PesanansTable
         ])
         ->recordActions([
             ViewAction::make(),
+            EditAction::make(),
         ])
         ->toolbarActions([
             BulkActionGroup::make([

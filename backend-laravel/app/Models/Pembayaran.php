@@ -15,7 +15,6 @@ class Pembayaran extends Model
         'jumlah_bayar',
         'status_bayar',
         'ref_gateway',
-        'snap_token',
         'waktu_bayar',
     ];
 

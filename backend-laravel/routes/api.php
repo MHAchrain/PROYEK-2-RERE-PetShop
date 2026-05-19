@@ -13,9 +13,7 @@ use App\Http\Controllers\Api\PengirimanController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PelangganController;
 use App\Http\Controllers\Api\FavoriteController;
-use App\Http\Controllers\Api\TrackingController;
 
-Route::get('/track-order/{id_pesanan}', [TrackingController::class, 'track']);
 Route::get('/test', function () {
     return response()->json([
         'message' => 'API jalan',
@@ -31,10 +29,10 @@ Route::get('/produk/{id}', [ProdukController::class, 'show']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login/google', [AuthController::class, 'loginWithGoogle']);
 Route::post('/forgot-password/send-code', [AuthController::class, 'sendResetCode']);
 Route::post('/forgot-password/verify-code', [AuthController::class, 'verifyResetCode']);
 Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword']);
-Route::post('/midtrans/webhook', [PembayaranController::class, 'webhook']);
 
 
 
@@ -55,7 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pesanan/{id}', [PesananController::class, 'show']);
     Route::post('/pembayaran', [PembayaranController::class, 'store']);
     Route::get('/pembayaran/{id}', [PembayaranController::class, 'show']);
-    Route::patch('/pembayaran/{id}/sync', [PembayaranController::class, 'sync']);
     Route::get('/pesanan/{id}/pengiriman', [PengirimanController::class, 'show']);
     Route::post('/pesanan/{id}/selesai', [PesananController::class, 'selesai']);
     Route::post('/pesanan/{id}/batal', [PesananController::class, 'batal']);
