@@ -22,13 +22,22 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
+    // Ambil path foto dari JSON
+    String? fotoPath = json['foto'];
+
+    // Hapus 'produk/' prefix jika ada (biar tidak double)
+    if (fotoPath != null && fotoPath.startsWith('produk/')) {
+      fotoPath = fotoPath.substring(7);
+    }
+
     return Product(
       id: json['id_produk'] ?? json['id'] ?? 0,
       name: json['nama_produk'] ?? '',
       price: double.tryParse(json['harga']?.toString() ?? '0') ?? 0,
       description: json['deskripsi'],
-      image: json['foto'] != null
-          ? 'http://localhost:8000/api/image/${json['foto']}' // ← Pakai API proxy
+      // ⚠️ PERHATIKAN: ini pakai API, BUKAN storage langsung!
+      image: fotoPath != null
+          ? 'https://api.rerepetshop.biz.id/api/image/$fotoPath'
           : null,
       stock: json['stok'],
       category: json['kategori']?['nama_kategori'],

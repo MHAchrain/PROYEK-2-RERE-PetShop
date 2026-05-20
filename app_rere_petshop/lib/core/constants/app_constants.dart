@@ -3,7 +3,7 @@
 class AppConstants {
   // Ganti dengan URL Laravel kamu
   static const String baseUrl =
-      'http://localhost:8000/api'; // untuk Android emulator
+      'https://api.rerepetshop.biz.id/api'; // untuk Android emulator
   // static const String baseUrl = 'http://localhost:8000/api'; // untuk Chrome/web
   // static const String baseUrl = 'https://your-domain.com/api'; // untuk production
 
