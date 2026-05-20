@@ -20,6 +20,7 @@ export default function ProductDetail({
                 {product.name}
             </h1>
 
+<<<<<<< HEAD
             <div className="mt-3 flex flex-wrap items-center gap-3">
                 <span
                     className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold ${
@@ -30,6 +31,11 @@ export default function ProductDetail({
                 >
                     {isOutOfStock ? <PackageX size={16} /> : <PackageCheck size={16} />}
                     {isOutOfStock ? "Stok Habis" : `${safeStock} stok tersedia`}
+=======
+            <div className="flex items-center gap-3 mt-2">
+                <span className={`text-sm font-medium ${product.stock > 0 ? "text-green-600" : "text-red-500"}`}>
+                    {product.stock > 0 ? "Stok Tersedia" : "Stok Habis"}
+>>>>>>> 2a19ae3d98c8fbe730c51d3785b809066ac7c87a
                 </span>
             </div>
 
@@ -87,7 +93,11 @@ export default function ProductDetail({
                         disabled={isOutOfStock || isBuyingNow}
                         className="min-w-40 max-w-60 h-12 bg-primary text-white px-6 rounded-md font-bold hover:bg-primary/90 shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
                     >
+<<<<<<< HEAD
                         {isOutOfStock ? "Stok Habis" : isBuyingNow ? "Memproses..." : "Beli Sekarang"}
+=======
+                        {isBuyingNow ? "Loading..." : "Belanja Sekarang"}
+>>>>>>> 2a19ae3d98c8fbe730c51d3785b809066ac7c87a
                     </button>
 
                     <button
@@ -118,8 +128,13 @@ export default function ProductDetail({
                         <Truck size={32} className="md:w-10 md:h-10" />
                     </div>
                     <div className="flex flex-col">
+<<<<<<< HEAD
                         <h3 className="font-bold text-gray-800 text-sm md:text-base leading-none mb-1">Gratis Ongkir</h3>
                         <p className="text-xs md:text-sm text-gray-500">Gratis pengiriman untuk belanja di atas Rp 200.000</p>
+=======
+                        <h3 className="font-bold text-gray-800 text-sm md:text-base leading-none mb-1">Gratis Pengiriman</h3>
+                        <p className="text-xs md:text-sm text-gray-500">Gratis Pengiriman diatas Rp 200.000</p>
+>>>>>>> 2a19ae3d98c8fbe730c51d3785b809066ac7c87a
                     </div>
                 </div>
 
@@ -130,8 +145,13 @@ export default function ProductDetail({
                         <RefreshCcw size={32} className="md:w-10 md:h-10" />
                     </div>
                     <div className="flex flex-col">
+<<<<<<< HEAD
                         <h3 className="font-bold text-gray-800 text-sm md:text-base leading-none mb-1">Retur Mudah</h3>
                         <p className="text-xs md:text-sm text-gray-500">Kebijakan retur hingga 30 hari</p>
+=======
+                        <h3 className="font-bold text-gray-800 text-sm md:text-base leading-none mb-1">Pengembalian yang Mudah</h3>
+                        <p className="text-xs md:text-sm text-gray-500">Pengembalian dalam 30 Hari</p>
+>>>>>>> 2a19ae3d98c8fbe730c51d3785b809066ac7c87a
                     </div>
                 </div>
             </div>

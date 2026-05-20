@@ -1,4 +1,5 @@
 import * as icons from "lucide-react";
+<<<<<<< HEAD
 import { Truck, Headphones, ShieldCheck } from "lucide-react";
 // Assets
 import examp from "./assets/examp.jpeg";
@@ -6,6 +7,13 @@ import dummy from "./assets/dummy.png";
 import hero1 from "./assets/ba1.png";
 import hero2 from "./assets/ba2.png";
 import hero3 from "./assets/ba3.png";
+=======
+import examp from "./assets/examp.jpeg";
+import dummy from "./assets/dummy.png";
+import ba1 from "./assets/ba1.png"
+import ba2 from "./assets/ba2.png"
+import ba3 from "./assets/ba3.png"
+>>>>>>> 2a19ae3d98c8fbe730c51d3785b809066ac7c87a
 import profile_1  from "./assets/profile_1.jpeg"
 import profile_2  from "./assets/profile_2.jpeg"
 import profile_3  from "./assets/profile_3.jpeg"
@@ -51,11 +59,19 @@ export const ListKategori = [
 ]
 
 export const HeroSlides = [
+<<<<<<< HEAD
   { id: 1, text: "Pilihan Makanan Kucing Favorit", image: hero1 },
   { id: 2, text: "Mainan Seru untuk Anjing Aktif", image: hero2 },
   { id: 3, text: "Aksesori Lucu untuk Hewan Peliharaan", image: hero3 },
   { id: 4, text: "Perawatan Grooming yang Nyaman", image: examp},
   { id: 5, text: "Semua Kebutuhan Anabul Ada di Sini", image: examp }
+=======
+  { id: 1, text: "Promo Makanan Kucing!", image: ba1 },
+  { id: 2, text: "Diskon Mainan Anjing!", image: ba2 },
+  { id: 3, text: "Aksesoris Lucu untuk Hewan Peliharaan!", image: ba3 },
+  { id: 4, text: "Perawatan Grooming Terbaik!", image: examp},
+  { id: 5, text: "Semua Kebutuhan Hewan Peliharaan Ada di Sini!", image: examp }
+>>>>>>> 2a19ae3d98c8fbe730c51d3785b809066ac7c87a
 ]
 
 export const Statistic = [
