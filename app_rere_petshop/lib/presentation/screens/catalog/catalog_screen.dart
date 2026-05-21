@@ -1,4 +1,3 @@
-// lib/presentation/screens/catalog/catalog_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -44,7 +43,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
     if (_selectedCategory == 'Semua') {
       provider.fetchProductsByCategory(null);
     } else {
-      // Mapping nama kategori ke ID
       final Map<String, int> categoryMap = {
         'Equipment': 4,
         'Toys': 3,
@@ -52,12 +50,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
         'Food': 1,
         'Grooming': 5,
       };
-
       final categoryId = categoryMap[_selectedCategory];
-
-      // Debug print
-      print('Selected: $_selectedCategory, ID: $categoryId');
-
       provider.fetchProductsByCategory(categoryId);
     }
   }
@@ -99,7 +92,9 @@ class _CatalogScreenState extends State<CatalogScreen> {
       body: Column(
         children: [
           _buildCategoryFilter(),
-          Expanded(child: _buildProductGrid()),
+          Expanded(
+            child: _buildProductGrid(),
+          ),
         ],
       ),
     );
@@ -119,7 +114,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
           return GestureDetector(
             onTap: () {
               setState(() => _selectedCategory = cat);
-              print('Category selected: $cat');
               _loadProducts();
             },
             child: Container(
@@ -170,12 +164,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
         }
 
         return GridView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 0.72,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 0.80, // 👈 UBAH INI
           ),
           itemCount: provider.products.length,
           itemBuilder: (context, i) {

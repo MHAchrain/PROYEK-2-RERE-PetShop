@@ -1,4 +1,3 @@
-// lib/presentation/widgets/product_card.dart
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
@@ -29,16 +28,18 @@ class ProductCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Gambar produk
+            // Gambar produk - pakai SizedBox dengan tinggi tetap
             Stack(
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(12),
                   ),
-                  child: AspectRatio(
-                    aspectRatio: 1,
+                  child: SizedBox(
+                    height: 120,
+                    width: double.infinity,
                     child: _buildImage(),
                   ),
                 ),
@@ -58,6 +59,7 @@ class ProductCard extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
+                            fontSize: 11,
                           ),
                         ),
                       ),
@@ -65,34 +67,34 @@ class ProductCard extends StatelessWidget {
                   ),
               ],
             ),
-
-            // Info produk
+            // Info produk - padding dikurangi
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     product.name,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
                     product.formattedPrice,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: AppColors.primary,
                     ),
                   ),
                   if (product.category != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 6,
@@ -105,7 +107,7 @@ class ProductCard extends StatelessWidget {
                       child: Text(
                         product.category!,
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           color: AppColors.primary,
                           fontWeight: FontWeight.w500,
                         ),
@@ -125,13 +127,14 @@ class ProductCard extends StatelessWidget {
     if (product.image == null || product.image!.isEmpty) {
       return Container(
         color: AppColors.greyLight,
-        child: const Icon(Icons.pets, size: 48, color: AppColors.grey),
+        child: const Icon(Icons.pets, size: 40, color: AppColors.grey),
       );
     }
 
     return CachedNetworkImage(
       imageUrl: product.image!,
       fit: BoxFit.cover,
+      width: double.infinity,
       placeholder: (context, url) => Shimmer.fromColors(
         baseColor: AppColors.greyLight,
         highlightColor: AppColors.white,
@@ -139,7 +142,7 @@ class ProductCard extends StatelessWidget {
       ),
       errorWidget: (context, url, error) => Container(
         color: AppColors.greyLight,
-        child: const Icon(Icons.pets, size: 48, color: AppColors.grey),
+        child: const Icon(Icons.pets, size: 40, color: AppColors.grey),
       ),
     );
   }

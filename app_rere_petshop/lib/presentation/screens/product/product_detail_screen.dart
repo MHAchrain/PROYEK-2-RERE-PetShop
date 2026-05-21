@@ -1,11 +1,10 @@
-// lib/presentation/screens/product/product_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../data/models/product_model.dart';
 import '../../../data/services/api_service.dart';
+import '../web_view_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
@@ -43,15 +42,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
-  Future<void> _openWhatsApp() async {
-    final message = Uri.encodeComponent(
-      'Halo, saya tertarik dengan produk "${_product?.name}" seharga ${_product?.formattedPrice}. Apakah masih tersedia?',
+  void _openWebsite() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const WebViewScreen(
+          url: 'https://rerepetshop.biz.id',
+          title: 'ReRe Petshop',
+        ),
+      ),
     );
-    final url =
-        Uri.parse('https://wa.me/${AppConstants.whatsappNumber}?text=$message');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
   }
 
   @override
@@ -70,6 +70,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Widget _buildDetail() {
     final product = _product!;
+    final hasDescription =
+        product.description != null && product.description!.isNotEmpty;
+
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -132,8 +135,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: product.isInStock
-                          ? AppColors.success.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? AppColors.success.withValues(alpha: 0.1)
+                          : Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -153,8 +156,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary)),
                   const SizedBox(height: 16),
-                  if (product.description != null &&
-                      product.description!.isNotEmpty) ...[
+                  if (hasDescription) ...[
                     const Divider(),
                     const SizedBox(height: 12),
                     Text(product.description!,
@@ -239,9 +241,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           width: double.infinity,
           height: 48,
           child: ElevatedButton.icon(
-            onPressed: _openWhatsApp,
-            icon: const Icon(Icons.chat_outlined),
-            label: const Text('Hubungi via WhatsApp',
+            onPressed: _openWebsite,
+            icon: const Icon(Icons.web),
+            label: const Text('Kunjungi Website',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
