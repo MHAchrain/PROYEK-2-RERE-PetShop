@@ -156,16 +156,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary)),
                   const SizedBox(height: 16),
-                  if (hasDescription) ...[
-                    const Divider(),
-                    const SizedBox(height: 12),
-                    Text(product.description!,
-                        style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textSecondary,
-                            height: 1.6)),
-                    const SizedBox(height: 16),
-                  ],
+                  if (hasDescription)
+                    Column(
+                      children: [
+                        const Divider(),
+                        const SizedBox(height: 12),
+                        Text(product.description!,
+                            style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                                height: 1.6)),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
                   const Divider(),
                   const SizedBox(height: 12),
                   _infoTile(
