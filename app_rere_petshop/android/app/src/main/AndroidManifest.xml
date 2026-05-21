@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- ✅ IZIN INTERNET (DITAMBAHKAN) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="app_rere_petshop"
         android:name="${applicationName}"
