@@ -20,6 +20,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Product? _product;
   bool _isLoading = true;
   String? _error;
+  bool _isDescriptionExpanded = false;
 
   @override
   void initState() {
@@ -104,6 +105,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Header dengan garis
                   Row(
                     children: [
                       Container(
@@ -124,12 +126,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 8),
+
+                  // Nama produk
                   Text(product.name,
                       style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary)),
                   const SizedBox(height: 8),
+
+                  // Stock badge
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -140,7 +146,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      product.isInStock ? 'In Stock' : 'Out of Stock',
+                      product.isInStock ? '✓ In Stock' : '✗ Out of Stock',
                       style: TextStyle(
                           color: product.isInStock
                               ? AppColors.success
@@ -150,36 +156,128 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  // Harga
                   Text(product.formattedPrice,
                       style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary)),
                   const SizedBox(height: 16),
-                  if (hasDescription)
-                    Column(
-                      children: [
-                        const Divider(),
-                        const SizedBox(height: 12),
-                        Text(product.description!,
-                            style: const TextStyle(
+
+                  // Deskripsi produk (dengan tampilan lebih bagus)
+                  if (hasDescription) ...[
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.greyBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.greyLight,
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.description_outlined,
+                                  size: 18, color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Deskripsi Produk',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          AnimatedCrossFade(
+                            duration: const Duration(milliseconds: 300),
+                            crossFadeState: _isDescriptionExpanded
+                                ? CrossFadeState.showFirst
+                                : CrossFadeState.showSecond,
+                            firstChild: Text(
+                              product.description!,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.textSecondary,
-                                height: 1.6)),
-                        const SizedBox(height: 16),
-                      ],
+                                height: 1.6,
+                              ),
+                            ),
+                            secondChild: Text(
+                              product.description!,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                                height: 1.6,
+                              ),
+                            ),
+                          ),
+                          if (product.description!.length > 100)
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isDescriptionExpanded =
+                                      !_isDescriptionExpanded;
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      _isDescriptionExpanded
+                                          ? 'Tutup'
+                                          : 'Selengkapnya',
+                                      style: TextStyle(
+                                        color: AppColors.primary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Icon(
+                                      _isDescriptionExpanded
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      size: 18,
+                                      color: AppColors.primary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
+                  ],
+
                   const Divider(),
                   const SizedBox(height: 12),
+
+                  // Informasi tambahan
                   _infoTile(
                       icon: Icons.local_shipping_outlined,
                       title: 'Free Shipping',
-                      subtitle: 'Free delivery over Rp 200.000'),
+                      subtitle: 'Gratis ongkir minimal belanja Rp 200.000'),
                   const SizedBox(height: 8),
                   _infoTile(
                       icon: Icons.replay_outlined,
                       title: 'Easy Returns',
-                      subtitle: '30-day return policy'),
+                      subtitle: 'Garansi 30 hari pengembalian barang'),
+                  const SizedBox(height: 8),
+                  _infoTile(
+                      icon: Icons.security_outlined,
+                      title: 'Produk Original',
+                      subtitle: '100% produk asli dan berkualitas'),
                   const SizedBox(height: 80),
                 ],
               ),
@@ -214,21 +312,37 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.greyLight),
+        color: AppColors.greyBg,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(children: [
-        Icon(icon, color: AppColors.primary, size: 28),
-        const SizedBox(width: 12),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-          Text(subtitle,
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.textSecondary)),
-        ]),
-      ]),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                        fontSize: 14)),
+                Text(subtitle,
+                    style: const TextStyle(
+                        fontSize: 12, color: AppColors.textSecondary)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -242,12 +356,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: SafeArea(
         child: SizedBox(
           width: double.infinity,
-          height: 48,
+          height: 52,
           child: ElevatedButton.icon(
             onPressed: _openWebsite,
-            icon: const Icon(Icons.web),
-            label: const Text('Kunjungi Website',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            icon: const Icon(Icons.web, size: 20),
+            label: const Text('Kunjungi Website ReRe Petshop',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               shape: RoundedRectangleBorder(
