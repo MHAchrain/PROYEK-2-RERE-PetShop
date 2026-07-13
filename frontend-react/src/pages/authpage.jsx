@@ -52,7 +52,7 @@ export default function AuthPage() {
 
           <p className="mb-8 text-sm md:text-base">
             {isLogin
-              ? "Masuk untuk melanjutkan ke PetShop"
+              ? "Masuk untuk melanjutkan ke ReRe Petshop"
               : isRegister
                 ? "Daftar untuk membuat akun baru"
                 : "Masukkan email, kirim kode reset, lalu buat kata sandi baru"}
@@ -62,7 +62,7 @@ export default function AuthPage() {
             {isRegister && (
               <input
                 type="text"
-                placeholder="Nama"
+                placeholder="Masukkan nama"
                 value={form.name}
                 onChange={(e) => handleChange("name", e.target.value)}
                 className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -72,7 +72,7 @@ export default function AuthPage() {
             {isRegister && (
               <input
                 type="text"
-                placeholder="Nomor Handphone"
+                placeholder="Masukkan nomor handphone"
                 value={form.noHp}
                 onChange={(e) => handleChange("noHp", e.target.value.replace(/[^0-9]/g, ""))}
                 className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -81,7 +81,7 @@ export default function AuthPage() {
 
             {isRegister && (
               <textarea
-                placeholder="Alamat"
+                placeholder="Masukkan alamat"
                 value={form.alamat}
                 onChange={(e) => handleChange("alamat", e.target.value)}
                 className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -90,7 +90,7 @@ export default function AuthPage() {
 
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Masukkan email"
               value={form.email}
               onChange={(e) => handleChange("email", e.target.value)}
               className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -100,7 +100,7 @@ export default function AuthPage() {
               <div className="relative w-full">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Kata Sandi"
+                  placeholder="Masukkan kata sandi"
                   value={form.password}
                   onChange={(e) => handleChange("password", e.target.value)}
                   className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -120,7 +120,7 @@ export default function AuthPage() {
                 <button
                   type="button"
                   onClick={() => switchToMode("forgot")}
-                  className="underline cursor-pointer text-sm text-gray-600 hover:text-black"
+                  className="underline cursor-pointer text-sm text-gray-600 hover:text-primary transition"
                 >
                   Lupa kata sandi?
                 </button>
@@ -131,7 +131,7 @@ export default function AuthPage() {
               <div className="w-full">
                 <input
                   type="password"
-                  placeholder="Konfirmasi Kata Sandi"
+                  placeholder="Konfirmasi kata sandi"
                   value={form.confirmPassword}
                   onChange={(e) => handleChange("confirmPassword", e.target.value)}
                   className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -156,7 +156,7 @@ export default function AuthPage() {
                   onClick={handleSendResetCode}
                   disabled={sendingCode || resetLockMinutes > 0}
                   className={`w-full py-3 rounded-md text-white transition ${
-                    sendingCode || resetLockMinutes > 0 ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-600"
+                    sendingCode || resetLockMinutes > 0 ? "bg-gray-400 cursor-not-allowed" : "bg-primary font-semibold hover:bg-primary-600"
                   }`}
                 >
                   {sendingCode
@@ -189,7 +189,7 @@ export default function AuthPage() {
                       onClick={handleVerifyResetCode}
                       disabled={verifyingCode}
                       className={`w-full py-3 rounded-md text-white transition ${
-                        verifyingCode ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-600"
+                        verifyingCode ? "bg-gray-400 cursor-not-allowed" : "bg-primary font-semibold hover:bg-primary-600"
                       }`}
                     >
                       {verifyingCode ? "Memverifikasi..." : "Konfirmasi Kode"}
@@ -206,7 +206,7 @@ export default function AuthPage() {
                     <div className="relative w-full">
                       <input
                         type={showNewPassword ? "text" : "password"}
-                        placeholder="Kata Sandi Baru"
+                        placeholder="Masukkan kata sandi baru"
                         value={form.newPassword}
                         onChange={(e) => handleChange("newPassword", e.target.value)}
                         className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -222,7 +222,7 @@ export default function AuthPage() {
 
                     <input
                       type="password"
-                      placeholder="Konfirmasi Kata Sandi Baru"
+                      placeholder="Konfirmasi kata sandi baru"
                       value={form.confirmNewPassword}
                       onChange={(e) => handleChange("confirmNewPassword", e.target.value)}
                       className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
@@ -237,7 +237,7 @@ export default function AuthPage() {
                 type="submit"
                 disabled={loading}
                 className={`w-full py-3 rounded-md text-white transition flex items-center justify-center gap-2 ${
-                  loading ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary-600"
+                  loading ? "bg-gray-400 cursor-not-allowed" : "bg-primary font-semibold hover:bg-primary-600"
                 }`}
               >
                 {loading && (
@@ -258,7 +258,7 @@ export default function AuthPage() {
             {isLogin && (
               <p>
                 Belum punya akun?
-                <button type="button" onClick={() => switchToMode("register")} className="ml-2 underline cursor-pointer">
+                <button type="button" onClick={() => switchToMode("register")} className="ml-2 underline hover:text-primary cursor-pointer transition">
                   Daftar di sini
                 </button>
               </p>
@@ -267,7 +267,7 @@ export default function AuthPage() {
             {isRegister && (
               <p>
                 Sudah punya akun?
-                <button type="button" onClick={() => switchToMode("login")} className="ml-2 underline cursor-pointer">
+                <button type="button" onClick={() => switchToMode("login")} className="ml-2 underline hover:text-primary cursor-pointer transition">
                   Masuk di sini
                 </button>
               </p>
@@ -276,7 +276,7 @@ export default function AuthPage() {
             {isForgotPassword && (
               <p>
                 Ingat kata sandi?
-                <button type="button" onClick={() => switchToMode("login")} className="ml-2 underline cursor-pointer">
+                <button type="button" onClick={() => switchToMode("login")} className="ml-2 underline hover:text-primary cursor-pointer transition">
                   Kembali ke login
                 </button>
               </p>

@@ -59,7 +59,7 @@ export const useCartSection = ({ token }) => {
           items: nextItems,
         };
       });
-      toast.success("Item dihapus dari keranjang.");
+      toast.success("Produk dihapus dari keranjang.");
     } catch (error) {
       console.log(error);
       toast.error("Gagal menghapus item.");

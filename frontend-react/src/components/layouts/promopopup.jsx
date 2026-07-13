@@ -86,7 +86,7 @@ export default function PromoPopup() {
                 Lengkapi kebutuhan anabul hari ini
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                Temukan makanan harian, vitamin, mainan, dan aksesori yang cocok untuk hewan kesayangan Anda.
+                Temukan makanan harian, vitamin, mainan, dan aksesori yang cocok untuk hewan kesayangan kamu.
               </p>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function PromoPopup() {
               <PackageCheck size={16} />
               Rekomendasi ReRe Petshop
             </div>
-            <div className="text-2xl font-black leading-tight text-[#ffe1a8]">Produk favorit anabul</div>
+            <div className="text-2xl font-bold leading-tight text-[#ffe1a8]">Produk favorit anabul</div>
             <p className="mt-2 text-sm text-white/80">Cek koleksi produk yang paling sering dicari pelanggan kami.</p>
           </div>
 

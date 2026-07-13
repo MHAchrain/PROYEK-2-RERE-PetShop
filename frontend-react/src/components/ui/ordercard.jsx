@@ -39,12 +39,12 @@ export default function OrderCard({ order }) {
   const statusClass = statusClassMap[order.status_pesanan] || "bg-gray-100 text-gray-700";
 
   return (
-    <article className="overflow-hidden rounded-[28px] border border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffaf8_100%)] shadow-sm transition hover:shadow-md">
+    <article className="overflow-hidden rounded-[28px] border border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#FFF8F8_100%)] shadow-sm transition hover:shadow-md">
       <div className="border-b border-gray-100 px-4 py-4 sm:px-5 md:px-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div className="min-w-0">
-              <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
+              <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
                 <CalendarDays size={14} />
                 Tanggal
               </p>
@@ -52,7 +52,7 @@ export default function OrderCard({ order }) {
             </div>
 
             <div className="min-w-0">
-              <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
+              <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
                 <ReceiptText size={14} />
                 Total
               </p>
@@ -60,25 +60,25 @@ export default function OrderCard({ order }) {
             </div>
 
             <div className="min-w-0">
-              <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
+              <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
                 <MapPin size={14} />
                 Alamat
               </p>
-              <p className="line-clamp-2 text-sm font-medium leading-relaxed text-gray-600">
+              <p className="line-clamp-2 text-sm font-semibold leading-relaxed text-gray-600">
                 {order.alamat_kirim || "Alamat belum tersedia"}
               </p>
             </div>
 
             <div className="min-w-0">
-              <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
+              <p className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
                 <ShoppingBag size={14} />
                 ID Pesanan
               </p>
-              <p className="text-sm font-extrabold text-gray-900">#{order.id_pesanan}</p>
+              <p className="text-sm font-bold text-gray-900">#{order.id_pesanan}</p>
             </div>
           </div>
 
-          <div className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${statusClass}`}>
+          <div className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${statusClass}`}>
             {statusLabel}
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function OrderCard({ order }) {
             </div>
 
             <div className="min-w-0 flex-1">
-              <h3 className="text-base font-extrabold leading-snug text-gray-900 sm:text-lg">
+              <h3 className="text-base font-bold leading-snug text-gray-900 sm:text-lg">
                 {product?.nama_produk || "Produk tidak tersedia"}
                 {additionalProducts > 0 ? ` +${additionalProducts} produk lainnya` : ""}
               </h3>
@@ -123,7 +123,7 @@ export default function OrderCard({ order }) {
             {product?.id_produk && (
               <Link
                 to={`/product/${product.id_produk}`}
-                className="inline-flex items-center justify-center rounded-2xl border border-gray-300 px-4 py-3 text-sm font-bold text-gray-700 transition hover:border-primary hover:text-primary"
+                className="inline-flex items-center justify-center rounded-2xl border font-medium border-gray-300 px-4 py-3 text-sm text-gray-700 transition hover:border-primary hover:text-primary"
               >
                 Lihat Produk
               </Link>
@@ -131,7 +131,7 @@ export default function OrderCard({ order }) {
 
             <Link
               to={`/pesanan/${order.id_pesanan}`}
-              className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600"
+              className="inline-flex items-center justify-center rounded-2xl bg-primary font-semibold px-4 py-3 text-sm text-white transition hover:bg-primary-600"
             >
               Detail Pesanan
             </Link>

@@ -93,7 +93,7 @@ export default function ProductPage() {
           <ProductSection products={relatedProducts} visibleCount={visibleCount} isLoading={isRelatedLoading} />
 
           {!isRelatedLoading && relatedProducts.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-gray-300 px-6 py-12 text-center">
+            <div className="rounded-[28px] border border-dashed border-gray-300 px-6 py-12 text-center">
               <p className="text-lg font-semibold text-gray-800">Belum ada produk serupa untuk ditampilkan</p>
               <p className="mt-2 text-sm text-gray-500">
                 Coba lihat kategori lain atau kembali ke halaman utama untuk menemukan produk lain yang cocok.

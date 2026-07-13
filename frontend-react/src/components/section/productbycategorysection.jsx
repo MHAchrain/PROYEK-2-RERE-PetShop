@@ -31,7 +31,7 @@ export default function ProductSectionByCategory({ products = [], isLoading }) {
             </div>
             <h3 className="text-xl font-semibold text-gray-800">Produk Tidak Ditemukan</h3>
             <p className="text-gray-500 mt-2 max-w-xs text-center">
-              Maaf, kami tidak bisa menemukan produk yang Anda cari. Coba gunakan kata kunci lain.
+              Maaf, kami tidak bisa menemukan produk yang kamu cari. Coba gunakan kata kunci lain.
             </p>
           </div>
       )}

@@ -29,7 +29,7 @@ export default function ProductDetail({
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <span
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-bold ${
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ${
             isOutOfStock
               ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
               : 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
@@ -89,7 +89,7 @@ export default function ProductDetail({
             type="button"
             onClick={onBuyNow}
             disabled={isOutOfStock || isBuyingNow}
-            className="min-w-40 max-w-60 h-12 bg-primary text-white px-6 rounded-md font-bold hover:bg-primary/90 shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none">
+            className="min-w-40 max-w-60 h-12 bg-primary text-white px-6 rounded-md hover:bg-primary/90 shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none">
             {isOutOfStock
               ? 'Stok Habis'
               : isBuyingNow

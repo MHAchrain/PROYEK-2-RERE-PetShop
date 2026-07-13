@@ -7,7 +7,7 @@ export default function CancellationSection() {
                 <Package size={32} className="text-gray-300" />
             </div>
             <h3 className="font-bold text-gray-800">Tidak ada pembatalan</h3>
-            <p className="text-sm text-gray-400 mt-1 text-balance">Semua transaksi lu aman dan lancar jaya!</p>
+            <p className="text-sm text-gray-400 mt-1 text-balance">Belum ada pesanan yang dibatalkan.</p>
         </div>
     );
 }

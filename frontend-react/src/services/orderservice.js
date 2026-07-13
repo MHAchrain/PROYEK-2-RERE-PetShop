@@ -28,7 +28,6 @@ export const markOrderAsFinished = async (id) => {
         const res = await api.post(`/pesanan/${id}/selesai`);
         return res.data;
     } catch (error) {
-        // Lu bisa tangkap pesan error 422 dari Laravel di sini
         const msg = error.response?.data?.message || "Gagal konfirmasi selesai";
         throw new Error(msg);
     }

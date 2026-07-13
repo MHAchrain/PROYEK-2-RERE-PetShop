@@ -215,7 +215,7 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
         });
 
         login(response.data, response.token);
-        toast.success("Selamat datang di ReRe PetShop!");
+        toast.success("Selamat datang di ReRe Petshop!");
         navigate("/");
       } else if (isRegister) {
         await registerUser({

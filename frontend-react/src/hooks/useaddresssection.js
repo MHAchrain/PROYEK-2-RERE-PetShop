@@ -26,7 +26,7 @@ export const useAddressSection = ({ user, updateUser }) => {
         setIsModalOpen(false);
       }
     } catch (error) {
-      toast.error("Gagal update alamat", { id: toastId });
+      toast.error("Gagal memperbarui alamat", { id: toastId });
     } finally {
       setLoading(false);
     }

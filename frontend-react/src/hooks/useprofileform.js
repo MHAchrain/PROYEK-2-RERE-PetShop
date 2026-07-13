@@ -48,7 +48,7 @@ export const useProfileForm = ({ user, updateUser }) => {
       }
     } catch (error) {
       console.error("Error Detail:", error.response?.data);
-      toast.error(error.response?.data?.message || "Gagal update profil", { id: toastId });
+      toast.error(error.response?.data?.message || "Gagal memperbarui profil", { id: toastId });
     } finally {
       setIsLoading(false);
     }

@@ -88,7 +88,7 @@ export default function ContactPage() {
               ) : (
                 <>
                   <p className="mb-3 text-sm text-gray-600">
-                    Isi formulir berikut dan kami akan menghubungi Anda kembali secepat mungkin.
+                    Isi formulir berikut dan kami akan menghubungi kamu kembali secepat mungkin.
                   </p>
                   <div className="space-y-2">
                     <p className="text-sm">Email Utama: <span className="font-medium">rereps@gmail.com</span></p>
@@ -117,27 +117,27 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <input
                     type="text"
-                    placeholder="Masukkan Nama"
-                    className="rounded-2xl bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Masukkan nama"
+                    className="rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
                   />
 
                   <input
                     type="email"
-                    placeholder="Masukkan Email"
-                    className="rounded-2xl bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Masukkan email"
+                    className="rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
                   />
 
                   <input
                     type="number"
-                    placeholder="Masukkan Nomor Telepon"
-                    className="rounded-2xl bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Masukkan nomor telepon"
+                    className="rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
                 <textarea
                   rows="6"
-                  placeholder="Masukkan Pesan"
-                  className="w-full resize-none rounded-2xl bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Masukkan pesan kamu di sini"
+                  className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-100 px-4 py-3 outline-none focus:ring-2 focus:ring-primary"
                 ></textarea>
 
                 <div className="flex justify-end">

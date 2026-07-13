@@ -32,7 +32,7 @@ const paymentStatusMap = {
     label: 'Pembayaran Gagal',
     className: 'bg-rose-100 text-rose-700',
     helper:
-      'Transaksi gagal atau kadaluarsa. Silakan coba buat pembayaran baru.',
+      'Transaksi gagal atau kedaluwarsa. Silakan coba buat pembayaran baru.',
   },
 };
 
@@ -174,7 +174,7 @@ export default function PaymentPage() {
           toast.error('Pembayaran Gagal.');
         },
         onClose: function () {
-          toast.error('Anda menutup jendela pembayaran.');
+          toast.error('Kamu menutup jendela pembayaran.');
         },
       });
     } catch (error) {
@@ -203,7 +203,7 @@ export default function PaymentPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/cart"
-            className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 hover:text-primary transition">
+            className="inline-flex items-center gap-2 rounded-2xl border font-medium border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 hover:text-primary transition">
             <ArrowLeft size={16} /> Kembali
           </Link>
           <div className="inline-flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary">
@@ -211,13 +211,13 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-[30px] border border-gray-200 bg-white p-6 shadow-sm">
+        <section className="overflow-hidden rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm">
           <div className="grid gap-6 lg:grid-cols-2 lg:items-center">
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-primary/70">
                 Pembayaran Aman
               </p>
-              <h1 className="mt-3 text-3xl font-black text-gray-900">
+              <h1 className="mt-3 text-3xl font-bold text-gray-900">
                 Pembayaran Instan.
               </h1>
               <p className="mt-2 text-gray-600">
@@ -229,7 +229,7 @@ export default function PaymentPage() {
                   <p className="text-[11px] font-bold text-gray-400 uppercase">
                     Total Tagihan
                   </p>
-                  <p className="text-xl font-black text-primary">
+                  <p className="text-xl font-bold text-primary">
                     Rp {Number(order.total || 0).toLocaleString('id-ID')}
                   </p>
                 </div>
@@ -247,7 +247,7 @@ export default function PaymentPage() {
                 <button
                   onClick={handleCreatePayment}
                   disabled={isSubmitting}
-                  className="mt-6 w-full rounded-2xl bg-primary py-4 text-white font-black hover:bg-primary-600 transition disabled:opacity-50 shadow-lg shadow-primary/20">
+                  className="mt-6 w-full rounded-2xl bg-primary py-4 text-white font-semibold hover:bg-primary-600 transition disabled:opacity-50 shadow-lg shadow-primary/20">
                   {isSubmitting ? 'Memproses...' : 'BAYAR SEKARANG'}
                 </button>
               )}
@@ -256,7 +256,7 @@ export default function PaymentPage() {
         </section>
 
         <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <section className="rounded-[30px] border border-gray-200 bg-white p-6 shadow-sm">
+          <section className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold text-gray-900 mb-5">
               Detail Belanja
             </h2>
@@ -288,7 +288,7 @@ export default function PaymentPage() {
           </section>
 
           <section className="space-y-6">
-            <div className="rounded-[30px] border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm">
               <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900">
                 <MapPin size={18} className="text-primary" /> Alamat Pengiriman
               </h2>
@@ -298,7 +298,7 @@ export default function PaymentPage() {
             </div>
 
             {payment && (
-              <div className="rounded-[30px] border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4">
                   <ReceiptText size={18} className="text-primary" /> Info
                   Transaksi

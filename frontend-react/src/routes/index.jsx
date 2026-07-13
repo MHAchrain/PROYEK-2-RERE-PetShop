@@ -47,7 +47,6 @@ export default function AppRoutes() {
                     <Route path="/pesanan" element={<OrderPage />} />
                     <Route path="/pesanan/:id" element={<OrderDetailPage />} />
                     <Route path="/payment/:id" element={<PaymentPage />} />
-                    {/* Lu bisa tambah /pesanan, dsb di sini */}
                 </Route>
                 <Route path="*" element={<NotFoundPage/>} />
             </Route>

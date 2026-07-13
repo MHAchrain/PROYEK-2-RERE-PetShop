@@ -53,7 +53,7 @@ export default function ProductCard({
     e.stopPropagation();
 
     if (!user) {
-      toast.error("Login dulu buat tambah ke wishlist");
+      toast.error("Masuk dulu buat tambah ke wishlist");
       navigate("/auth");
       return;
     }
@@ -132,7 +132,7 @@ export default function ProductCard({
             type="button"
             onClick={handleAddToCart}
             disabled={isOutOfStock}
-            className={`w-full py-3 font-medium text-white transition-all active:scale-[0.98] ${
+            className={`w-full py-3 font-semibold text-white transition-all active:scale-[0.98] ${
               isOutOfStock
                 ? "cursor-not-allowed bg-gray-500"
                 : "bg-primary hover:bg-primary-600"
@@ -160,7 +160,7 @@ export default function ProductCard({
           </div>
 
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
               isOutOfStock
                 ? "bg-rose-50 text-rose-600 ring-1 ring-rose-100"
                 : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"

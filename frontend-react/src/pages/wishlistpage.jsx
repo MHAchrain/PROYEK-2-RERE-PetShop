@@ -23,7 +23,7 @@ export default function WishlistPage() {
         <SectionTitle
           eyebrow="Favorit"
           title={`Produk Favorit (${wishlistCount})`}
-          description="Simpan produk yang ingin kamu lihat lagi nanti, lalu pindahkan ke keranjang saat sudah siap checkout."
+          description="Simpan produk yang ingin kamu lihat lagi nanti, lalu pindahkan ke keranjang saat sudah siap belanja."
         />
 
         <div className="mt-10">

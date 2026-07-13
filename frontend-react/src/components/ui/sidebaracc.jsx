@@ -13,7 +13,7 @@ export default function SidebarAcc({ activeTab, setActiveTab }) {
       <div className="rounded-[28px] border border-white/70 bg-white/90 p-3 shadow-[0_12px_40px_rgba(15,23,42,0.06)] backdrop-blur-sm">
         <div className="mb-3 px-2">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">Navigasi Akun</p>
-          <p className="mt-1 text-sm text-gray-500">Pilih menu yang ingin Anda kelola.</p>
+          <p className="mt-1 text-sm text-gray-500">Pilih menu yang ingin kamu kelola.</p>
         </div>
 
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-1">

@@ -80,7 +80,7 @@ export default function WishlistCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className="w-full bg-primary py-3 font-medium text-white transition-all hover:bg-primary-600 active:scale-[0.98]"
+            className="w-full bg-primary py-3 font-semibold text-white transition-all hover:bg-primary-600 active:scale-[0.98]"
           >
             Tambah ke Keranjang
           </button>

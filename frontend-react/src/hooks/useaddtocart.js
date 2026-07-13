@@ -11,7 +11,7 @@ export const useAddToCart = () => {
 
   const addToCart = async ({ productId, quantity = 1, requireAuth = false, onSuccess }) => {
     if (requireAuth && !user) {
-      toast.error("Login dulu buat tambah ke keranjang");
+      toast.error("Masuk dulu buat tambah ke keranjang");
       navigate("/auth");
       return { ok: false, reason: "auth_required" };
     }

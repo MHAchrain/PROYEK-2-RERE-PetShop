@@ -29,7 +29,7 @@ const serviceHighlights = [
   {
     icon: Clock3,
     title: "Layanan Ramah",
-    description: "Bisa tanya stok dan perawatan sebelum checkout lewat kontak toko.",
+    description: "Bisa tanya stok dan perawatan sebelum belanja lewat kontak toko.",
   },
 ];
 

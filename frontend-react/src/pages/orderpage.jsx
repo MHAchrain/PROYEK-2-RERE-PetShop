@@ -71,7 +71,7 @@ export default function OrderPage() {
         <div className="rounded-[28px] border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
           <div className="mb-3 px-2">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">Navigasi Pesanan</p>
-            <p className="mt-1 text-sm text-gray-500">Pilih status untuk memfilter riwayat pesanan Anda.</p>
+            <p className="mt-1 text-sm text-gray-500">Pilih status untuk memfilter riwayat pesanan kamu.</p>
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
@@ -80,10 +80,10 @@ export default function OrderPage() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full rounded-2xl px-4 py-3 text-center text-sm font-bold transition-all ${
+                className={`w-full rounded-2xl px-4 py-3 text-center text-sm transition-all ${
                   activeTab === tab.id
-                    ? "bg-primary text-white shadow-lg shadow-primary/20"
-                    : "bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                    ? "bg-primary font-semibold text-white shadow-lg shadow-primary/20"
+                    : "bg-gray-50 text-gray-500 font-medium hover:bg-gray-100 hover:text-gray-800"
                 }`}
               >
                 <span className="block leading-tight">{tab.label}</span>
@@ -92,7 +92,7 @@ export default function OrderPage() {
           </div>
         </div>
 
-        <div className="rounded-[30px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5 md:p-6">
+        <div className="rounded-[28px] border border-gray-200 bg-white p-4 shadow-sm sm:p-5 md:p-6">
           <OrderSection orders={filteredOrders} isLoading={isLoading} activeTab={activeTab} />
         </div>
       </div>

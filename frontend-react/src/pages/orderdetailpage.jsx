@@ -235,7 +235,7 @@ export default function OrderDetailPage() {
           toast.error("Pembayaran gagal.");
         },
         onClose: function () {
-          toast.error("Anda menutup jendela pembayaran.");
+          toast.error("Kamu menutup jendela pembayaran.");
         },
       });
     } catch (error) {
@@ -265,10 +265,10 @@ export default function OrderDetailPage() {
         <section className="hidden border-b border-gray-200 pb-5 print:block">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <img src={logo} alt="Logo RERE PetShop" className="h-14 w-auto object-contain" />
+              <img src={logo} alt="Logo ReRe Petshop" className="h-14 w-auto object-contain" />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/70">Invoice Resmi</p>
-                <h1 className="mt-1 text-2xl font-black text-gray-900">RERE PetShop</h1>
+                <h1 className="mt-1 text-2xl font-bold text-gray-900">ReRe Petshop</h1>
                 <p className="mt-1 text-sm text-gray-500">Invoice pesanan pelanggan</p>
               </div>
             </div>
@@ -283,7 +283,7 @@ export default function OrderDetailPage() {
         <div className="flex flex-col gap-4 print:hidden sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/pesanan"
-            className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
+            className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 font-medium bg-white px-4 py-3 text-sm text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
           >
             <ArrowLeft size={16} />
             Kembali ke Pesanan
@@ -293,7 +293,7 @@ export default function OrderDetailPage() {
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm font-bold text-gray-700 transition hover:border-primary hover:text-primary"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl font-medium border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 transition hover:border-primary hover:text-primary"
             >
               <Printer size={16} />
               Print Invoice
@@ -303,9 +303,9 @@ export default function OrderDetailPage() {
               type="button"
               onClick={() => setIsCancelModalOpen(true)}
               disabled={!canCancel || isCancelling}
-              className={`inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm font-bold text-white transition ${
+              className={`inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm text-white transition ${
                 canCancel && !isCancelling
-                  ? "bg-primary hover:bg-primary-600"
+                  ? "bg-primary font-semibold hover:bg-primary-600"
                   : "cursor-not-allowed bg-gray-300"
               }`}
             >
@@ -314,7 +314,7 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-[30px] border border-gray-200 bg-white shadow-sm print:rounded-none print:border print:shadow-none">
+        <section className="overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm print:rounded-none print:border print:shadow-none">
           <div className="border-b border-gray-100 px-5 py-5 md:px-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
@@ -323,7 +323,7 @@ export default function OrderDetailPage() {
                 <p className="mt-2 text-sm text-gray-500">Dibuat pada {formattedDate}</p>
               </div>
 
-              <div className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${statusClass}`}>
+              <div className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${statusClass}`}>
                 {statusLabel}
               </div>
             </div>
@@ -364,7 +364,7 @@ export default function OrderDetailPage() {
           </div>
         </section>
 
-        <section className="rounded-[30px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
+        <section className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold text-gray-900">Produk Dalam Pesanan</h2>
@@ -382,10 +382,10 @@ export default function OrderDetailPage() {
               return (
                 <div
                   key={detail.id_detail}
-                  className="flex flex-col gap-4 rounded-[26px] border border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffaf8_100%)] p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 rounded-[28px] border border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffaf8_100%)] p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 sm:h-24 sm:w-24">
+                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[28px] bg-gray-50 sm:h-24 sm:w-24">
                       {product?.foto ? (
                         <img
                           src={getStorageUrl(product.foto)}
@@ -431,7 +431,7 @@ export default function OrderDetailPage() {
                 <p>Metode: <span className="font-semibold">{order.pembayaran.metode_bayar || "-"}</span></p>
                 <div className="flex items-center gap-2">
                   <span>Status:</span>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${paymentStatusClass}`}>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${paymentStatusClass}`}>
                     {paymentStatusLabel}
                   </span>
                 </div>
@@ -441,7 +441,7 @@ export default function OrderDetailPage() {
                     type="button"
                     onClick={handleOpenPaymentDetail}
                     disabled={isOpeningPayment}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600 disabled:opacity-50"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-600 disabled:opacity-50"
                   >
                     <ExternalLink size={16} />
                     {isOpeningPayment ? "Membuka..." : "Lihat Detail Pembayaran"}
@@ -453,7 +453,7 @@ export default function OrderDetailPage() {
                 <p className="text-sm text-gray-500">Data pembayaran belum tersedia.</p>
                 <Link
                   to={`/payment/${order.id_pesanan}`}
-                  className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600"
+                  className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-600"
                 >
                   Lanjut ke Pembayaran
                 </Link>
@@ -471,7 +471,7 @@ export default function OrderDetailPage() {
                 <p>Kurir: <span className="font-semibold">{courierName}</span></p>
                 <div className="flex items-center gap-2">
                   <span>Status:</span>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${shippingStatusClass}`}>
+                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${shippingStatusClass}`}>
                     {shippingStatusLabel}
                   </span>
                 </div>
@@ -486,7 +486,7 @@ export default function OrderDetailPage() {
 
       {isCancelModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm print:hidden">
-          <div className="w-full max-w-md rounded-[28px] bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-[28px] bg-white p-6 shadow-lg">
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Konfirmasi Pembatalan</p>
             <h2 className="mt-3 text-2xl font-bold text-gray-900">Batalkan pesanan ini?</h2>
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
@@ -498,7 +498,7 @@ export default function OrderDetailPage() {
                 type="button"
                 onClick={() => setIsCancelModalOpen(false)}
                 disabled={isCancelling}
-                className="inline-flex items-center justify-center rounded-2xl border border-gray-200 px-4 py-3 text-sm font-bold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-2xl border font-medium border-gray-200 px-4 py-3 text-sm text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Kembali
               </button>
@@ -507,7 +507,7 @@ export default function OrderDetailPage() {
                 type="button"
                 onClick={handleCancel}
                 disabled={isCancelling}
-                className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-primary-300"
+                className="inline-flex items-center justify-center rounded-2xl font-semibold bg-primary px-4 py-3 text-sm text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-primary-300"
               >
                 {isCancelling ? "Membatalkan..." : "Ya, batalkan pesanan"}
               </button>

@@ -3,8 +3,8 @@ import catbath from "../assets/catbat.jpg";
 import { FaWhatsapp } from "react-icons/fa";
 
 export default function GroomingPage() {
-    const whatsappNumber = "6281574814563"; // Ganti dengan nomor lo
-    const message = encodeURIComponent("Halo, saya ingin tanya tentang layanan grooming di RERE PetShop!");
+    const whatsappNumber = "6281574814563";
+    const message = encodeURIComponent("Halo, saya ingin tanya tentang layanan grooming di ReRe Petshop!");
 
     const services = [
         "Mandi Sehat & Shampoo Berkualitas",
@@ -15,21 +15,19 @@ export default function GroomingPage() {
 
     return (
         <div className="flex-1 flex flex-col py-10 px-6 md:px-20 mx-auto w-full">
-            {/* Header Section */}
             <div className="flex items-center gap-5 mb-10">
                 <div className="bg-primary w-5 h-10 rounded-sm"></div>
                 <p className="text-primary font-semibold text-lg">Layanan Grooming</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {/* Text Content */}
                 <div className="space-y-6">
                     <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                        Berikan Perawatan <span className="text-primary">Terbaik</span> untuk Anabul Anda
+                        Berikan Perawatan <span className="text-primary">Terbaik</span> untuk Anabul kamu
                     </h1>
                     
                     <p className="text-gray-600 text-lg leading-relaxed">
-                        Layanan grooming profesional kami dirancang untuk memastikan hewan peliharaan Anda 
+                        Layanan grooming profesional kami dirancang untuk memastikan hewan peliharaan kamu 
                         tetap bersih, sehat, dan tampil menggemaskan. Kami menggunakan produk ramah hewan 
                         dan ditangani oleh tenaga berpengalaman.
                     </p>
@@ -43,7 +41,6 @@ export default function GroomingPage() {
                         ))}
                     </div>
 
-                    {/* Information Cards */}
                     <div className="flex flex-wrap gap-6 pt-6">
                         <div className="flex items-center gap-2 text-gray-500">
                             <Clock size={18} />
@@ -55,7 +52,6 @@ export default function GroomingPage() {
                         </div>
                     </div>
 
-                    {/* WhatsApp CTA Button */}
                     <div className="pt-8">
                         <a 
                             href={`https://wa.me/${whatsappNumber}?text=${message}`}
@@ -72,18 +68,15 @@ export default function GroomingPage() {
                     </div>
                 </div>
 
-                {/* Image Section (Visual) */}
                 <div className="relative">
                     <div className="aspect-square rounded-3xl bg-primary/10 overflow-hidden border-2 border-primary/20 flex items-center justify-center">
-                        {/* Ganti src dengan gambar grooming asli lo */}
                         <img 
                             src={catbath} 
                             alt="Layanan grooming" 
                             className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
                         />
                     </div>
-                    {/* Badge Aksen */}
-                    <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-2xl hidden md:block border border-gray-100">
+                    <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-lg hidden md:block border border-gray-100">
                         <p className="text-primary font-bold text-2xl leading-none">100%</p>
                         <p className="text-gray-600 text-sm">Aman & Higienis</p>
                     </div>

@@ -35,7 +35,7 @@ export default function ToastCard({ t, message, variant = "success" }) {
         <div className="rere-toast-copy">
           <p className="rere-toast-title">
             {variant === "success" && "BERHASIL"}
-            {variant === "error" && "ERROR!"}
+            {variant === "error" && "GAGAL"}
             {variant === "loading" && "Sedang diproses"}
           </p>
           <p className="rere-toast-message">{message}</p>

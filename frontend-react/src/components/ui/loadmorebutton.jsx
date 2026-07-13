@@ -15,8 +15,8 @@ export default function LoadMoreButton({
         <button
             onClick={onClick}
             disabled={isLoading}
-            className="mt-4 px-12 py-3 rounded-sm bg-primary text-white hover:bg-primary-600 
-                    transition-all active:scale-95 font-bold shadow-lg shadow-primary/20 
+            className="mt-4 px-12 py-3 rounded-sm bg-primary font-medium text-white hover:bg-primary-600 
+                    transition-all active:scale-95 shadow-lg shadow-primary/20 
                     flex items-center justify-center min-w-50 disabled:opacity-70"
         >
             {isLoading ? (

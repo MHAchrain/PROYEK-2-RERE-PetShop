@@ -13,7 +13,7 @@ export default function HeroSlide({ text, image }) {
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70 sm:text-xs">Produk pilihan</p>
             <h2 className="mt-2 text-xl font-bold leading-tight sm:mt-3 sm:text-3xl lg:text-4xl">{text}</h2>
             <p className="mt-2 max-w-xl text-xs leading-relaxed text-white/80 sm:mt-3 sm:text-sm md:text-base">
-              Temukan makanan, aksesoris, dan layanan terbaik untuk anabul dalam satu tempat dengan pengalaman belanja yang lebih rapi.
+              Temukan makanan, aksesori, dan layanan terbaik untuk anabul dalam satu tempat dengan pengalaman belanja yang lebih rapi.
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-medium text-white/90 sm:mt-5 sm:text-xs">

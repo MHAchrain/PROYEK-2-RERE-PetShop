@@ -7,7 +7,7 @@ export default function FaqSection() {
   const faqs = [
     {
       q: "Bagaimana cara melacak pesanan saya?",
-      a: "Anda dapat melihat status pesanan di halaman 'Pesanan Saya' secara real-time setelah checkout berhasil.",
+      a: "Kamu dapat melihat status pesanan di halaman 'Pesanan Saya' secara real-time setelah belanja berhasil.",
       icon: <Truck size={18} />,
     },
     {
@@ -54,7 +54,7 @@ export default function FaqSection() {
             const isOpen = openIndex === index;
 
             return (
-              <div key={index} className="overflow-hidden rounded-[24px] border border-gray-100 bg-white shadow-sm">
+              <div key={index} className="overflow-hidden rounded-[28px] border border-gray-100 bg-white shadow-sm">
                 <button
                   type="button"
                   onClick={() => setOpenIndex(isOpen ? null : index)}
@@ -100,7 +100,7 @@ export default function FaqSection() {
           <div className="mt-6 rounded-2xl border border-dashed border-primary/20 bg-primary/5 px-4 py-4">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary/70">Tips</p>
             <p className="mt-2 text-sm leading-relaxed text-gray-700">
-              Jika masalah Anda belum terjawab di sini, cek detail pesanan atau informasi profil terlebih dahulu sebelum menghubungi admin.
+              Jika masalah kamu belum terjawab di sini, cek detail pesanan atau informasi profil terlebih dahulu sebelum menghubungi admin.
             </p>
           </div>
 

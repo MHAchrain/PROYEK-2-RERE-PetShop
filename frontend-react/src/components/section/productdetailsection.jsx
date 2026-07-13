@@ -88,7 +88,7 @@ export default function ProductDetailSection({ product, isLoading }) {
         if (!product?.id) return;
 
         if (!user) {
-            toast.error("Login dulu buat tambah ke wishlist");
+            toast.error("Masuk dulu buat tambah ke wishlist");
             navigate("/auth");
             return;
         }

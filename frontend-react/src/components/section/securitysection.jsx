@@ -25,7 +25,7 @@ export default function SecuritySection() {
       <div className="flex flex-col gap-4 rounded-[28px] border border-primary/10 bg-[linear-gradient(135deg,rgba(249,115,22,0.08)_0%,rgba(255,255,255,1)_55%,rgba(248,250,252,1)_100%)] p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">Keamanan Akun</p>
-          <h3 className="mt-2 text-2xl font-bold text-gray-900">Perbarui kata sandi Anda</h3>
+          <h3 className="mt-2 text-2xl font-bold text-gray-900">Perbarui kata sandi kamu</h3>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">
             Jaga akun tetap aman dengan kata sandi yang kuat dan unik. Ubah secara berkala untuk mengurangi risiko akses tidak sah.
           </p>
@@ -115,7 +115,7 @@ export default function SecuritySection() {
                 }`}
               >
                 {pwdData.password_confirmation.length === 0
-                  ? "Konfirmasi kata sandi Anda di sini."
+                  ? "Konfirmasi kata sandi kamu di sini."
                   : isPasswordMatch
                     ? "Konfirmasi kata sandi sudah sesuai."
                     : "Konfirmasi kata sandi belum cocok."}
@@ -127,7 +127,7 @@ export default function SecuritySection() {
             <div>
               <h4 className="text-lg font-bold text-gray-900">Tips Keamanan</h4>
               <p className="mt-2 text-sm leading-relaxed text-gray-500">
-                Ikuti beberapa langkah sederhana ini supaya akun Anda tetap aman.
+                Ikuti beberapa langkah sederhana ini supaya akun kamu tetap aman.
               </p>
             </div>
 
@@ -166,7 +166,7 @@ export default function SecuritySection() {
             <button
               type="submit"
               disabled={isLoading}
-              className="inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-sm text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Memproses..." : "Perbarui Kata Sandi"}
             </button>

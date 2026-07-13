@@ -32,7 +32,7 @@ export default function CartCard({ item, removeItem, updateQty, variant = "respo
 
   if (isResponsive) {
     return (
-      <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md md:p-5">
+      <div className="rounded-[28px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-4 md:min-w-0 md:flex-1">
             <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 md:h-24 md:w-24">
@@ -58,7 +58,7 @@ export default function CartCard({ item, removeItem, updateQty, variant = "respo
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 md:min-w-[250px] md:border-t-0 md:border-l md:pl-5 md:pt-0">
+          <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 md:min-w-62.5 md:border-t-0 md:border-l md:pl-5 md:pt-0">
             <div className="flex items-center justify-between gap-4">
               <span className="text-xs uppercase tracking-[0.14em] text-gray-400">Jumlah</span>
               {quantityControl}
