@@ -26,14 +26,14 @@ export default function GroomingPage() {
         <div className="space-y-6">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
             Berikan Perawatan <span className="text-primary">Terbaik</span>{' '}
-            untuk Anabul kamu hhi
+            untuk Anabul kamu
           </h1>
 
           <p className="text-gray-600 text-lg leading-relaxed">
             Layanan grooming profesional kami dirancang untuk memastikan hewan
             peliharaan kamu tetap bersih, sehat, dan tampil menggemaskan. Kami
             menggunakan produk ramah hewan dan ditangani oleh tenaga
-            berpengalaman.
+            berpengalaman yang ahli dalam perawatan hewan peliharaan.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
