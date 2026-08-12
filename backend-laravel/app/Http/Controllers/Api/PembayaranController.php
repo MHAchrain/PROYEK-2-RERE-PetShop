@@ -15,13 +15,12 @@ use Midtrans\Notification;
 class PembayaranController extends Controller
 {
     public function __construct()
-    {
-        // Konfigurasi khusus Sandbox
-        Config::$serverKey = config('midtrans.server_key'); 
-        Config::$isProduction = false; // Wajib false untuk Sandbox
-        Config::$isSanitized = true;
-        Config::$is3ds = true;
-    }
+{
+    Config::$serverKey = config('midtrans.server_key'); 
+    Config::$isProduction = config('midtrans.isproduction', false);
+    Config::$isSanitized = config('midtrans.is_sanitized', true);
+    Config::$is3ds = config('midtrans.is3ds', true);
+}
 
    protected function resolvePelanggan(Request $request): ?Pelanggan
 {

@@ -15,6 +15,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Google\Client as GoogleClient;
 
+
 class AuthController extends Controller
 {
     private const RESET_CODE_TTL_MINUTES = 10;
