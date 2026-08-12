@@ -6,6 +6,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { FaGoogle } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { FcGoogle } from 'react-icons/fc';
 
 import catImage from '../assets/catcool.jpg';
 import { Eye, EyeOff } from 'lucide-react';
@@ -329,9 +330,16 @@ export default function AuthPage() {
                 type="button"
                 onClick={googleLogin}
                 disabled={loading}
-                className="w-full py-3 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-3">
-                <FaGoogle className="text-red-500" size={20} />
-                Masuk dengan Google
+                className="w-full py-3 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold transition flex items-center justify-center gap-3 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed">
+                {loading ? (
+                  // Efek loading spin mini di sebelah teks saat proses masuk
+                  <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                ) : (
+                  // Ikon Google 4 warna asli saat kondisi normal
+                  <FcGoogle size={20} />
+                )}
+
+                <span>{loading ? 'Memproses...' : 'Masuk dengan Google'}</span>
               </button>
             </>
           )}
