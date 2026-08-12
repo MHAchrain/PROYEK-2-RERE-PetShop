@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
+use Google\Client as GoogleClient;
 
 class AuthController extends Controller
 {
@@ -378,4 +381,138 @@ class AuthController extends Controller
             'message' => 'Password berhasil direset. Silakan login dengan password baru.',
         ]);
     }
+
+        // ⬇️ 3 METHOD GOOGLE OAUTH (LENGKAP) ⬇️
+
+    public function redirectToGoogle()
+    {
+        /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+        $driver = Socialite::driver('google');
+        return $driver->stateless()->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
+            $driver = Socialite::driver('google');
+            $googleUser = $driver->stateless()->user();
+            
+            $user = User::where('email', $googleUser->getEmail())->first();
+            
+            if (!$user) {
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                    'google_id' => $googleUser->getId(),
+                    'email_verified_at' => now(),
+                    'role' => 'customer',
+                ]);
+
+                $pelanggan = Pelanggan::create([
+                    'nama' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+                
+                $user->pelanggan_id = $pelanggan->id_pelanggan;
+                $user->save();
+            } else {
+                if (!$user->google_id) {
+                    $user->google_id = $googleUser->getId();
+                    $user->save();
+                }
+            }
+
+            Auth::login($user);
+            $token = $user->createToken('customer_token')->plainTextToken;
+
+            return redirect("http://localhost:5173/auth/callback?token={$token}&user=" . json_encode([
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]));
+
+        } catch (\Exception $e) {
+            return "<pre>
+ERROR: " . $e->getMessage() . "
+
+LINE: " . $e->getLine() . "
+
+FILE: " . $e->getFile() . "
+</pre>";
+        }
+    }
+
+    public function googleLogin(Request $request)
+    {
+        \Log::info('Google Login dipanggil');
+        
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token Google tidak valid',
+            ], 422);
+        }
+
+        try {
+            // 🔥 PAKAI SOCIALITE userFromToken (LEBIH SIMPLE)
+            $googleUser = Socialite::driver('google')->stateless()->userFromToken($request->token);
+            
+            $user = User::where('email', $googleUser->getEmail())->first();
+            
+            if (!$user) {
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                    'google_id' => $googleUser->getId(),
+                    'email_verified_at' => now(),
+                    'role' => 'customer',
+                ]);
+
+                $pelanggan = Pelanggan::create([
+                    'nama' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+                
+                $user->pelanggan_id = $pelanggan->id_pelanggan;
+                $user->save();
+            } else {
+                if (!$user->google_id) {
+                    $user->google_id = $googleUser->getId();
+                    $user->save();
+                }
+            }
+
+            $user->tokens()->delete();
+            $token = $user->createToken('customer_token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login Google berhasil',
+                'token' => $token,
+                'data' => $this->buildAuthPayload($user),
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Google Login Error: ' . $e->getMessage());
+            \Log::error('Line: ' . $e->getLine());
+            \Log::error('File: ' . $e->getFile());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Login Google gagal: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // ⬆️ SAMPAI SINI ⬆️
 }

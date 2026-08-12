@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Password;  // ✅ tambah ini untuk fitur reset password
+use Illuminate\Support\Facades\Password;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProdukController;
@@ -71,6 +71,12 @@ Route::get('/produk/{id}', [ProdukController::class, 'show']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// ⬇️ ROUTE GOOGLE OAUTH (DITAMBAHKAN) ⬇️
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+Route::post('/auth/google', [AuthController::class, 'googleLogin']);
+// ⬆️ SAMPAI SINI ⬆️
 
 Route::post('/forgot-password/send-code', [AuthController::class, 'sendResetCode']);
 Route::post('/forgot-password/verify-code', [AuthController::class, 'verifyResetCode']);

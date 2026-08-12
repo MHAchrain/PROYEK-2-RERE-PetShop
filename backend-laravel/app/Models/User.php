@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements FilamentUser
 {
-   use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -19,6 +19,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'pelanggan_id',
+        'google_id',        // ⬅️ SUDAH DITAMBAHKAN
     ];
 
     protected $hidden = [
