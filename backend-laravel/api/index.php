@@ -5,23 +5,52 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Buat folder temporary wajib agar Laravel tidak crash write permission
-$dirs = ['/tmp/views', '/tmp/cache', '/tmp/sessions', '/tmp/logs'];
+// Buat direktori temp wajib
+$dirs = [
+    '/tmp/views',
+    '/tmp/cache',
+    '/tmp/sessions',
+    '/tmp/logs',
+    '/tmp/bootstrap'
+];
+
 foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
-        mkdir($dir, 0777, true);
+        @mkdir($dir, 0777, true);
     }
 }
 
-require __DIR__ . '/../vendor/autoload.php';
+// Override path storage & cache ke direktori /tmp
+putenv('APP_CONFIG_CACHE=/tmp/bootstrap/config.php');
+putenv('APP_EVENTS_CACHE=/tmp/bootstrap/events.php');
+putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/packages.php');
+putenv('APP_ROUTES_CACHE=/tmp/bootstrap/routes.php');
+putenv('APP_SERVICES_CACHE=/tmp/bootstrap/services.php');
+putenv('VIEW_COMPILED_PATH=/tmp/views');
+putenv('CACHE_STORE=array');
+putenv('CACHE_DRIVER=array');
+putenv('SESSION_DRIVER=cookie');
+putenv('LOG_CHANNEL=stderr');
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
+try {
+    require __DIR__ . '/../vendor/autoload.php';
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-if (method_exists($app, 'handleRequest')) {
-    $app->handleRequest(Request::capture());
-} else {
-    $kernel = $app->make(Kernel::class);
-    $response = $kernel->handle($request = Request::capture());
-    $response->send();
-    $kernel->terminate($request, $response);
+    if (method_exists($app, 'handleRequest')) {
+        $app->handleRequest(Request::capture());
+    } else {
+        $kernel = $app->make(Kernel::class);
+        $response = $kernel->handle($request = Request::capture());
+        $response->send();
+        $kernel->terminate($request, $response);
+    }
+} catch (\Throwable $e) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'status'  => 'error',
+        'message' => $e->getMessage(),
+        'file'    => $e->getFile(),
+        'line'    => $e->getLine(),
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    exit(0);
 }
