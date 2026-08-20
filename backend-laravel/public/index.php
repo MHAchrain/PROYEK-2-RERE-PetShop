@@ -1,20 +1,28 @@
 <?php
 
-use Illuminate\Foundation\Application;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Determine if the application is in maintenance mode...
-if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
-    require $maintenance;
+// Buat folder wajib di /tmp
+$dirs = ['/tmp/views', '/tmp/cache', '/tmp/sessions', '/tmp/logs'];
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
 }
 
-// Register the Composer autoloader...
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-// Bootstrap Laravel and handle the request...
-/** @var Application $app */
-$app = require_once __DIR__.'/../bootstrap/app.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
 
-$app->handleRequest(Request::capture());
+// Handle request kompatibel Laravel 10 & 11
+if (method_exists($app, 'handleRequest')) {
+    $app->handleRequest(Request::capture());
+} else {
+    $kernel = $app->make(Kernel::class);
+    $response = $kernel->handle($request = Request::capture());
+    $response->send();
+    $kernel->terminate($request, $response);
+}
