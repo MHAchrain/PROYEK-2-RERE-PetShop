@@ -41,7 +41,6 @@ return [
             'journal_mode' => null,
             'synchronous' => null,
         ],
-
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
@@ -58,10 +57,9 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', '/etc/ssl/certs/ca-certificates.crt'),
             ]) : [],
         ],
-
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
