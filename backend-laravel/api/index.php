@@ -5,8 +5,8 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Buat direktori temp wajib
-$dirs = [
+// 1. Siapkan direktori writable di /tmp AWS Lambda
+$tmpDirectories = [
     '/tmp/views',
     '/tmp/cache',
     '/tmp/sessions',
@@ -14,13 +14,13 @@ $dirs = [
     '/tmp/bootstrap'
 ];
 
-foreach ($dirs as $dir) {
+foreach ($tmpDirectories as $dir) {
     if (!is_dir($dir)) {
         @mkdir($dir, 0777, true);
     }
 }
 
-// Override path storage & cache ke direktori /tmp
+// 2. Alihkan seluruh path cache & storage internal ke /tmp
 putenv('APP_CONFIG_CACHE=/tmp/bootstrap/config.php');
 putenv('APP_EVENTS_CACHE=/tmp/bootstrap/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/packages.php');
@@ -36,6 +36,7 @@ try {
     require __DIR__ . '/../vendor/autoload.php';
     $app = require_once __DIR__ . '/../bootstrap/app.php';
 
+    // Mendukung Laravel 10 & Laravel 11
     if (method_exists($app, 'handleRequest')) {
         $app->handleRequest(Request::capture());
     } else {
@@ -45,12 +46,14 @@ try {
         $kernel->terminate($request, $response);
     }
 } catch (\Throwable $e) {
+    // Tangkap fatal error dan kembalikan JSON bersih (bukan crash runtime)
     header('Content-Type: application/json; charset=utf-8');
+    http_response_code(200); // 200 agar Vercel tidak menganggap container mati
     echo json_encode([
         'status'  => 'error',
+        'type'    => get_class($e),
         'message' => $e->getMessage(),
         'file'    => $e->getFile(),
         'line'    => $e->getLine(),
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-    exit(0);
 }
