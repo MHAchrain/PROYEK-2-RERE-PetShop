@@ -73,7 +73,7 @@ Route::get('/', function () {
         <!-- Quick Link Buttons -->
         <div class="space-y-2.5">
             <!-- Website Frontend (Vercel) -->
-            <a href="https://rere-petshop-frontend.vercel.app" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 hover:border-slate-600 transition duration-200 group">
+            <a href="https://rerepetshop.biz.id/" target="_blank" class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 hover:border-slate-600 transition duration-200 group">
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-globe text-cyan-400 group-hover:scale-110 transition"></i>
                     <span class="text-sm font-medium text-slate-200">Kunjungi Website Utama (Frontend)</span>
