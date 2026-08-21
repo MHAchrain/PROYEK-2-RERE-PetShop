@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('Admin Rere Petshop')
-            ->favicon(asset('images/logorere.png')) 
+            ->favicon(secure_asset('logo.png'))
             ->brandLogo(new HtmlString(sprintf(
                 '<div style="height: 100%%; padding-block: 0.5rem; 
                 box-sizing: border-box;">
