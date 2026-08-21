@@ -5,14 +5,21 @@ use Illuminate\Http\Request;
 define('LARAVEL_START', microtime(true));
 
 // Buat direktori temporary wajib Lambda
-$dirs = ['/tmp/views', '/tmp/cache', '/tmp/sessions', '/tmp/logs', '/tmp/bootstrap'];
+$dirs = [
+    '/tmp/views',
+    '/tmp/cache',
+    '/tmp/sessions',
+    '/tmp/logs',
+    '/tmp/bootstrap'
+];
+
 foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
         @mkdir($dir, 0777, true);
     }
 }
 
-// Redirect path cache & storage ke /tmp
+// Redirect cache & storage ke /tmp
 putenv('APP_CONFIG_CACHE=/tmp/bootstrap/config.php');
 putenv('APP_EVENTS_CACHE=/tmp/bootstrap/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/packages.php');
