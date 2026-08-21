@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
 
-define('LARAVEL_START', microtime(true));
-
-// Buat direktori temporary wajib Lambda
+// Direktori cache & storage wajib di RAM Lambda (/tmp)
 $dirs = [
     '/tmp/views',
     '/tmp/cache',
@@ -19,7 +19,6 @@ foreach ($dirs as $dir) {
     }
 }
 
-// Redirect cache & storage ke /tmp
 putenv('APP_CONFIG_CACHE=/tmp/bootstrap/config.php');
 putenv('APP_EVENTS_CACHE=/tmp/bootstrap/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/packages.php');
@@ -31,15 +30,25 @@ putenv('CACHE_DRIVER=array');
 putenv('SESSION_DRIVER=cookie');
 putenv('LOG_CHANNEL=stderr');
 
-require __DIR__ . '/../vendor/autoload.php';
+try {
+    require __DIR__ . '/../vendor/autoload.php';
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-
-if (method_exists($app, 'handleRequest')) {
-    $app->handleRequest(Request::capture());
-} else {
+    // Laravel 12 Bootstrapping Request Capture
     $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
-    $response = $kernel->handle($request = Request::capture());
+    $response = $kernel->handle(
+        $request = \Illuminate\Http\Request::capture()
+    );
     $response->send();
     $kernel->terminate($request, $response);
+} catch (\Throwable $e) {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(500);
+    echo json_encode([
+        'error_type' => get_class($e),
+        'message'    => $e->getMessage(),
+        'file'       => $e->getFile(),
+        'line'       => $e->getLine(),
+        'trace'      => explode("\n", $e->getTraceAsString())
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 }
