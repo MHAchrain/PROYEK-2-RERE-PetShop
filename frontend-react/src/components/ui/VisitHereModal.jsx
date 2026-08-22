@@ -24,8 +24,6 @@ export default function VisitHereModal() {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
-        <div className="text-4xl mb-2">🐾</div>
-
         <h3 className="text-lg font-bold text-slate-800 mb-1">
           Sinkronisasi Katalog Produk
         </h3>
