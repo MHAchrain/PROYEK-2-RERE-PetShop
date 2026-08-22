@@ -1,13 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '../context/authcontext';
 import { useNavigate } from 'react-router-dom';
 import { useAuthForm } from '../hooks/useauthform';
 import { useGoogleLogin } from '@react-oauth/google';
-import { FaGoogle } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
-
 import catImage from '../assets/catcool.jpg';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -17,6 +15,7 @@ export default function AuthPage() {
   const [authMode, setAuthMode] = useState('login');
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const otpRefs = useRef([]);
 
   const {
     form,
@@ -44,7 +43,47 @@ export default function AuthPage() {
     }
   };
 
-  // ⬇️ GOOGLE LOGIN ⬇️
+  const handleOtpChange = (e, index) => {
+    const val = e.target.value.replace(/[^0-9]/g, '');
+    const currentCode = (form.resetCode || '').split('');
+
+    // Pastikan array memiliki panjang minimal sesuai index
+    while (currentCode.length <= index) {
+      currentCode.push('');
+    }
+
+    currentCode[index] = val ? val[val.length - 1] : '';
+    const updatedCode = currentCode.join('').slice(0, 6);
+
+    handleChange('resetCode', updatedCode);
+
+    // Auto-focus kotak berikutnya jika terisi
+    if (val && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e, index) => {
+    // Pindah fokus ke kotak sebelumnya saat tekan Backspace pada kotak kosong
+    if (e.key === 'Backspace' && !form.resetCode?.[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData
+      .getData('text')
+      .replace(/[^0-9]/g, '')
+      .slice(0, 6);
+    if (pastedData) {
+      handleChange('resetCode', pastedData);
+      const nextFocusIndex = Math.min(pastedData.length, 5);
+      otpRefs.current[nextFocusIndex]?.focus();
+    }
+  };
+
+  // Google Login
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
       try {
@@ -53,9 +92,7 @@ export default function AuthPage() {
           { token: response.access_token },
         );
 
-        // ✅ SIMPAN TOKEN DAN USER PAKE LOGIN DARI AUTHCONTEXT
         login(res.data.data.user, res.data.token);
-
         toast.success('Login dengan Google berhasil!');
         navigate('/');
       } catch (error) {
@@ -67,7 +104,6 @@ export default function AuthPage() {
       toast.error('Login dengan Google gagal!');
     },
   });
-  // ⬆️ SAMPAI SINI ⬆️
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
@@ -222,18 +258,23 @@ export default function AuthPage() {
 
                 {codeSent && !codeVerified && (
                   <>
-                    <input
-                      type="text"
-                      placeholder="Masukkan kode reset"
-                      value={form.resetCode}
-                      onChange={(e) =>
-                        handleChange(
-                          'resetCode',
-                          e.target.value.replace(/[^0-9]/g, ''),
-                        )
-                      }
-                      className="mt-4 w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
-                    />
+                    <div
+                      className="flex justify-between gap-2 mt-4"
+                      onPaste={handleOtpPaste}>
+                      {[...Array(6)].map((_, index) => (
+                        <input
+                          key={index}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          ref={(el) => (otpRefs.current[index] = el)}
+                          value={form.resetCode?.[index] || ''}
+                          onChange={(e) => handleOtpChange(e, index)}
+                          onKeyDown={(e) => handleOtpKeyDown(e, index)}
+                          className="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white shadow-sm"
+                        />
+                      ))}
+                    </div>
 
                     <button
                       type="button"
@@ -314,7 +355,7 @@ export default function AuthPage() {
             )}
           </form>
 
-          {/* ⬇️ DIVIDER & TOMBOL GOOGLE ⬇️ */}
+          {/* DIVIDER & TOMBOL GOOGLE */}
           {isLogin && (
             <>
               <div className="relative my-6">
@@ -332,18 +373,14 @@ export default function AuthPage() {
                 disabled={loading}
                 className="w-full py-3 rounded-md border border-gray-300 bg-white text-gray-700 font-semibold transition flex items-center justify-center gap-3 hover:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed">
                 {loading ? (
-                  // Efek loading spin mini di sebelah teks saat proses masuk
                   <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
                 ) : (
-                  // Ikon Google 4 warna asli saat kondisi normal
                   <FcGoogle size={20} />
                 )}
-
                 <span>{loading ? 'Memproses...' : 'Masuk dengan Google'}</span>
               </button>
             </>
           )}
-          {/* ⬆️ SAMPAI SINI ⬆️ */}
 
           <div className="text-sm text-center mt-6 text-gray-600 space-y-2">
             {isLogin && (
