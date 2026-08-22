@@ -1,74 +1,52 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import noImage from '../../assets/no-image.png';
 
-// Cache in-memory agar gambar tidak di-fetch berulang kali saat re-render
-const imageCache = new Map();
+const NGROK_BASE_URL = 'https://tunefully-plummy-iraida.ngrok-free.dev';
 
 export default function NgrokImage({ src, alt, className, style }) {
-  const formatUrl = (url) => {
+  const [hasError, setHasError] = useState(false);
+
+  // Format URL + tambahkan bypass query parameter Ngrok
+  const getProcessedUrl = (url) => {
     if (!url) return null;
-    if (
-      url.startsWith('http://') ||
-      url.startsWith('https://') ||
-      url.startsWith('data:') ||
-      url.startsWith('blob:')
-    ) {
-      return url;
+    if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+
+    let fullUrl = url;
+
+    // Ubah localhost / 127.0.0.1 menjadi domain ngrok
+    if (url.includes('localhost') || url.includes('127.0.0.1')) {
+      const pathIndex = url.indexOf('/storage/');
+      if (pathIndex !== -1) {
+        fullUrl = `${NGROK_BASE_URL}${url.substring(pathIndex)}`;
+      }
+    } else if (url.startsWith('http://') || url.startsWith('https://')) {
+      if (url.includes('/storage/')) {
+        const pathIndex = url.indexOf('/storage/');
+        fullUrl = `${NGROK_BASE_URL}${url.substring(pathIndex)}`;
+      }
+    } else {
+      // Path relatif
+      const cleanPath = url.startsWith('/') ? url : `/${url}`;
+      if (!cleanPath.startsWith('/storage/')) {
+        fullUrl = `${NGROK_BASE_URL}/storage${cleanPath}`;
+      } else {
+        fullUrl = `${NGROK_BASE_URL}${cleanPath}`;
+      }
     }
-    const cleanPath = url.startsWith('/') ? url.slice(1) : url;
-    return `https://tunefully-plummy-iraida.ngrok-free.dev/${cleanPath}`;
+
+    // Tambahkan query bypass ngrok agar lolos peringatan tanpa fetch CORS
+    const separator = fullUrl.includes('?') ? '&' : '?';
+    return `${fullUrl}${separator}ngrok-skip-browser-warning=69420`;
   };
 
-  const targetUrl = formatUrl(src);
-  const [imgSrc, setImgSrc] = useState(() =>
-    targetUrl ? imageCache.get(targetUrl) || null : null,
-  );
-  const [loading, setLoading] = useState(
-    () => Boolean(targetUrl) && !imageCache.has(targetUrl),
-  );
-  const objectUrlRef = useRef(null);
+  const finalSrc = getProcessedUrl(src);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    // Jika URL kosong atau sudah ada di cache, abaikan fetch
-    if (!targetUrl || imageCache.has(targetUrl)) {
-      return;
-    }
-
-    fetch(targetUrl, {
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Gagal memuat gambar');
-        return res.blob();
-      })
-      .then((blob) => {
-        if (!isMounted) return;
-        const objectUrl = URL.createObjectURL(blob);
-        objectUrlRef.current = objectUrl;
-        imageCache.set(targetUrl, objectUrl);
-        setImgSrc(objectUrl);
-        setLoading(false);
-      })
-      .catch(() => {
-        if (isMounted) {
-          setImgSrc(null);
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [targetUrl]);
-
-  if (loading) {
+  if (hasError || !finalSrc) {
     return (
-      <div
-        className={`w-full h-full animate-pulse bg-slate-100 flex items-center justify-center ${className || ''}`}
+      <img
+        src={noImage}
+        alt={alt || 'produk'}
+        className={className}
         style={style}
       />
     );
@@ -76,13 +54,10 @@ export default function NgrokImage({ src, alt, className, style }) {
 
   return (
     <img
-      src={imgSrc || noImage}
+      src={finalSrc}
       alt={alt || 'produk'}
       loading="lazy"
-      onError={(e) => {
-        e.currentTarget.onerror = null;
-        e.currentTarget.src = noImage;
-      }}
+      onError={() => setHasError(true)}
       className={className}
       style={style}
     />

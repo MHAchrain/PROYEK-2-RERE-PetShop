@@ -104,8 +104,17 @@ Route::get('/', function () {
 HTML, 200)->header('Content-Type', 'text/html');
 });
 
-// Route Akses Gambar dengan Header Bypass & CORS
-Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+// Route Akses Gambar dengan Handshake CORS & Bypass Ngrok
+Route::match(['GET', 'OPTIONS'], '/storage/{folder}/{filename}', function ($folder, $filename) {
+    if (request()->isMethod('OPTIONS')) {
+        return response('', 204, [
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Access-Control-Allow-Headers' => 'ngrok-skip-browser-warning, Content-Type, Authorization, X-Requested-With',
+            'Access-Control-Max-Age' => '86400',
+        ]);
+    }
+
     $path = storage_path('app/public/' . $folder . '/' . $filename);
 
     if (!File::exists($path)) {
@@ -119,8 +128,7 @@ Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
         'Content-Type' => $type,
         'Access-Control-Allow-Origin' => '*',
         'Access-Control-Allow-Methods' => 'GET, OPTIONS',
-        'Access-Control-Allow-Headers' => 'ngrok-skip-browser-warning, Content-Type, Authorization',
-        'ngrok-skip-browser-warning' => 'true',
+        'Access-Control-Allow-Headers' => 'ngrok-skip-browser-warning, Content-Type, Authorization, X-Requested-With',
         'Cache-Control' => 'public, max-age=86400',
     ]);
 })->where('filename', '.*');
