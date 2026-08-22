@@ -47,7 +47,6 @@ export default function AuthPage() {
     const val = e.target.value.replace(/[^0-9]/g, '');
     const currentCode = (form.resetCode || '').split('');
 
-    // Pastikan array memiliki panjang minimal sesuai index
     while (currentCode.length <= index) {
       currentCode.push('');
     }
@@ -57,14 +56,12 @@ export default function AuthPage() {
 
     handleChange('resetCode', updatedCode);
 
-    // Auto-focus kotak berikutnya jika terisi
     if (val && index < 5) {
       otpRefs.current[index + 1]?.focus();
     }
   };
 
   const handleOtpKeyDown = (e, index) => {
-    // Pindah fokus ke kotak sebelumnya saat tekan Backspace pada kotak kosong
     if (e.key === 'Backspace' && !form.resetCode?.[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
@@ -76,6 +73,7 @@ export default function AuthPage() {
       .getData('text')
       .replace(/[^0-9]/g, '')
       .slice(0, 6);
+
     if (pastedData) {
       handleChange('resetCode', pastedData);
       const nextFocusIndex = Math.min(pastedData.length, 5);
@@ -125,54 +123,61 @@ export default function AuthPage() {
                 : 'Lupa Kata Sandi'}
           </h2>
 
-          <p className="mb-8 text-sm md:text-base">
+          <p className="mb-8 text-sm md:text-base text-gray-600">
             {isLogin
               ? 'Masuk untuk melanjutkan ke ReRe Petshop'
               : isRegister
                 ? 'Daftar untuk membuat akun baru'
-                : 'Masukkan email, kirim kode reset, lalu buat kata sandi baru'}
+                : codeVerified
+                  ? 'Silakan buat kata sandi baru Anda'
+                  : codeSent
+                    ? 'Masukkan 6 digit kode yang dikirim ke email'
+                    : 'Masukkan email untuk menerima kode reset kata sandi'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* REGISTER FIELDS */}
             {isRegister && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Masukkan nama"
+                  value={form.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Masukkan nomor handphone"
+                  value={form.noHp}
+                  onChange={(e) =>
+                    handleChange('noHp', e.target.value.replace(/[^0-9]/g, ''))
+                  }
+                  className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                />
+
+                <textarea
+                  placeholder="Masukkan alamat"
+                  value={form.alamat}
+                  onChange={(e) => handleChange('alamat', e.target.value)}
+                  className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                />
+              </>
+            )}
+
+            {/* EMAIL FIELD UNTUK LOGIN & REGISTER */}
+            {(isLogin || isRegister) && (
               <input
-                type="text"
-                placeholder="Masukkan nama"
-                value={form.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                type="email"
+                placeholder="Masukkan email"
+                value={form.email}
+                onChange={(e) => handleChange('email', e.target.value)}
                 className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
               />
             )}
 
-            {isRegister && (
-              <input
-                type="text"
-                placeholder="Masukkan nomor handphone"
-                value={form.noHp}
-                onChange={(e) =>
-                  handleChange('noHp', e.target.value.replace(/[^0-9]/g, ''))
-                }
-                className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
-              />
-            )}
-
-            {isRegister && (
-              <textarea
-                placeholder="Masukkan alamat"
-                value={form.alamat}
-                onChange={(e) => handleChange('alamat', e.target.value)}
-                className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
-              />
-            )}
-
-            <input
-              type="email"
-              placeholder="Masukkan email"
-              value={form.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
-            />
-
+            {/* PASSWORD FIELD UNTUK LOGIN & REGISTER */}
             {(isLogin || isRegister) && (
               <div className="relative w-full">
                 <input
@@ -180,13 +185,13 @@ export default function AuthPage() {
                   placeholder="Masukkan kata sandi"
                   value={form.password}
                   onChange={(e) => handleChange('password', e.target.value)}
-                  className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                  className="w-full border-b border-gray-400 bg-transparent py-2 pr-8 focus:outline-none focus:border-black [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-0 top-2 text-gray-500 hover:text-gray-700">
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  className="absolute right-0 top-2.5 text-gray-500 hover:text-gray-700">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             )}
@@ -211,7 +216,7 @@ export default function AuthPage() {
                   onChange={(e) =>
                     handleChange('confirmPassword', e.target.value)
                   }
-                  className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                  className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
                 />
 
                 {form.confirmPassword && (
@@ -229,37 +234,53 @@ export default function AuthPage() {
               </div>
             )}
 
+            {/* FLOW STEP BY STEP LUPA KATA SANDI */}
             {isForgotPassword && (
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={handleSendResetCode}
-                  disabled={sendingCode || resetLockMinutes > 0}
-                  className={`w-full py-3 rounded-md text-white transition ${
-                    sendingCode || resetLockMinutes > 0
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-primary font-semibold hover:bg-primary-600'
-                  }`}>
-                  {sendingCode
-                    ? 'Mengirim...'
-                    : resetLockMinutes > 0
-                      ? `Coba lagi ${resetLockMinutes} menit`
-                      : codeSent
-                        ? 'Kirim Ulang Kode Reset'
-                        : 'Kirim Kode Reset'}
-                </button>
+              <div className="space-y-6">
+                {/* STEP 1: INPUT EMAIL & KIRIM KODE */}
+                {!codeSent && (
+                  <>
+                    <input
+                      type="email"
+                      placeholder="Masukkan email"
+                      value={form.email}
+                      onChange={(e) => handleChange('email', e.target.value)}
+                      className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                    />
 
-                {resetLockMinutes > 0 && (
-                  <p className="text-sm text-red-600">
-                    Terlalu banyak percobaan salah. Silakan coba lagi dalam{' '}
-                    {resetLockMinutes} menit.
-                  </p>
+                    <button
+                      type="button"
+                      onClick={handleSendResetCode}
+                      disabled={sendingCode || resetLockMinutes > 0}
+                      className={`w-full py-3 rounded-md text-white font-semibold transition ${
+                        sendingCode || resetLockMinutes > 0
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-primary hover:bg-primary-600'
+                      }`}>
+                      {sendingCode ? 'Mengirim...' : 'Kirim Kode Reset'}
+                    </button>
+
+                    {resetLockMinutes > 0 && (
+                      <p className="text-sm text-red-600 text-center">
+                        Terlalu banyak percobaan. Coba lagi dalam{' '}
+                        {resetLockMinutes} menit.
+                      </p>
+                    )}
+                  </>
                 )}
 
+                {/* STEP 2: VERIFIKASI 6 KOTAK OTP */}
                 {codeSent && !codeVerified && (
-                  <>
+                  <div className="space-y-5">
+                    <p className="text-sm text-gray-600 text-center">
+                      Kode verifikasi telah dikirim ke{' '}
+                      <span className="font-semibold text-black">
+                        {form.email}
+                      </span>
+                    </p>
+
                     <div
-                      className="flex justify-between gap-2 mt-4"
+                      className="flex justify-between gap-2"
                       onPaste={handleOtpPaste}>
                       {[...Array(6)].map((_, index) => (
                         <input
@@ -276,26 +297,43 @@ export default function AuthPage() {
                       ))}
                     </div>
 
+                    <div className="flex justify-between items-center text-xs text-gray-500">
+                      <span>Sisa percobaan: {remainingResetAttempts}</span>
+                      <button
+                        type="button"
+                        onClick={handleSendResetCode}
+                        disabled={sendingCode || resetLockMinutes > 0}
+                        className="hover:text-primary underline cursor-pointer disabled:text-gray-400">
+                        {sendingCode
+                          ? 'Mengirim ulang...'
+                          : 'Kirim ulang kode?'}
+                      </button>
+                    </div>
+
+                    {resetLockMinutes > 0 && (
+                      <p className="text-sm text-red-600 text-center">
+                        Terlalu banyak percobaan salah. Coba lagi dalam{' '}
+                        {resetLockMinutes} menit.
+                      </p>
+                    )}
+
                     <button
                       type="button"
                       onClick={handleVerifyResetCode}
                       disabled={verifyingCode}
-                      className={`w-full py-3 rounded-md text-white transition ${
+                      className={`w-full py-3 rounded-md text-white font-semibold transition ${
                         verifyingCode
                           ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-primary font-semibold hover:bg-primary-600'
+                          : 'bg-primary hover:bg-primary-600'
                       }`}>
                       {verifyingCode ? 'Memverifikasi...' : 'Konfirmasi Kode'}
                     </button>
-
-                    <p className="text-sm text-gray-500">
-                      Sisa percobaan kode: {remainingResetAttempts}
-                    </p>
-                  </>
+                  </div>
                 )}
 
+                {/* STEP 3: INPUT KATA SANDI BARU */}
                 {codeVerified && (
-                  <>
+                  <div className="space-y-4">
                     <div className="relative w-full">
                       <input
                         type={showNewPassword ? 'text' : 'password'}
@@ -304,16 +342,16 @@ export default function AuthPage() {
                         onChange={(e) =>
                           handleChange('newPassword', e.target.value)
                         }
-                        className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                        className="w-full border-b border-gray-400 bg-transparent py-2 pr-8 focus:outline-none focus:border-black [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-0 top-2 text-gray-500 hover:text-gray-700">
+                        className="absolute right-0 top-2.5 text-gray-500 hover:text-gray-700">
                         {showNewPassword ? (
-                          <EyeOff size={20} />
+                          <EyeOff size={18} />
                         ) : (
-                          <Eye size={20} />
+                          <Eye size={18} />
                         )}
                       </button>
                     </div>
@@ -325,13 +363,14 @@ export default function AuthPage() {
                       onChange={(e) =>
                         handleChange('confirmNewPassword', e.target.value)
                       }
-                      className="w-full border-b border-gray-400 bg-transparent py-2 focus:outline-none focus:border-black"
+                      className="w-full border-b border-gray-400 bg-transparent py-2 pr-8 focus:outline-none focus:border-black [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
                     />
-                  </>
+                  </div>
                 )}
               </div>
             )}
 
+            {/* TOMBOL SUBMIT */}
             {(!isForgotPassword || codeVerified) && (
               <button
                 type="submit"
@@ -350,12 +389,12 @@ export default function AuthPage() {
                     ? 'Masuk'
                     : isRegister
                       ? 'Daftar'
-                      : 'Reset Kata Sandi'}
+                      : 'Simpan Kata Sandi Baru'}
               </button>
             )}
           </form>
 
-          {/* DIVIDER & TOMBOL GOOGLE */}
+          {/* GOOGLE LOGIN DIVIDER */}
           {isLogin && (
             <>
               <div className="relative my-6">
@@ -382,6 +421,7 @@ export default function AuthPage() {
             </>
           )}
 
+          {/* FOOTER SWITCH MODE */}
           <div className="text-sm text-center mt-6 text-gray-600 space-y-2">
             {isLogin && (
               <p>
