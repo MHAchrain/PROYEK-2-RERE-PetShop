@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import noImage from '../../assets/no-image.png';
 
+// Cache in-memory agar gambar tidak di-fetch berulang kali saat re-render
+const imageCache = new Map();
+
 export default function NgrokImage({ src, alt, className, style }) {
-  // Format URL helper
   const formatUrl = (url) => {
     if (!url) return null;
     if (
@@ -18,35 +20,45 @@ export default function NgrokImage({ src, alt, className, style }) {
   };
 
   const targetUrl = formatUrl(src);
-
-  // Inisialisasi loading langsung dari ketersediaan targetUrl (menghindari setState sinkron di effect)
-  const [imgSrc, setImgSrc] = useState(null);
-  const [loading, setLoading] = useState(Boolean(targetUrl));
+  const [imgSrc, setImgSrc] = useState(() =>
+    targetUrl ? imageCache.get(targetUrl) || null : null,
+  );
+  const [loading, setLoading] = useState(
+    () => Boolean(targetUrl) && !imageCache.has(targetUrl),
+  );
+  const objectUrlRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    if (!targetUrl) {
+    // Jika URL kosong atau sudah ada di cache, abaikan fetch
+    if (!targetUrl || imageCache.has(targetUrl)) {
       return;
     }
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = targetUrl;
-
-    img.onload = () => {
-      if (isMounted) {
-        setImgSrc(targetUrl);
+    fetch(targetUrl, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Gagal memuat gambar');
+        return res.blob();
+      })
+      .then((blob) => {
+        if (!isMounted) return;
+        const objectUrl = URL.createObjectURL(blob);
+        objectUrlRef.current = objectUrl;
+        imageCache.set(targetUrl, objectUrl);
+        setImgSrc(objectUrl);
         setLoading(false);
-      }
-    };
-
-    img.onerror = () => {
-      if (isMounted) {
-        setImgSrc(targetUrl);
-        setLoading(false);
-      }
-    };
+      })
+      .catch(() => {
+        if (isMounted) {
+          setImgSrc(null);
+          setLoading(false);
+        }
+      });
 
     return () => {
       isMounted = false;
