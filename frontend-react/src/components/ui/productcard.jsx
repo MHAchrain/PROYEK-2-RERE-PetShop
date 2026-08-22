@@ -17,7 +17,10 @@ export default function ProductCard({
   product,
   onWishlistAdded,
 }) {
-  const imageSrc = Array.isArray(image) ? image[0] : image;
+  // Prioritaskan foto_base64 langsung dari objek product
+  const rawImage = product?.foto_base64 || image || product?.foto;
+  const imageSrc = Array.isArray(rawImage) ? rawImage[0] : rawImage;
+
   const safeHarga = Number(harga) || 0;
   const safeDiskon = Number(diskon) || 0;
   const safeRating = Number(rating) || 0;
