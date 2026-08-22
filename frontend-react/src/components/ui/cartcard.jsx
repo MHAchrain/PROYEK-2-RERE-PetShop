@@ -1,4 +1,6 @@
+import React from 'react';
 import { getStorageUrl } from '../../utils/appconfig';
+import noImage from '../../assets/no-image.png';
 
 export default function CartCard({
   item,
@@ -6,20 +8,47 @@ export default function CartCard({
   updateQty,
   variant = 'responsive',
 }) {
-  const harga = Number(item.produk?.harga) || 0;
-  const qty = Number(item.qty) || 0;
-  const subtotal = harga * qty;
-  const productName = item.produk?.nama_produk || 'Produk tidak ditemukan';
-  const imageSrc = item.produk?.foto
-    ? getStorageUrl(item.produk.foto)
-    : '/no-image.png';
+  const product = item?.produk || item?.product || item || {};
+
+  const harga = Number(product?.harga ?? item?.harga ?? 0);
+  const qty = Number(item?.qty ?? item?.jumlah ?? 1);
+  const subtotal = Number(item?.subtotal ?? harga * qty);
+  const productName =
+    product?.nama_produk || product?.nama || item?.nama_produk || 'Produk';
+
+  // Cek semua kemungkinan letak data Base64 / Foto di dalam item FE
+  const rawBase64 =
+    product?.foto_base64 ||
+    item?.foto_base64 ||
+    product?.image_base64 ||
+    item?.image_base64;
+
+  const rawPath =
+    product?.foto ||
+    item?.foto ||
+    product?.image ||
+    item?.image ||
+    product?.gambar ||
+    item?.gambar;
+
+  // Prioritaskan Base64, jika tidak ada fallback ke Storage URL atau No Image
+  let imageSrc = noImage;
+  if (rawBase64 && String(rawBase64).startsWith('data:')) {
+    imageSrc = rawBase64;
+  } else if (rawPath) {
+    const cleanPath = Array.isArray(rawPath) ? rawPath[0] : rawPath;
+    imageSrc = String(cleanPath).startsWith('data:')
+      ? cleanPath
+      : getStorageUrl(cleanPath);
+  }
+
   const isResponsive = variant === 'responsive';
 
   const quantityControl = (
     <div className="inline-flex items-center rounded-2xl border border-gray-300 bg-white p-1 shadow-sm">
       <button
         type="button"
-        onClick={() => updateQty(item.id_item, Math.max(1, qty - 1))}
+        onClick={() => updateQty(item.id_item || item.id, Math.max(1, qty - 1))}
         className="flex h-9 w-9 items-center justify-center rounded-xl text-lg leading-none text-gray-500 transition hover:bg-gray-100 hover:text-primary"
         aria-label={`Kurangi jumlah ${productName}`}>
         -
@@ -29,7 +58,7 @@ export default function CartCard({
       </span>
       <button
         type="button"
-        onClick={() => updateQty(item.id_item, qty + 1)}
+        onClick={() => updateQty(item.id_item || item.id, qty + 1)}
         className="flex h-9 w-9 items-center justify-center rounded-xl text-lg leading-none text-gray-500 transition hover:bg-gray-100 hover:text-primary"
         aria-label={`Tambah jumlah ${productName}`}>
         +
@@ -42,11 +71,16 @@ export default function CartCard({
       <div className="rounded-[28px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-start gap-4 md:min-w-0 md:flex-1">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 md:h-24 md:w-24">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 border border-gray-100 md:h-24 md:w-24">
               <img
                 src={imageSrc}
-                className="h-full w-full object-contain"
+                className="h-full w-full object-cover"
                 alt={productName}
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = noImage;
+                }}
               />
             </div>
 
@@ -64,7 +98,7 @@ export default function CartCard({
 
                 <button
                   type="button"
-                  onClick={() => removeItem(item.id_item)}
+                  onClick={() => removeItem(item.id_item || item.id)}
                   className="shrink-0 rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-500">
                   Hapus
                 </button>
