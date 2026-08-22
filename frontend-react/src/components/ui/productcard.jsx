@@ -1,10 +1,11 @@
-import { Heart, PackageCheck, PackageX, Star } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import toast from "../../utils/toast.jsx";
-import { useAuth } from "../../context/authcontext";
-import { wishlistService } from "../../services/wishlistservice";
-import { useAddToCart } from "../../hooks/useaddtocart";
-import noImage from "../../assets/no-image.png";
+import { Heart, PackageCheck, PackageX, Star } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from '../../utils/toast.jsx';
+import { useAuth } from '../../context/authcontext';
+import { wishlistService } from '../../services/wishlistservice';
+import { useAddToCart } from '../../hooks/useaddtocart';
+import noImage from '../../assets/no-image.png';
+import NgrokImage from './NgrokImage';
 
 export default function ProductCard({
   id,
@@ -36,16 +37,16 @@ export default function ProductCard({
     e.stopPropagation();
 
     if (isOutOfStock) {
-      toast.error("Stok produk sedang habis");
+      toast.error('Stok produk sedang habis');
       return;
     }
 
     const result = await addToCart({ productId: id, requireAuth: true });
 
     if (result.ok) {
-      toast.success("Berhasil masuk ke keranjang");
-    } else if (result.reason !== "auth_required") {
-      toast.error("Gagal masuk ke keranjang");
+      toast.success('Berhasil masuk ke keranjang');
+    } else if (result.reason !== 'auth_required') {
+      toast.error('Gagal masuk ke keranjang');
     }
   };
 
@@ -53,8 +54,8 @@ export default function ProductCard({
     e.stopPropagation();
 
     if (!user) {
-      toast.error("Masuk dulu buat tambah ke wishlist");
-      navigate("/auth");
+      toast.error('Masuk dulu buat tambah ke wishlist');
+      navigate('/auth');
       return;
     }
 
@@ -69,35 +70,27 @@ export default function ProductCard({
           diskon,
           rating,
           stok: safeStock,
-        }
+        },
       );
-      toast.success("Berhasil ditambahkan ke wishlist");
+      toast.success('Berhasil ditambahkan ke wishlist');
     } catch (error) {
       console.error(error);
-      toast.error("Gagal menambahkan ke wishlist");
+      toast.error('Gagal menambahkan ke wishlist');
     }
   };
 
   return (
     <div
       className={`relative group overflow-hidden rounded-sm transition-all duration-500 ${
-        isOutOfStock
-          ? "opacity-80 grayscale-[35%]"
-          : "hover:scale-105"
-      }`}
-    >
+        isOutOfStock ? 'opacity-80 grayscale-[35%]' : 'hover:scale-105'
+      }`}>
       <div className="relative aspect-square overflow-hidden">
         <Link to={`/product/${id}`} className="block w-full h-full">
-          <img
+          <NgrokImage
             src={imageSrc || noImage}
-            alt={nama || "produk"}
-            loading="lazy"
-            onError={(event) => {
-              event.currentTarget.onerror = null;
-              event.currentTarget.src = noImage;
-            }}
+            alt={nama || 'produk'}
             className={`w-full h-full object-cover transition-transform duration-500 ${
-              isOutOfStock ? "" : "group-hover:scale-110"
+              isOutOfStock ? '' : 'group-hover:scale-110'
             }`}
           />
         </Link>
@@ -121,8 +114,7 @@ export default function ProductCard({
           <button
             type="button"
             onClick={handleAddToWishlist}
-            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition"
-          >
+            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition">
             <Heart size={18} />
           </button>
         </div>
@@ -134,27 +126,29 @@ export default function ProductCard({
             disabled={isOutOfStock}
             className={`w-full py-3 font-semibold text-white transition-all active:scale-[0.98] ${
               isOutOfStock
-                ? "cursor-not-allowed bg-gray-500"
-                : "bg-primary hover:bg-primary-600"
-            }`}
-          >
-            {isOutOfStock ? "Stok Habis" : "Tambah ke Keranjang"}
+                ? 'cursor-not-allowed bg-gray-500'
+                : 'bg-primary hover:bg-primary-600'
+            }`}>
+            {isOutOfStock ? 'Stok Habis' : 'Tambah ke Keranjang'}
           </button>
         </div>
       </div>
 
-      <Link to={`/product/${id}`} className="block pt-4 space-y-2 text-sm md:text-base">
+      <Link
+        to={`/product/${id}`}
+        className="block pt-4 space-y-2 text-sm md:text-base">
         <h4 className="font-semibold truncate">{nama}</h4>
 
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <p className={`font-semibold ${hasDiskon ? "text-primary" : "text-gray-800"}`}>
-              Rp {hargaFinal.toLocaleString("id-ID")}
+            <p
+              className={`font-semibold ${hasDiskon ? 'text-primary' : 'text-gray-800'}`}>
+              Rp {hargaFinal.toLocaleString('id-ID')}
             </p>
 
             {hasDiskon && (
               <p className="text-gray-400 line-through text-sm">
-                Rp {safeHarga.toLocaleString("id-ID")}
+                Rp {safeHarga.toLocaleString('id-ID')}
               </p>
             )}
           </div>
@@ -162,18 +156,21 @@ export default function ProductCard({
           <span
             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
               isOutOfStock
-                ? "bg-rose-50 text-rose-600 ring-1 ring-rose-100"
-                : "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-            }`}
-          >
+                ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
+                : 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
+            }`}>
             {isOutOfStock ? <PackageX size={13} /> : <PackageCheck size={13} />}
-            {isOutOfStock ? "Habis" : `${safeStock} stok`}
+            {isOutOfStock ? 'Habis' : `${safeStock} stok`}
           </span>
         </div>
 
         <div className="flex gap-1">
           {[...Array(safeRating)].map((_, i) => (
-            <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
+            <Star
+              key={i}
+              size={16}
+              className="fill-yellow-400 text-yellow-400"
+            />
           ))}
         </div>
       </Link>

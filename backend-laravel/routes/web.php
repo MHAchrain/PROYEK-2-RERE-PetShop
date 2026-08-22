@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,3 +103,24 @@ Route::get('/', function () {
 </html>
 HTML, 200)->header('Content-Type', 'text/html');
 });
+
+// Route Akses Gambar dengan Header Bypass & CORS
+Route::get('/storage/{folder}/{filename}', function ($folder, $filename) {
+    $path = storage_path('app/public/' . $folder . '/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    return Response::make($file, 200, [
+        'Content-Type' => $type,
+        'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+        'Access-Control-Allow-Headers' => 'ngrok-skip-browser-warning, Content-Type, Authorization',
+        'ngrok-skip-browser-warning' => 'true',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('filename', '.*');

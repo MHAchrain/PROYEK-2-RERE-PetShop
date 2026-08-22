@@ -9,19 +9,16 @@ export default function VisitHereModal() {
   const handleIntegrasiClick = () => {
     setLoading(true);
 
-    // 1. Buat iframe tersembunyi
     const iframe = document.createElement('iframe');
     iframe.name = 'ngrok_bypass_frame';
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
 
-    // 2. Buat & submit form POST bypass langsung ke Ngrok
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = 'https://tunefully-plummy-iraida.ngrok-free.dev';
     form.target = 'ngrok_bypass_frame';
 
-    // Input bypass bawaan sistem Ngrok
     const input = document.createElement('input');
     input.type = 'hidden';
     input.name = 'ngrok-skip-browser-warning';
@@ -31,14 +28,12 @@ export default function VisitHereModal() {
     document.body.appendChild(form);
     form.submit();
 
-    // 3. Simpan status & reload konten tanpa redirect ke luar
     setTimeout(() => {
       localStorage.setItem('rere_media_ready', 'true');
       setShowModal(false);
 
-      // Bersihkan elemen form & iframe
-      document.body.removeChild(form);
-      document.body.removeChild(iframe);
+      if (document.body.contains(form)) document.body.removeChild(form);
+      if (document.body.contains(iframe)) document.body.removeChild(iframe);
 
       window.location.reload();
     }, 1200);
@@ -51,8 +46,8 @@ export default function VisitHereModal() {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(5px)',
+        backgroundColor: 'rgba(24, 24, 27, 0.65)',
+        backdropFilter: 'blur(4px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -62,23 +57,25 @@ export default function VisitHereModal() {
       <div
         style={{
           backgroundColor: '#ffffff',
-          borderRadius: '20px',
-          padding: '28px 24px',
-          maxWidth: '380px',
+          borderRadius: '16px',
+          padding: '24px 20px',
+          maxWidth: '360px',
           width: '100%',
           textAlign: 'center',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25)',
+          border: '1px solid #f1f5f9',
+          boxShadow:
+            '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
         }}>
-        <div style={{ fontSize: '42px', marginBottom: '10px' }}>🖼️</div>
+        <div style={{ fontSize: '36px', marginBottom: '8px' }}>🐾</div>
 
         <h3
           style={{
-            fontSize: '18px',
-            fontWeight: '800',
-            color: '#0f172a',
-            margin: '0 0 8px',
+            fontSize: '17px',
+            fontWeight: '700',
+            color: '#1e293b',
+            margin: '0 0 6px',
           }}>
-          Muat Gambar Katalog
+          Sinkronisasi Katalog Produk
         </h3>
 
         <p
@@ -88,28 +85,27 @@ export default function VisitHereModal() {
             lineHeight: '1.5',
             margin: '0 0 20px',
           }}>
-          Klik tombol di bawah ini untuk langsung menghubungkan dan memuat
-          seluruh foto produk.
+          Hubungkan media server ReRe Petshop untuk memuat gambar produk secara
+          otomatis.
         </p>
 
+        {/* Tombol Warna Merah ReRe Petshop */}
         <button
           onClick={handleIntegrasiClick}
           disabled={loading}
           style={{
             width: '100%',
-            backgroundColor: loading ? '#93c5fd' : '#2563eb',
+            backgroundColor: loading ? '#991b1b' : '#7f1d1d', // Merah Maroon ReRe
             color: '#ffffff',
-            padding: '13px 18px',
-            borderRadius: '12px',
-            fontWeight: '700',
-            fontSize: '14px',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            fontWeight: '600',
+            fontSize: '13px',
             border: 'none',
             cursor: loading ? 'not-allowed' : 'pointer',
-            boxShadow: '0 10px 15px -3px rgba(37, 99, 235, 0.3)',
+            transition: 'background-color 0.2s ease',
           }}>
-          {loading
-            ? '⏳ Memproses Server...'
-            : '🚀 Visit Here (Tampilkan Gambar)'}
+          {loading ? 'Menghubungkan Server...' : 'Muat Gambar Sekarang'}
         </button>
 
         <button
@@ -121,8 +117,9 @@ export default function VisitHereModal() {
             color: '#94a3b8',
             fontSize: '12px',
             cursor: 'pointer',
+            padding: '4px 8px',
           }}>
-          Nanti saja
+          Tutup
         </button>
       </div>
     </div>
