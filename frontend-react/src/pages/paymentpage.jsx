@@ -15,6 +15,7 @@ import {
   syncPaymentByOrderId,
 } from '../services/paymentservice';
 import { getStorageUrl } from '../utils/appconfig';
+import noImage from '../assets/no-image.png';
 
 const paymentStatusMap = {
   pending: {
@@ -261,29 +262,41 @@ export default function PaymentPage() {
               Detail Belanja
             </h2>
             <div className="space-y-4">
-              {order.details?.map((detail) => (
-                <div
-                  key={detail.id_detail}
-                  className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
-                  <img
-                    src={getStorageUrl(detail.produk?.foto)}
-                    className="h-16 w-16 rounded-xl object-cover"
-                    alt=""
-                  />
-                  <div className="flex-1">
-                    <p className="font-bold text-gray-900">
-                      {detail.produk?.nama_produk}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {detail.qty} x Rp{' '}
-                      {Number(detail.harga_satuan).toLocaleString('id-ID')}
+              {order.details?.map((detail) => {
+                const product = detail.produk;
+                const imageSrc =
+                  product?.foto_base64 ||
+                  (product?.foto ? getStorageUrl(product.foto) : noImage);
+
+                return (
+                  <div
+                    key={detail.id_detail}
+                    className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
+                    <img
+                      src={imageSrc}
+                      className="h-16 w-16 rounded-xl object-cover"
+                      alt={product?.nama_produk || 'Produk'}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = noImage;
+                      }}
+                    />
+                    <div className="flex-1">
+                      <p className="font-bold text-gray-900">
+                        {product?.nama_produk}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {detail.qty} x Rp{' '}
+                        {Number(detail.harga_satuan).toLocaleString('id-ID')}
+                      </p>
+                    </div>
+                    <p className="font-bold text-primary">
+                      Rp {Number(detail.subtotal).toLocaleString('id-ID')}
                     </p>
                   </div>
-                  <p className="font-bold text-primary">
-                    Rp {Number(detail.subtotal).toLocaleString('id-ID')}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 

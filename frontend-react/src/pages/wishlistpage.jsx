@@ -41,18 +41,21 @@ export default function WishlistPage() {
                   id={item.id_produk}
                   nama={item.nama_produk}
                   harga={item.harga}
-                  image={getStorageUrl(item.foto)}
+                  image={item.foto_base64 || getStorageUrl(item.foto)}
                   diskon={item.diskon}
                   rating={item.rating}
                   onRemove={removeWishlistItem}
-                  onAddedToCart={(productId) => removeWishlistItem(productId, false)}
+                  onAddedToCart={(productId) =>
+                    removeWishlistItem(productId, false)
+                  }
                   isRemoving={removingId === item.id_produk}
                 />
               ))}
             </div>
           ) : (
             <p className="text-center text-gray-500">
-              Belum ada produk favorit. Jelajahi produk kami dan tambahkan item yang kamu suka ke daftar ini.
+              Belum ada produk favorit. Jelajahi produk kami dan tambahkan item
+              yang kamu suka ke daftar ini.
             </p>
           )}
         </div>
