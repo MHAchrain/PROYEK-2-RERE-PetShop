@@ -6,40 +6,33 @@ const NGROK_BASE_URL = 'https://tunefully-plummy-iraida.ngrok-free.dev';
 export default function NgrokImage({ src, alt, className, style }) {
   const [hasError, setHasError] = useState(false);
 
-  // Format URL + tambahkan bypass query parameter Ngrok
-  const getProcessedUrl = (url) => {
+  const getCleanUrl = (url) => {
     if (!url) return null;
     if (url.startsWith('data:') || url.startsWith('blob:')) return url;
 
-    let fullUrl = url;
-
-    // Ubah localhost / 127.0.0.1 menjadi domain ngrok
+    // Pastikan path storage diarahkan ke domain ngrok
     if (url.includes('localhost') || url.includes('127.0.0.1')) {
       const pathIndex = url.indexOf('/storage/');
-      if (pathIndex !== -1) {
-        fullUrl = `${NGROK_BASE_URL}${url.substring(pathIndex)}`;
-      }
-    } else if (url.startsWith('http://') || url.startsWith('https://')) {
-      if (url.includes('/storage/')) {
-        const pathIndex = url.indexOf('/storage/');
-        fullUrl = `${NGROK_BASE_URL}${url.substring(pathIndex)}`;
-      }
-    } else {
-      // Path relatif
-      const cleanPath = url.startsWith('/') ? url : `/${url}`;
-      if (!cleanPath.startsWith('/storage/')) {
-        fullUrl = `${NGROK_BASE_URL}/storage${cleanPath}`;
-      } else {
-        fullUrl = `${NGROK_BASE_URL}${cleanPath}`;
-      }
+      if (pathIndex !== -1)
+        return `${NGROK_BASE_URL}${url.substring(pathIndex)}`;
     }
 
-    // Tambahkan query bypass ngrok agar lolos peringatan tanpa fetch CORS
-    const separator = fullUrl.includes('?') ? '&' : '?';
-    return `${fullUrl}${separator}ngrok-skip-browser-warning=69420`;
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      if (url.includes('/storage/')) {
+        const pathIndex = url.indexOf('/storage/');
+        return `${NGROK_BASE_URL}${url.substring(pathIndex)}`;
+      }
+      return url;
+    }
+
+    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    if (!cleanPath.startsWith('/storage/')) {
+      return `${NGROK_BASE_URL}/storage${cleanPath}`;
+    }
+    return `${NGROK_BASE_URL}${cleanPath}`;
   };
 
-  const finalSrc = getProcessedUrl(src);
+  const finalSrc = getCleanUrl(src);
 
   if (hasError || !finalSrc) {
     return (
