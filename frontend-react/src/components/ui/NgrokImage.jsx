@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import noImage from '../../assets/no-image.png';
 
 export default function NgrokImage({ src, alt, className, style }) {
-  const [imageBlobUrl, setImageBlobUrl] = useState(null);
-  const [loading, setLoading] = useState(Boolean(src));
-
-  // Otomatis lengkapi path jika backend hanya mengembalikan path relatif
+  // Format URL helper
   const formatUrl = (url) => {
     if (!url) return null;
     if (
@@ -20,51 +17,46 @@ export default function NgrokImage({ src, alt, className, style }) {
     return `https://tunefully-plummy-iraida.ngrok-free.dev/${cleanPath}`;
   };
 
-  const finalUrl = formatUrl(src);
+  const targetUrl = formatUrl(src);
+
+  // Inisialisasi loading langsung dari ketersediaan targetUrl (menghindari setState sinkron di effect)
+  const [imgSrc, setImgSrc] = useState(null);
+  const [loading, setLoading] = useState(Boolean(targetUrl));
 
   useEffect(() => {
     let isMounted = true;
 
-    if (!finalUrl) {
+    if (!targetUrl) {
       return;
     }
 
-    // Ambil file gambar dengan header bypass Ngrok
-    fetch(finalUrl, {
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Gagal memuat gambar');
-        return res.blob();
-      })
-      .then((blob) => {
-        if (isMounted) {
-          const blobUrl = URL.createObjectURL(blob);
-          setImageBlobUrl(blobUrl);
-          setLoading(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setImageBlobUrl(finalUrl);
-          setLoading(false);
-        }
-      });
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = targetUrl;
+
+    img.onload = () => {
+      if (isMounted) {
+        setImgSrc(targetUrl);
+        setLoading(false);
+      }
+    };
+
+    img.onerror = () => {
+      if (isMounted) {
+        setImgSrc(targetUrl);
+        setLoading(false);
+      }
+    };
 
     return () => {
       isMounted = false;
-      if (imageBlobUrl && imageBlobUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(imageBlobUrl);
-      }
     };
-  }, [finalUrl]);
+  }, [targetUrl]);
 
   if (loading) {
     return (
       <div
-        className={`animate-pulse bg-slate-200 ${className || ''}`}
+        className={`w-full h-full animate-pulse bg-slate-100 flex items-center justify-center ${className || ''}`}
         style={style}
       />
     );
@@ -72,12 +64,12 @@ export default function NgrokImage({ src, alt, className, style }) {
 
   return (
     <img
-      src={imageBlobUrl || noImage}
-      alt={alt || 'Product image'}
+      src={imgSrc || noImage}
+      alt={alt || 'produk'}
       loading="lazy"
-      onError={(event) => {
-        event.currentTarget.onerror = null;
-        event.currentTarget.src = noImage;
+      onError={(e) => {
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = noImage;
       }}
       className={className}
       style={style}
