@@ -7,6 +7,7 @@ import {
   PackageCheck,
   PackageX,
 } from 'lucide-react';
+
 export default function ProductDetail({
   product,
   qty,
