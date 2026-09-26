@@ -10,7 +10,7 @@ import {
   Bot
 } from 'lucide-react';
 import axios from '../../api/axios';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../context/cartcontext';
 import { getStorageUrl } from '../../utils/appconfig';
 import toast from 'react-hot-toast';
 import './ChatBot.css';
