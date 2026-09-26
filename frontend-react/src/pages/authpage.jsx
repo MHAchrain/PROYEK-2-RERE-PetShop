@@ -397,13 +397,10 @@ export default function AuthPage() {
           {/* GOOGLE LOGIN DIVIDER */}
           {isLogin && (
             <>
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">atau</span>
-                </div>
+              <div className="my-6 flex items-center">
+                <div className="grow border-t border-gray-300"></div>
+                <span className="mx-4 shrink text-sm text-gray-500">atau</span>
+                <div className="grow border-t border-gray-300"></div>
               </div>
 
               <button

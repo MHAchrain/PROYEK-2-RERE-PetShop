@@ -6,6 +6,8 @@ import {
   Minus,
   PackageCheck,
   PackageX,
+  ShoppingCart,
+  Loader2,
 } from 'lucide-react';
 
 export default function ProductDetail({
@@ -13,10 +15,12 @@ export default function ProductDetail({
   qty,
   setQty,
   onBuyNow,
+  onAddToCart,
   onAddToWishlist,
   isBuyingNow = false,
   isWishlistLoading = false,
   isWishlisted = false,
+  isAddingToCart = false,
 }) {
   const safeStock = Number(product.stock) || 0;
   const isOutOfStock = safeStock < 1;
@@ -86,6 +90,18 @@ export default function ProductDetail({
         </div>
 
         <div className="flex flex-1 gap-3">
+          <button
+            type="button"
+            onClick={onAddToCart}
+            disabled={isOutOfStock || isAddingToCart}
+            className=" h-12 border border-primary text-gray-800 font-semibold px-6 rounded-md hover:bg-primary/90 hover:text-white shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none">
+            {isOutOfStock
+              ? 'Stok Habis'
+              : isAddingToCart
+                ? <Loader2 size={20} className="animate-spin" />
+                : <ShoppingCart size={20} />}
+          </button>
+          
           <button
             type="button"
             onClick={onBuyNow}
