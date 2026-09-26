@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PelangganController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\TrackingController;
+use App\Http\Controllers\Api\RecommendationController;
 use App\Http\Controllers\ImageController;
 
 /*
@@ -62,6 +63,13 @@ Route::get('/kategori/{id}/produk', [KategoriController::class, 'produkByKategor
 
 Route::get('/produk', [ProdukController::class, 'index']);
 Route::get('/produk/{id}', [ProdukController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| AI CHATBOT & REKOMENDASI
+|--------------------------------------------------------------------------
+*/
+Route::post('/chat-ai', [RecommendationController::class, 'chatAI']);
 
 /*
 |--------------------------------------------------------------------------
