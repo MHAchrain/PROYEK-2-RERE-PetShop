@@ -13,6 +13,7 @@ import ProductPage from '../pages/productpage';
 import SearchPage from '../pages/searchpage';
 import WishlistPage from '../pages/wishlistpage';
 import GroomingPage from '../pages/groomingpage';
+import GroomingBookingPage from '../pages/groomingbookingpage';
 import CartPage from '../pages/cartpage';
 import ProfilePage from '../pages/profilepage';
 import OrderPage from '../pages/orderpage';
@@ -40,6 +41,7 @@ export default function AppRoutes() {
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/grooming" element={<GroomingPage />} />
+        <Route path="/grooming/booking" element={<GroomingBookingPage />} />
         <Route element={<ProtectedRoute token={token} />}>
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/cart" element={<CartPage />} />

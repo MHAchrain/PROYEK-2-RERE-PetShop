@@ -21,6 +21,7 @@ import {
 import { getStorageUrl } from '../utils/appconfig';
 import logo from '../assets/logorere.png';
 import noImage from '../assets/no-image.png';
+import BackButton from '../components/ui/backbutton.jsx';
 
 const statusLabelMap = {
   baru: 'Pesanan Baru',
@@ -330,12 +331,7 @@ export default function OrderDetailPage() {
         </section>
 
         <div className="flex flex-col gap-4 print:hidden sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            to="/pesanan"
-            className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 font-medium bg-white px-4 py-3 text-sm text-gray-700 shadow-sm transition hover:border-primary hover:text-primary">
-            <ArrowLeft size={16} />
-            Kembali ke Pesanan
-          </Link>
+          <BackButton label='Kembali ke Pesanan' to='/pesanan'/>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
