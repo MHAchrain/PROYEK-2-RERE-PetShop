@@ -1,37 +1,29 @@
-:root {
-  --primary-color: #850909;
-  --primary-hover: #6a0707;
-  --primary-light: #fde7e7;
-  --primary-text: #ffffff;
-  --bot-bubble-bg: #f1f1f1;
-  --bot-bubble-text: #222222;
-  --chat-bg: #ffffff;
-  --chat-border: #e5e5e5;
-}
+/* CSS Stylesheet khusus ChatBot AI RERe PetShop 
+   Disinkronkan dengan tema desain RERe Petshop (Primary: #850909) */
 
 /* Floating Trigger Button (Pojok Kanan Bawah) */
 .rere-chat-floating-btn {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 60px;
-  height: 60px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
-  background-color: var(--primary-color);
-  color: var(--primary-text);
+  background-color: var(--color-primary, #850909);
+  color: #ffffff;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 24px rgba(133, 9, 9, 0.35);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 9999;
 }
 
 .rere-chat-floating-btn:hover {
-  transform: scale(1.1);
-  background-color: var(--primary-hover);
+  transform: scale(1.08);
+  background-color: var(--color-primary-700, #c40e0e);
   box-shadow: 0 10px 30px rgba(133, 9, 9, 0.45);
 }
 
@@ -41,10 +33,10 @@
 
 .rere-chat-floating-badge {
   position: absolute;
-  top: -3px;
-  right: -3px;
+  top: -2px;
+  right: -2px;
   background-color: #10b981;
-  color: white;
+  color: #ffffff;
   font-size: 10px;
   font-weight: 700;
   padding: 2px 6px;
@@ -62,27 +54,28 @@
 /* Chat Container Window */
 .rere-chat-window {
   position: fixed;
-  bottom: 96px;
+  bottom: 92px;
   right: 24px;
   width: 380px;
-  max-width: calc(100vw - 48px);
+  max-width: calc(100vw - 36px);
   height: 560px;
   max-height: calc(100vh - 120px);
-  background-color: var(--chat-bg);
+  background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16), 0 2px 10px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   z-index: 9999;
-  border: 1px solid var(--chat-border);
-  animation: rere-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e5e7eb;
+  animation: rere-slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
 }
 
 @keyframes rere-slide-up {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.95);
+    transform: translateY(20px) scale(0.96);
   }
   to {
     opacity: 1;
@@ -92,14 +85,15 @@
 
 /* Chat Header */
 .rere-chat-header {
-  background-color: var(--primary-color);
-  color: var(--primary-text);
+  background-color: var(--color-primary, #850909);
+  color: #ffffff;
   padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
+  box-shadow: 0 2px 8px rgba(133, 9, 9, 0.15);
 }
 
 .rere-chat-header-info {
@@ -117,21 +111,24 @@
   align-items: center;
   justify-content: center;
   font-size: 20px;
+  color: #ffffff;
 }
 
 .rere-chat-title {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
+  color: #ffffff;
 }
 
 .rere-chat-status {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-size: 11px;
-  opacity: 0.9;
-  margin-top: 2px;
+  color: #fde7e7;
+  opacity: 0.95;
+  margin-top: 3px;
 }
 
 .rere-chat-status-dot {
@@ -148,18 +145,18 @@
   border: none;
   color: #ffffff;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.8;
+  opacity: 0.85;
   transition: opacity 0.2s, background-color 0.2s;
 }
 
 .rere-chat-header-close:hover {
   opacity: 1;
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Chat Messages Area */
@@ -170,7 +167,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: #ffffff;
+  background-color: #fafafa;
 }
 
 .rere-chat-messages::-webkit-scrollbar {
@@ -178,7 +175,7 @@
 }
 
 .rere-chat-messages::-webkit-scrollbar-thumb {
-  background-color: #e0e0e0;
+  background-color: #d1d5db;
   border-radius: 4px;
 }
 
@@ -198,7 +195,7 @@
 }
 
 .rere-bubble {
-  max-width: 82%;
+  max-width: 84%;
   padding: 10px 14px;
   border-radius: 14px;
   font-size: 13.5px;
@@ -224,6 +221,9 @@
 
 .rere-text-bold {
   font-weight: 700;
+}
+
+.rere-bubble.bot .rere-text-bold {
   color: #111827;
 }
 
@@ -232,28 +232,30 @@
 }
 
 .rere-bubble.user {
-  background-color: var(--primary-color);
-  color: var(--primary-text);
+  background-color: var(--color-primary, #850909);
+  color: #ffffff;
   border-bottom-right-radius: 3px;
+  box-shadow: 0 2px 6px rgba(133, 9, 9, 0.2);
 }
 
 .rere-bubble.bot {
-  background-color: var(--bot-bubble-bg);
-  color: var(--bot-bubble-text);
+  background-color: #f3f4f6;
+  color: #1f2937;
   border-bottom-left-radius: 3px;
+  border: 1px solid #e5e7eb;
 }
 
 .rere-bubble-image-preview {
   max-width: 180px;
-  border-radius: 10px;
+  border-radius: 8px;
   margin-bottom: 6px;
   display: block;
 }
 
 .rere-message-time {
   font-size: 10px;
-  color: #999;
-  margin-top: 3px;
+  color: #9ca3af;
+  margin-top: 4px;
   padding: 0 4px;
 }
 
@@ -263,18 +265,18 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 .rere-product-card {
   background: #ffffff;
-  border: 1px solid var(--chat-border);
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
-  padding: 10px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -290,6 +292,7 @@
   object-fit: cover;
   background-color: #f3f4f6;
   flex-shrink: 0;
+  border: 1px solid #f3f4f6;
 }
 
 .rere-product-info {
@@ -300,7 +303,7 @@
 .rere-product-name {
   font-size: 12.5px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #1f2937;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -309,13 +312,13 @@
 .rere-product-price {
   font-size: 12px;
   font-weight: 700;
-  color: var(--primary-color);
+  color: var(--color-primary, #850909);
   margin-top: 2px;
 }
 
 .rere-btn-add-cart {
-  background-color: var(--primary-color);
-  color: var(--primary-text);
+  background-color: var(--color-primary, #850909);
+  color: #ffffff;
   border: none;
   padding: 6px 10px;
   font-size: 11.5px;
@@ -330,7 +333,7 @@
 }
 
 .rere-btn-add-cart:hover {
-  background-color: var(--primary-hover);
+  background-color: var(--color-primary-700, #c40e0e);
 }
 
 .rere-btn-add-cart:disabled {
@@ -344,16 +347,17 @@
   align-items: center;
   gap: 4px;
   padding: 10px 14px;
-  background-color: var(--bot-bubble-bg);
+  background-color: #f3f4f6;
   border-radius: 14px;
   border-bottom-left-radius: 3px;
+  border: 1px solid #e5e7eb;
   width: fit-content;
 }
 
 .rere-dot {
   width: 7px;
   height: 7px;
-  background-color: var(--primary-color);
+  background-color: var(--color-primary, #850909);
   border-radius: 50%;
   animation: rere-bounce 1.4s infinite ease-in-out both;
 }
@@ -369,7 +373,7 @@
 /* Selected Image Preview Area Before Sending */
 .rere-preview-bar {
   padding: 8px 14px;
-  background-color: var(--primary-light);
+  background-color: var(--color-primary-100, #fde7e7);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -387,19 +391,19 @@
   height: 36px;
   border-radius: 6px;
   object-fit: cover;
-  border: 1px solid var(--primary-color);
+  border: 1px solid var(--color-primary, #850909);
 }
 
 .rere-preview-text {
   font-size: 11.5px;
-  color: var(--primary-color);
+  color: var(--color-primary, #850909);
   font-weight: 500;
 }
 
 .rere-preview-remove {
   background: transparent;
   border: none;
-  color: var(--primary-color);
+  color: var(--color-primary, #850909);
   cursor: pointer;
   padding: 4px;
 }
@@ -407,10 +411,10 @@
 /* Photo Modal / Options Popup */
 .rere-photo-options-popup {
   position: absolute;
-  bottom: 64px;
+  bottom: 62px;
   left: 14px;
   background: #ffffff;
-  border: 1px solid var(--chat-border);
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   display: flex;
@@ -429,21 +433,21 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #333;
+  color: #374151;
   cursor: pointer;
   transition: background-color 0.15s;
 }
 
 .rere-photo-option-btn:hover {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
+  background-color: var(--color-primary-100, #fde7e7);
+  color: var(--color-primary, #850909);
 }
 
 /* Input Area */
 .rere-chat-input-area {
   padding: 10px 14px;
   background-color: #ffffff;
-  border-top: 1px solid var(--chat-border);
+  border-top: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -451,9 +455,9 @@
 }
 
 .rere-btn-camera {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
+  background-color: var(--color-primary-100, #fde7e7);
+  color: var(--color-primary, #850909);
+  border: 1px solid var(--color-primary-200, #fabcbc);
   width: 38px;
   height: 38px;
   border-radius: 50%;
@@ -466,28 +470,31 @@
 }
 
 .rere-btn-camera:hover {
-  background-color: var(--primary-color);
-  color: var(--primary-text);
+  background-color: var(--color-primary, #850909);
+  color: #ffffff;
 }
 
 .rere-chat-input {
   flex: 1;
   padding: 9px 12px;
   border-radius: 20px;
-  border: 1px solid var(--primary-color);
+  border: 1px solid #d1d5db;
   font-size: 13px;
   outline: none;
   font-family: inherit;
-  transition: box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #111827;
+  background-color: #ffffff;
 }
 
 .rere-chat-input:focus {
-  box-shadow: 0 0 0 2px rgba(133, 9, 9, 0.2);
+  border-color: var(--color-primary, #850909);
+  box-shadow: 0 0 0 2px rgba(133, 9, 9, 0.15);
 }
 
 .rere-btn-send {
-  background-color: var(--primary-color);
-  color: var(--primary-text);
+  background-color: var(--color-primary, #850909);
+  color: #ffffff;
   border: none;
   width: 38px;
   height: 38px;
@@ -501,7 +508,7 @@
 }
 
 .rere-btn-send:hover {
-  background-color: var(--primary-hover);
+  background-color: var(--color-primary-700, #c40e0e);
 }
 
 .rere-btn-send:active {
