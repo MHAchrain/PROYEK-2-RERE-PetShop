@@ -54,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 \App\Filament\Widgets\DigitalClock::class,
+                \App\Filament\Widgets\PesananSiapKirim::class,  // ← TAMBAH INI
                 // \App\Filament\Widgets\KataKata::class,
              
                 //FilamentInfoWidget::class,

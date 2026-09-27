@@ -139,6 +139,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites', [FavoriteController::class, 'store']);
     Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy']);
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -146,6 +147,7 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
 
+    
     Route::post('/cart/add', [CartController::class, 'add']);
     Route::get('/cart', [CartController::class, 'cart']);
     Route::patch('/cart/item/{id}', [CartController::class, 'update']);
@@ -168,9 +170,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pesanan', [PesananController::class, 'index']);
     Route::get('/pesanan/{id}', [PesananController::class, 'show']);
     Route::get('/pesanan/{id}/status', [PesananController::class, 'status']);
+    
 
     Route::post('/pesanan/{id}/selesai', [PesananController::class, 'selesai']);
     Route::post('/pesanan/{id}/batal', [PesananController::class, 'batal']);
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -188,6 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/pesanan/{id}/pengiriman', [PengirimanController::class, 'show']);
+    Route::post('/pengiriman/{id}/terima', [PengirimanController::class, 'terima']);  // ✅ TAMBAH
 
     /*
     |--------------------------------------------------------------------------

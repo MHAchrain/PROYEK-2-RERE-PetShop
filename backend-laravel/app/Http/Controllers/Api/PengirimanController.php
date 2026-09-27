@@ -48,4 +48,52 @@ class PengirimanController extends Controller
             'data' => $pengiriman
         ]);
     }
+
+    // ✅ METHOD BARU (TAMBAHAN) - Konfirmasi pesanan sudah diterima
+    public function terima(Request $request, $id)
+    {
+        $user = $request->user();
+
+        // Cek pelanggan
+        $pelanggan = Pelanggan::where('email', $user->email)->first();
+
+        if (!$pelanggan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pelanggan tidak ditemukan'
+            ], 404);
+        }
+
+        // Cari pengiriman milik pelanggan ini
+        $pengiriman = Pengiriman::where('id_pengiriman', $id)
+            ->whereHas('pesanan', function ($q) use ($pelanggan) {
+                $q->where('id_pelanggan', $pelanggan->id_pelanggan);
+            })
+            ->first();
+
+        if (!$pengiriman) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pengiriman tidak ditemukan'
+            ], 404);
+        }
+
+        // Update status kirim jadi 'diterima'
+        $pengiriman->update([
+            'status_kirim' => 'diterima',
+        ]);
+
+        // Update status pesanan jadi 'selesai'
+        if ($pengiriman->pesanan) {
+            $pengiriman->pesanan->update([
+                'status_pesanan' => 'selesai',
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesanan berhasil diterima!',
+            'data' => $pengiriman->fresh(),
+        ]);
+    }
 }

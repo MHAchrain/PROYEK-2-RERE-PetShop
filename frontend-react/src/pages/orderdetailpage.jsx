@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
+  CheckCircle,
   CreditCard,
   ExternalLink,
   MapPin,
@@ -19,6 +20,7 @@ import {
   syncPaymentByOrderId,
 } from '../services/paymentservice';
 import { getStorageUrl } from '../utils/appconfig';
+import api from '../api/axios'; // ← IMPORT AXIOS (sesuaikan path)
 import logo from '../assets/logorere.png';
 import noImage from '../assets/no-image.png';
 
@@ -95,6 +97,7 @@ export default function OrderDetailPage() {
   const [isOpeningPayment, setIsOpeningPayment] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [printedAt, setPrintedAt] = useState(() => new Date());
+  const [isConfirmingTerima, setIsConfirmingTerima] = useState(false); // ← STATE BARU
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -170,6 +173,37 @@ export default function OrderDetailPage() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  // ✅ FUNCTION BARU: Konfirmasi pesanan sudah diterima
+  const handleTerimaPesanan = async () => {
+    if (!order?.pengiriman?.id_pengiriman) {
+      toast.error('Data pengiriman tidak ditemukan.');
+      return;
+    }
+
+    try {
+      setIsConfirmingTerima(true);
+
+      const response = await api.post(
+        `/pengiriman/${order.pengiriman.id_pengiriman}/terima`,
+      );
+
+      if (response.data?.success) {
+        // Refresh data order biar statusnya update
+        const latestOrder = await getOrderDetail(id);
+        setOrder(latestOrder);
+
+        toast.success('Pesanan berhasil dikonfirmasi diterima! 🎉');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message || 'Gagal konfirmasi penerimaan pesanan.',
+      );
+    } finally {
+      setIsConfirmingTerima(false);
+    }
   };
 
   const handleCancel = async () => {
@@ -556,6 +590,7 @@ export default function OrderDetailPage() {
             )}
           </div>
 
+          {/* ✅ CARD PENGIRIMAN (DENGAN TOMBOL BARU) */}
           <div className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
               <Truck size={18} />
@@ -579,6 +614,27 @@ export default function OrderDetailPage() {
                     {order.pengiriman.resi || '-'}
                   </span>
                 </p>
+
+                {/* ✅ TOMBOL PESANAN SUDAH SAMPAI */}
+                {order.pengiriman.status_kirim === 'dikirim' && (
+                  <button
+                    type="button"
+                    onClick={handleTerimaPesanan}
+                    disabled={isConfirmingTerima}
+                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60">
+                    <CheckCircle size={16} />
+                    {isConfirmingTerima
+                      ? 'Memproses...'
+                      : 'Pesanan Sudah Sampai'}
+                  </button>
+                )}
+
+                {order.pengiriman.status_kirim === 'diterima' && (
+                  <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-600">
+                    <CheckCircle size={16} />
+                    Pesanan sudah diterima
+                  </p>
+                )}
               </div>
             ) : (
               <p className="text-sm text-gray-500">

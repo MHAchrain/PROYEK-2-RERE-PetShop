@@ -59,7 +59,26 @@ class PesanansTable
                         'selesai'  => 'Selesai',
                         'batal'    => 'Dibatalkan',
                         default    => $state,
-                    }),
+                    })
+                    // ✅ ACTION UBAH STATUS (BIAR MUNCUL POPUP)
+                    ->action(
+                        \Filament\Actions\Action::make('ubah_status')
+                            ->form([
+                                \Filament\Forms\Components\Select::make('status_pesanan')
+                                    ->label('Ubah Status')
+                                    ->options([
+                                        'baru'     => 'Baru',
+                                        'diproses' => 'Diproses',
+                                        'dikirim'  => 'Dikirim',
+                                        'selesai'  => 'Selesai',
+                                        'batal'    => 'Dibatalkan',
+                                    ])
+                                    ->required(),
+                            ])
+                            ->action(function ($record, array $data) {
+                                $record->update(['status_pesanan' => $data['status_pesanan']]);
+                            })
+                    ),
             ])
             ->defaultSort('id_pesanan', 'desc')
             ->filters([
