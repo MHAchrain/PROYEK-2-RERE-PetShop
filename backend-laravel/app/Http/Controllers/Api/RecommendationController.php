@@ -10,16 +10,11 @@ use Illuminate\Support\Facades\Log;
 
 class RecommendationController extends Controller
 {
-    /**
-     * Endpoint chat AI untuk rekomendasi produk RERe Petshop.
-     * Mengirim input ke AI Service (FastAPI) lalu mencari produk terkait di Database MySQL.
-     */
     public function chatAI(Request $request)
     {
-        // Validasi input: pesan atau gambar minimal salah satu ada
         $request->validate([
             'message' => 'nullable|string',
-            'image' => 'nullable|image|max:10240', // Maksimal 10MB
+            'image' => 'nullable|image|max:10240',
         ]);
 
         $message = trim((string) $request->input('message', ''));
@@ -42,27 +37,19 @@ class RecommendationController extends Controller
         $maxPrice = null;
         $priceMode = 'max';
         $ageGroup = null;
+        $brands = [];
+        $categories = [];
+        $sortBy = null;
 
         try {
             if ($hasImage) {
-                // Request multipart dengan gambar ke Python
                 $imageFile = $request->file('image');
-
                 $response = Http::timeout(30)
-                    ->attach(
-                        'image',
-                        file_get_contents($imageFile->getRealPath()),
-                        $imageFile->getClientOriginalName()
-                    )
-                    ->post("{$pythonServiceUrl}/api/chat-with-image", [
-                        'message' => $message,
-                    ]);
+                    ->attach('image', file_get_contents($imageFile->getRealPath()), $imageFile->getClientOriginalName())
+                    ->post("{$pythonServiceUrl}/api/chat-with-image", ['message' => $message]);
             } else {
-                // Request teks saja ke Python
                 $response = Http::timeout(10)
-                    ->post("{$pythonServiceUrl}/api/chat", [
-                        'message' => $message,
-                    ]);
+                    ->post("{$pythonServiceUrl}/api/chat", ['message' => $message]);
             }
 
             if ($response->successful()) {
@@ -77,26 +64,29 @@ class RecommendationController extends Controller
                 $priceMode = $data['price_mode'] ?? 'max';
                 $ageGroup = $data['age_group'] ?? null;
                 $categories = $data['categories'] ?? [];
+                $sortBy = $data['sort_by'] ?? null;
             } else {
                 Log::warning('AI Service error response', ['status' => $response->status(), 'body' => $response->body()]);
                 $aiMessage = 'Berikut rekomendasi produk pilihan terbaik dari RERe Petshop untuk anabul Anda:';
                 $keywords = $this->extractFallbackKeywords($message);
                 $brands = [];
                 $categories = [];
+                $sortBy = null;
             }
         } catch (\Exception $e) {
             Log::error('AI Service Connection Error: ' . $e->getMessage());
-            // Fallback gracefully jika AI Service Python sedang belum dinyalakan
             $aiMessage = "Halo Cat Lovers! 🐾 Berikut rekomendasi produk terbaik dari katalog RERe Petshop untuk kebutuhan anabul Anda:";
             $keywords = $this->extractFallbackKeywords($message);
             $brands = [];
             $categories = [];
+            $sortBy = null;
         }
 
-        // Cari Produk di Database MySQL berdasarkan Brands, Keywords, Rentang Harga, Usia & Kategori secara cerdas
-        $products = $this->findMatchingProducts($keywords, $brands, $minPrice, $maxPrice, $targetPrice, $priceMode, $ageGroup, $categories);
+        $products = $this->findMatchingProducts(
+            $keywords, $brands, $minPrice, $maxPrice, $targetPrice,
+            $priceMode, $ageGroup, $categories, $sortBy
+        );
 
-        // Tips perawatan tambahan
         $tips = [
             'Pastikan anabul selalu minum air bersih secukupnya setiap hari.',
             'Sesuaikan porsi makan dengan usia dan berat badan kucing.',
@@ -113,33 +103,22 @@ class RecommendationController extends Controller
             'target_price' => $targetPrice,
             'price_mode' => $priceMode,
             'age_group' => $ageGroup,
+            'sort_by' => $sortBy,
             'products' => $products,
             'tips' => $tips,
         ]);
     }
 
-    /**
-     * Cari produk di MySQL: filter KATEGORI dulu (strict), baru HARGA, baru USIA.
-     * Tidak ada cross-category fallback — kalau tidak ada produk sesuai kategori, return kosong.
-     */
     protected function findMatchingProducts(
-        array $keywords,
-        array $brands = [],
-        ?int $minPrice = null,
-        ?int $maxPrice = null,
-        ?int $targetPrice = null,
-        string $priceMode = 'max',
-        ?string $ageGroup = null,
-        array $categories = []
+        array $keywords, array $brands = [], ?int $minPrice = null,
+        ?int $maxPrice = null, ?int $targetPrice = null, string $priceMode = 'max',
+        ?string $ageGroup = null, array $categories = [], ?string $sortBy = null
     ) {
-        // Ambil semua produk dengan stok
         $allProducts = Produk::with('kategori')->where('stok', '>', 0)->get();
 
-        if ($allProducts->isEmpty()) {
-            return collect();
-        }
+        if ($allProducts->isEmpty()) return collect();
 
-        // ── STEP 1: FILTER BRAND (strict jika ada) ──────────────────────────────
+        // ── STEP 1: FILTER BRAND ──────────────────────────────
         $pool = $allProducts;
         if (!empty($brands)) {
             $brandHit = $pool->filter(function ($prod) use ($brands) {
@@ -154,8 +133,7 @@ class RecommendationController extends Controller
             if ($brandHit->isNotEmpty()) $pool = $brandHit;
         }
 
-        // ── STEP 2: FILTER KATEGORI (strict, no fallback) ────────────────────────
-        // Helper closure: apakah produk cocok dengan satu kategori?
+        // ── STEP 2: FILTER KATEGORI (STRICT) ─────────────────
         $inCat = function ($prod, string $cat) {
             $katId = (int)($prod->id_kategori ?? 0);
             $nama  = strtolower($prod->nama_produk ?? '');
@@ -163,21 +141,16 @@ class RecommendationController extends Controller
 
             switch ($cat) {
                 case 'makanan':
-                    // Kategori 1, bukan susu/dot/top growth
                     return $katId === 1
                         && !str_contains($nama, 'susu')
                         && !str_contains($nama, 'top growth')
                         && !str_contains($nama, 'dot');
 
                 case 'shampo':
-                    // Harus ada "shampoo" atau "sampo" di nama/deskripsi
-                    return str_contains($nama, 'shampoo')
-                        || str_contains($nama, 'sampo')
-                        || str_contains($desk, 'shampoo')
-                        || str_contains($desk, 'sampo');
+                    return str_contains($nama, 'shampoo') || str_contains($nama, 'sampo')
+                        || str_contains($desk, 'shampoo') || str_contains($desk, 'sampo');
 
                 case 'obat':
-                    // Kategori 2, bukan shampo, ada penanda obat/kutu/jamur/dll
                     return $katId === 2
                         && !str_contains($nama, 'shampoo')
                         && !str_contains($nama, 'sampo')
@@ -195,29 +168,32 @@ class RecommendationController extends Controller
                         || str_contains($nama, 'pewangi') || str_contains($desk, 'pewangi');
 
                 case 'mainan':
-                    // Kategori 3, bukan baju/kalung
                     return $katId === 3
                         && !str_contains($nama, 'baju')
                         && !str_contains($nama, 'kalung');
 
                 case 'aksesoris':
-                    // Kategori 3 dengan penanda fashion
                     return $katId === 3
                         && (str_contains($nama, 'baju') || str_contains($nama, 'kalung')
                             || str_contains($desk, 'kalung') || str_contains($desk, 'klinting'));
 
                 case 'pasir':
-                    // Kategori 4 dengan penanda pasir/tofu/litter
+                    // ✅ FIX: pasir harus ada kata "pasir"/"tofu"/"litter"/"ps " di NAMA
                     return $katId === 4
-                        && (str_contains($nama, 'pasir') || str_contains($nama, 'tofu')
-                            || str_contains($nama, 'ps ') || str_contains($desk, 'pasir')
-                            || str_contains($desk, 'litter'));
+                        && (
+                            str_contains($nama, 'pasir')
+                            || str_contains($nama, 'tofu')
+                            || str_contains($nama, 'litter')
+                            || preg_match('/\bps\s/i', $nama)  // "ps anabul", "ps 5l"
+                        );
 
                 case 'perlengkapan':
-                    // Kategori 4 bukan pasir/tofu
+                    // ✅ FIX: perlengkapan = kategori 4, BUKAN pasir/tofu/litter
                     return $katId === 4
                         && !str_contains($nama, 'pasir')
-                        && !str_contains($nama, 'tofu');
+                        && !str_contains($nama, 'tofu')
+                        && !str_contains($nama, 'litter')
+                        && !preg_match('/\bps\s/i', $nama);
 
                 case 'susu':
                     return str_contains($nama, 'susu') || str_contains($nama, 'top growth')
@@ -239,17 +215,14 @@ class RecommendationController extends Controller
             if ($catHit->isNotEmpty()) {
                 $pool = $catHit;
             } else {
-                // Tidak ada produk untuk kategori ini → tampilkan kosong, jangan campur kategori lain
                 return collect();
             }
         }
 
-        // ── STEP 3: FILTER HARGA ─────────────────────────────────────────────────
-        // Harga diterapkan SETELAH kategori agar kategori tidak kehilangan semua produknya
+        // ── STEP 3: FILTER HARGA ──────────────────────────────
         if ($priceMode === 'range' && $minPrice !== null && $maxPrice !== null) {
             $pf = $pool->filter(fn($p) => $p->harga >= $minPrice && $p->harga <= $maxPrice);
             if ($pf->isEmpty()) {
-                // Toleransi ±20%
                 $pf = $pool->filter(fn($p) => $p->harga >= (int)($minPrice * 0.80) && $p->harga <= (int)($maxPrice * 1.20));
             }
             if ($pf->isNotEmpty()) $pool = $pf;
@@ -261,11 +234,10 @@ class RecommendationController extends Controller
         } elseif (in_array($priceMode, ['max', 'exact']) && ($maxPrice !== null || $targetPrice !== null)) {
             $limit = $maxPrice ?? $targetPrice;
             $pf = $pool->filter(fn($p) => $p->harga <= $limit);
-            // Jika tidak ada yang <= limit, tetap tampilkan semua produk kategori (price tidak membunuh hasil)
             if ($pf->isNotEmpty()) $pool = $pf;
         }
 
-        // ── STEP 4: FILTER USIA (hanya untuk kategori makanan/susu) ─────────────
+        // ── STEP 4: FILTER USIA ───────────────────────────────
         $ageRelevant = !empty(array_intersect($categories, ['makanan', 'susu']));
         if ($ageGroup !== null && ($ageRelevant || empty($categories))) {
             $ageHit = $pool->filter(function ($prod) use ($ageGroup) {
@@ -281,10 +253,10 @@ class RecommendationController extends Controller
                 return false;
             });
             if ($ageHit->isNotEmpty()) $pool = $ageHit;
-            elseif ($ageRelevant) return collect(); // Kitten/adult diminta tapi tidak ada → kosong
+            elseif ($ageRelevant) return collect();
         }
 
-        // ── STEP 5: SCORING & SORT ────────────────────────────────────────────────
+        // ── STEP 5: SCORING ───────────────────────────────────
         $scored = $pool->map(function ($prod) use ($keywords) {
             $score = 10;
             $nama  = strtolower($prod->nama_produk ?? '');
@@ -304,13 +276,18 @@ class RecommendationController extends Controller
             return $prod;
         });
 
-        $result = $scored->sortByDesc('relevance_score')->values()->take(6);
+        // ✅ STEP 6: SORTING
+        if ($sortBy === 'price_asc') {
+            $result = $scored->sortBy('harga')->values()->take(6);
+        } elseif ($sortBy === 'price_desc') {
+            $result = $scored->sortByDesc('harga')->values()->take(6);
+        } else {
+            $result = $scored->sortByDesc('relevance_score')->values()->take(6);
+        }
+
         return $result->isNotEmpty() ? $result : $pool->take(6)->values();
     }
 
-    /**
-     * Ekstraksi keyword cadangan langsung di Laravel jika python tidak dapat dihubungi.
-     */
     protected function extractFallbackKeywords(string $text): array
     {
         $textLower = strtolower($text);

@@ -3,6 +3,7 @@ import AppRoutes from './routes';
 import PageLoader from './components/pageloader';
 import AppToaster from './components/ui/apptoaster';
 import ChatBot from './components/ChatBot/ChatBot';
+import ScrollToTop from './components/ScrollToTop'; // ← TAMBAH
 import './styles/toast.css';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
 
   return (
     <>
+      <ScrollToTop /> {/* ← TAMBAH */}
       <PageLoader />
       <AppToaster />
       <AppRoutes />

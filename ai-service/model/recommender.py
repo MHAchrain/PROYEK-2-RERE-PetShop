@@ -3,7 +3,6 @@ from typing import Dict, List, Any, Optional
 
 class RuleEngine:
     def __init__(self):
-        # Merek / Brand Populer & Katalog Produk Kucing
         self.brands = [
             "whiskas", "royal canin", "cat choize", "catchoize", "me-o", "meo",
             "excel", "susu top", "top growth", "nico", "bolt", "lezatto", "cleo",
@@ -13,50 +12,29 @@ class RuleEngine:
             "lifecat", "happy cat", "smartheart", "anabul", "magnum", "taro"
         ]
 
-        # Kategori & keywords spesifik sesuai katalog produk
         self.categories = {
-            "makanan": [
-                "makan", "makann", "mkan", "makanan", "pakan", "food", "dry food", "wet food", "kibble",
+            "makanan": ["makan", "makann", "mkan", "makanan", "pakan", "food", "dry food", "wet food", "kibble",
                 "snack", "treat", "creamy", "tuna", "salmon", "chicken", "ayam", "ikan",
-                "kaleng", "pouch", "biskuit", "daging", "donat", "kering", "basah"
-            ],
-            "shampo": [
-                "shampo", "shampoo", "sampo", "sampon", "mandi", "sabun", "kondisioner", "conditioner"
-            ],
-            "obat": [
-                "obat", "obat-obatan", "kutu", "jamur", "gatal", "scabies", "detick", "tetes kutu",
-                "tetes mata", "tetes telinga", "luka", "diare", "flu", "spray", "mencret", "muntah", "pilek", "cacing"
-            ],
-            "parfum": [
-                "parfum", "pewangi", "pengharum", "wangi", "bau", "deodorant"
-            ],
-            "mainan": [
-                "main", "mainan", "toy", "toys", "bola", "laser", "tongkat", "catnip", "garukan",
-                "scratch", "tunnel", "terowongan", "boneka", "kucing pintar"
-            ],
-            "aksesoris": [
-                "kalung", "baju", "baju kucing", "pakaian", "kostum", "lonceng", "klinting"
-            ],
-            "pasir": [
-                "pasir", "litter", "pasir gumpal", "tofu", "bentonite", "pasir wangi"
-            ],
-            "perlengkapan": [
-                "litter box", "box", "toilet", "bak pasir", "kandang", "tempat makan", "tempat minum",
-                "serokan", "dot", "dot susu", "spetan", "tali", "tali tuntun", "gunting kuku"
-            ],
-            "susu": [
-                "susu", "top growth", "kitten milk", "milk"
-            ]
+                "kaleng", "pouch", "biskuit", "daging", "donat", "kering", "basah"],
+            "shampo": ["shampo", "shampoo", "sampo", "sampon", "mandi", "sabun", "kondisioner", "conditioner"],
+            "obat": ["obat", "obat-obatan", "kutu", "jamur", "gatal", "scabies", "detick", "tetes kutu",
+                "tetes mata", "tetes telinga", "luka", "diare", "flu", "spray", "mencret", "muntah", "pilek", "cacing"],
+            "parfum": ["parfum", "pewangi", "pengharum", "wangi", "bau", "deodorant"],
+            "mainan": ["main", "mainan", "toy", "toys", "bola", "laser", "tongkat", "catnip", "garukan",
+                "scratch", "tunnel", "terowongan", "boneka", "kucing pintar"],
+            "aksesoris": ["kalung", "baju", "baju kucing", "pakaian", "kostum", "lonceng", "klinting"],
+            "pasir": ["pasir", "litter", "pasir gumpal", "tofu", "bentonite", "pasir wangi"],
+            "perlengkapan": ["litter box", "box", "toilet", "bak pasir", "kandang", "tempat makan", "tempat minum",
+                "serokan", "dot", "dot susu", "spetan", "tali", "tali tuntun", "gunting kuku"],
+            "susu": ["susu", "top growth", "kitten milk", "milk"]
         }
         
-        # Usia & keywords
         self.life_stages = {
             "kitten": ["kitten", "anak kucing", "bayi kucing", "kecil", "anakan", "kitik", "1 bulan", "2 bulan", "3 bulan", "4 bulan", "5 bulan", "6 bulan", "7 bulan", "8 bulan", "9 bulan", "10 bulan", "11 bulan"],
             "adult": ["adult", "dewasa", "besar", "indukan", "1 tahun", "2 tahun", "3 tahun", "4 tahun", "5 tahun", "6 tahun"],
             "senior": ["senior", "tua", "lansia", "7 tahun", "8 tahun", "9 tahun", "10 tahun", "11 tahun", "12 tahun"]
         }
 
-        # Kebutuhan / Kondisi spesifik untuk penjelasan edukatif
         self.health_conditions = {
             "kutu": ["kutu", "fleas", "detick", "tetes kutu"],
             "jamur": ["jamur", "ringworm", "scabies", "gatal", "kulit merah", "ketombe", "kerak"],
@@ -68,16 +46,9 @@ class RuleEngine:
         }
 
     def parse_budget(self, text: str) -> Dict[str, Any]:
-        """
-        Mendeteksi nominal dan intensi harga dari teks secara cerdas:
-        - Rentang harga: "20000 sampai 40000", "20rb - 40rb", "20k-40k", "antara 20rb dan 40rb" -> mode: range
-        - Plafon budget: "maksimal 50rb", "budget 50rb", "di bawah 30rb", "max 25k" -> mode: max
-        - Batas bawah: "minimal 20rb", "di atas 30k", "mulai dari 20rb" -> mode: min
-        - Harga pas: "harga 20000", "20rb", "yang 20k", "pas 20.000" -> mode: exact
-        """
         text_lower = text.lower()
 
-        # 1. Pattern A: min X max Y (contoh: min 20k max 40k)
+        # Pattern A: min X max Y
         m_minmax = re.search(
             r'(?:min|minimal)\s*(?:rp\.?\s*)?(\d+(?:[\.,]\d+)?)\s*(k|rb|ribu)?\s*(?:sampai|hingga|dan|-|,)?\s*(?:max|maks|maksimal)\s*(?:rp\.?\s*)?(\d+(?:[\.,]\d+)?)\s*(k|rb|ribu)?',
             text_lower
@@ -87,15 +58,13 @@ class RuleEngine:
             u1 = m_minmax.group(2)
             n2 = float(m_minmax.group(3).replace(',', '.'))
             u2 = m_minmax.group(4)
-            if not u1 and u2 and n1 < 1000:
-                u1 = u2
+            if not u1 and u2 and n1 < 1000: u1 = u2
             v1 = int(n1 * 1000) if u1 in ['k', 'rb', 'ribu'] or (n1 < 1000 and not u1 and n1 < 500) else int(n1)
             v2 = int(n2 * 1000) if u2 in ['k', 'rb', 'ribu'] or (n2 < 1000 and not u2 and n2 < 500) else int(n2)
-            if v1 > v2:
-                v1, v2 = v2, v1
+            if v1 > v2: v1, v2 = v2, v1
             return {"mode": "range", "min_price": v1, "max_price": v2, "target_price": v2, "price": v2}
 
-        # 2. Pattern B: antara X dan/sampai Y (contoh: antara 20.000 dan 40.000)
+        # Pattern B: antara X dan Y
         m_antara = re.search(
             r'antara\s+(?:rp\.?\s*)?(\d+(?:[\.,]\d+)?)\s*(k|rb|ribu)?\s*(?:dan|sampai|hingga|-)\s*(?:rp\.?\s*)?(\d+(?:[\.,]\d+)?)\s*(k|rb|ribu)?',
             text_lower
@@ -105,15 +74,13 @@ class RuleEngine:
             u1 = m_antara.group(2)
             n2 = float(m_antara.group(3).replace(',', '.'))
             u2 = m_antara.group(4)
-            if not u1 and u2 and n1 < 1000:
-                u1 = u2
+            if not u1 and u2 and n1 < 1000: u1 = u2
             v1 = int(n1 * 1000) if u1 in ['k', 'rb', 'ribu'] or (n1 < 1000 and not u1 and n1 < 500) else int(n1)
             v2 = int(n2 * 1000) if u2 in ['k', 'rb', 'ribu'] or (n2 < 1000 and not u2 and n2 < 500) else int(n2)
-            if v1 > v2:
-                v1, v2 = v2, v1
+            if v1 > v2: v1, v2 = v2, v1
             return {"mode": "range", "min_price": v1, "max_price": v2, "target_price": v2, "price": v2}
 
-        # 3. Pattern C: X (sampai|sd|s/d|hingga|ke|-) Y (contoh: harga 20000 sampai 40000, 20rb - 40rb, 20k-40k)
+        # Pattern C: X sampai Y
         m_range = re.search(
             r'(?:harga|budget|kisaran|rentang)?\s*(?:rp\.?\s*)?(\d+(?:[\.,]\d+)?)\s*(k|rb|ribu)?\s*(?:sampai|hingga|s\/d|sd|ke|-|–)\s*(?:rp\.?\s*)?(\d+(?:[\.,]\d+)?)\s*(k|rb|ribu)?',
             text_lower
@@ -123,10 +90,8 @@ class RuleEngine:
             u1 = m_range.group(2)
             n2_str = m_range.group(3).replace(',', '.')
             u2 = m_range.group(4)
-
             clean1 = m_range.group(1).replace('.', '')
             clean2 = m_range.group(3).replace('.', '')
-
             if clean1.isdigit() and int(clean1) >= 1000:
                 v1 = int(clean1)
             else:
@@ -135,7 +100,6 @@ class RuleEngine:
                     v1 = int(v1_f * 1000) if u1 or (u2 and v1_f < 1000) else int(v1_f)
                 except ValueError:
                     v1 = None
-
             if clean2.isdigit() and int(clean2) >= 1000:
                 v2 = int(clean2)
             else:
@@ -144,20 +108,14 @@ class RuleEngine:
                     v2 = int(v2_f * 1000) if u2 or (u1 and v2_f < 1000) else int(v2_f)
                 except ValueError:
                     v2 = None
-
             if v1 is not None and v2 is not None and v1 >= 1000 and v2 >= 1000:
-                if v1 > v2:
-                    v1, v2 = v2, v1
+                if v1 > v2: v1, v2 = v2, v1
                 return {"mode": "range", "min_price": v1, "max_price": v2, "target_price": v2, "price": v2}
 
-        # 4. Pattern Intensi Minimal / Di Atas
         is_min_intent = bool(re.search(r'\b(minimal|min|di atas|diatas|lebih dari|paling murah|mulai dari|start)\b', text_lower))
-        # Pattern Intensi Maksimal / Plafon
         is_max_intent = bool(re.search(r'\b(maksimal|budget|max|di bawah|dibawah|kurang dari|paling mahal|mentok|maks)\b', text_lower))
 
-        # 5. Deteksi Single Price
         val = None
-        # Format k / rb / ribu (contoh: 20k, 25rb, 30 ribu)
         m_single_k = re.search(r'(?:rp\.?\s*)?(\d+(?:[\.,]\d+)?)\s*(k|rb|ribu)\b', text_lower)
         if m_single_k:
             try:
@@ -165,7 +123,6 @@ class RuleEngine:
             except ValueError:
                 pass
 
-        # Format ribuan lengkap (contoh: 20.000, 20000)
         if val is None:
             m_single_full = re.search(r'(?:rp\.?\s*)?(\d{1,3}(?:\.\d{3})+|\d{4,7})\b', text_lower)
             if m_single_full:
@@ -181,9 +138,6 @@ class RuleEngine:
         elif is_max_intent:
             return {"mode": "max", "min_price": None, "max_price": val, "target_price": val, "price": val}
         else:
-            # Default: anggap sebagai budget maksimal bukan exact
-            # Contoh: 'mainan 10k' = tampilkan produk <= 10.000
-            # Lebih user-friendly daripada exact match yang terlalu ketat
             return {"mode": "max", "min_price": None, "max_price": val, "target_price": val, "price": val}
 
     def extract_keywords(self, text: str) -> Dict[str, Any]:
@@ -200,14 +154,19 @@ class RuleEngine:
         price_mode = price_info.get("mode")
         keywords = []
 
-        # 1. Deteksi Brand/Merek spesifik (Prioritas Utama)
+        # ✅ DETEKSI INTENT "MURAH" / "MAHAL"
+        sort_by = None
+        if re.search(r'\b(murah|termurah|paling murah|hemat|ekonomis|murah meriah)\b', text_lower):
+            sort_by = 'price_asc'
+        elif re.search(r'\b(mahal|termahal|paling mahal|premium|high end|high-end|kualitas terbaik|terbaik)\b', text_lower):
+            sort_by = 'price_desc'
+
         for brand in self.brands:
             if re.search(r'\b' + re.escape(brand) + r'\b', text_lower):
                 detected_brands.append(brand)
                 if brand not in keywords:
                     keywords.append(brand)
 
-        # 2. Deteksi fase usia
         for age, age_kws in self.life_stages.items():
             for kw in age_kws:
                 if re.search(r'\b' + re.escape(kw) + r'\b', text_lower):
@@ -218,7 +177,6 @@ class RuleEngine:
             if detected_age:
                 break
 
-        # 3. Deteksi kondisi / kebutuhan spesifik
         for cond_name, cond_kws in self.health_conditions.items():
             for kw in cond_kws:
                 if re.search(r'\b' + re.escape(kw) + r'\b', text_lower):
@@ -227,7 +185,6 @@ class RuleEngine:
                     if kw not in keywords:
                         keywords.append(kw)
 
-        # 4. Deteksi kategori spesifik
         for cat, kw_list in self.categories.items():
             for kw in kw_list:
                 if re.search(r'\b' + re.escape(kw) + r'\b', text_lower):
@@ -236,8 +193,6 @@ class RuleEngine:
                     if kw not in keywords:
                         keywords.append(kw)
 
-        # 5. Filter eksklusivitas kategori — jika user nanya spesifik, hanya tampilkan kategori itu saja
-        # Definisi sinyal kuat per kategori berdasarkan keyword yang disebutkan user
         signals = {
             "mainan":       any(w in text_lower for w in ["mainan", "main", "toy", "toys", "bola", "laser", "catnip", "tunnel", "terowongan", "garukan", "scratch"]),
             "pasir":        any(w in text_lower for w in ["pasir", "litter", "tofu", "bentonite"]),
@@ -250,23 +205,20 @@ class RuleEngine:
             "makanan":      any(w in text_lower for w in ["makan", "makanan", "pakan", "food", "dry food", "wet food", "kibble", "snack", "treat", "creamy", "kaleng", "pouch", "biskuit", "kering", "basah"]),
         }
 
-        # Kumpulkan kategori yang punya sinyal kuat dari input user
         active_signals = [cat for cat, triggered in signals.items() if triggered]
 
-        # Jika ada sinyal kuat, hanya simpan kategori yang benar-benar disebut user
         if active_signals:
             detected_categories = [c for c in detected_categories if c in active_signals]
-            # Jika setelah filter kosong tapi ada sinyal aktif, paksa gunakan sinyal aktif
             if not detected_categories:
                 detected_categories = active_signals
 
-        # 6. Ambil kata kunci unik tambahan dari input user
         stop_words = {
             "saya", "mau", "ingin", "cari", "ada", "yang", "untuk", "kucing", "dong", "kak",
             "bisa", "tolong", "buat", "rekomendasi", "ini", "itu", "dan", "atau", "di", "ke",
             "budget", "harga", "ribuan", "ribu", "rb", "k", "max", "maksimal", "punya", "punyaku",
             "berapa", "apa", "saja", "mana", "terbaik", "murah", "bagus", "pas", "sampai", "sd", "s/d",
-            "antara", "hingga", "min", "minimal", "rekomendasikan", "kasih", "gimana", "yaa", "ya", "pake"
+            "antara", "hingga", "min", "minimal", "rekomendasikan", "kasih", "gimana", "yaa", "ya", "pake",
+            "ekor", "dua", "tiga", "empat", "lima", "satu", "2", "3", "4", "5"
         }
         words = [w for w in re.findall(r'\b[a-zA-Z]{3,}\b', text_lower) if w not in stop_words]
         for w in words:
@@ -276,17 +228,10 @@ class RuleEngine:
         if not keywords:
             keywords = ["kucing", "makanan"]
 
-        # Susun balasan teks yang edukatif, informatif, dan terstruktur jelas
         response_message = self.generate_response(
-            text_lower,
-            detected_brands,
-            detected_categories,
-            detected_age,
-            detected_conditions,
-            min_price,
-            max_price,
-            detected_price,
-            price_mode
+            text_lower, detected_brands, detected_categories, detected_age,
+            detected_conditions, min_price, max_price, detected_price,
+            price_mode, sort_by,
         )
 
         return {
@@ -298,23 +243,13 @@ class RuleEngine:
             "max_price": max_price,
             "target_price": detected_price,
             "price_mode": price_mode,
+            "sort_by": sort_by,
             "keywords": keywords,
             "response": response_message
         }
 
-    def generate_response(
-        self,
-        text: str,
-        brands: List[str],
-        categories: List[str],
-        age_group: Optional[str],
-        conditions: List[str],
-        min_price: Optional[int],
-        max_price: Optional[int],
-        price: Optional[int],
-        price_mode: Optional[str]
-    ) -> str:
-        # 1. Sapaan umum ramah
+    def generate_response(self, text, brands, categories, age_group, conditions,
+                         min_price, max_price, price, price_mode, sort_by=None) -> str:
         greetings = ["halo", "hai", "selamat pagi", "selamat siang", "selamat sore", "selamat malam", "assalamualaikum", "hi", "p", "siang", "pagi", "sore", "malam"]
         words_count = len(text.split())
         if any(greet in text for greet in greetings) and words_count <= 2:
@@ -324,7 +259,6 @@ class RuleEngine:
                 "Kakak bisa konsultasikan keluhan kutu/jamur, jenis sampo, makanan sesuai usia & budget, pasir, atau mainan kucing ya! 🐱✨"
             )
 
-        # 2. Pertanyaan di luar kucing
         non_cat = ["anjing", "burung", "ikan cupang", "hamster", "reptil", "kelinci", "ular"]
         if any(animal in text for animal in non_cat):
             return (
@@ -332,139 +266,91 @@ class RuleEngine:
                 "perawatan kesehatan, dan perlengkapan untuk anabul **kucing** saja agar hasilnya maksimal! 🐱"
             )
 
-        # Format harga dalam Rupiah
+        if re.fullmatch(r'[a-z]{6,}', text) and not any(w in text for w in ["makan", "pasir", "mainan", "obat", "kucing", "susu", "shampo", "halo", "hai"]):
+            return (
+                "Halo Cat Lovers! 🐾 Maaf kami kurang paham maksudnya.\n\n"
+                "Coba ketik pertanyaan seperti: **'makanan kitten murah'**, **'obat kutu'**, atau **'pasir kucing 30rb'** ya! 🐱"
+            )
+
         def format_rp(num: int) -> str:
             return f"Rp {num:,.0f}".replace(',', '.')
 
-        # 3. PENJELASAN EDUKATIF & SOLUSI SPESIFIK (Singkat & Jelas)
         explanation_blocks = []
 
-        # Skenario A: Kutu
         if "kutu" in conditions or any(w in text for w in ["kutu", "kutuan", "gatal kutu"]):
             if any(w in text for w in ["shampo", "sampo", "mandi"]):
-                explanation_blocks.append(
-                    "📌 **Penjelasan Solusi Kutu:**\n"
-                    "Untuk mengatasi anabul yang kutuan saat mandi, gunakan **Shampoo Kutu Jamur** atau sampo berformula anti-parasit. Mandikan anabul dengan air hangat, ratakan sampo hingga ke kulit leher & sela jari, diamkan 3-5 menit agar kutu lemas/mati, lalu bilas bersih dan keringkan sempurna."
-                )
+                explanation_blocks.append("📌 **Penjelasan Solusi Kutu:**\nUntuk mengatasi anabul yang kutuan saat mandi, gunakan **Shampoo Kutu Jamur** atau sampo berformula anti-parasit. Mandikan anabul dengan air hangat, ratakan sampo hingga ke kulit leher & sela jari, diamkan 3-5 menit agar kutu lemas/mati, lalu bilas bersih dan keringkan sempurna.")
             elif any(w in text for w in ["obat", "tetes"]):
-                explanation_blocks.append(
-                    "📌 **Penjelasan Solusi Kutu:**\n"
-                    "Untuk penanganan kutu yang cepat dan tuntas, gunakan obat tetes kutu (**Detick / Obat Kutu**). Teteskan langsung pada kulit tengkuk (leher belakang) agar tidak terjilat anabul. Obat akan menyebar melalui lapisan minyak kulit dan melindungi hingga 4-5 minggu."
-                )
+                explanation_blocks.append("📌 **Penjelasan Solusi Kutu:**\nUntuk penanganan kutu yang cepat dan tuntas, gunakan obat tetes kutu (**Detick / Obat Kutu**). Teteskan langsung pada kulit tengkuk (leher belakang) agar tidak terjilat anabul. Obat akan menyebar melalui lapisan minyak kulit dan melindungi hingga 4-5 minggu.")
             else:
-                explanation_blocks.append(
-                    "📌 **Penjelasan Solusi Kutu:**\n"
-                    "Untuk penanganan kutu yang efektif, Kakak bisa menggunakan kombinasi obat tetes kutu pada tengkuk serta rutin mandi menggunakan **Shampoo Anti Kutu & Jamur**. Pastikan juga area kandang dan alas tidur disemprot disinfektan agar telur kutu tidak menetas kembali."
-                )
+                explanation_blocks.append("📌 **Penjelasan Solusi Kutu:**\nUntuk penanganan kutu yang efektif, Kakak bisa menggunakan kombinasi obat tetes kutu pada tengkuk serta rutin mandi menggunakan **Shampoo Anti Kutu & Jamur**. Pastikan juga area kandang dan alas tidur disemprot disinfektan agar telur kutu tidak menetas kembali.")
 
-        # Skenario B: Jamur / Gatal / Kulit
         elif "jamur" in conditions or any(w in text for w in ["jamur", "scabies", "ringworm", "gatal", "ketombe"]):
-            explanation_blocks.append(
-                "📌 **Penjelasan Solusi Jamur & Gatal:**\n"
-                "Jamur pada kucing umumnya dipicu kelembapan tinggi. Gunakan **Shampoo Anti Kutu & Jamur** atau salep/obat luka jamur. Pastikan bulu dikeringkan 100% setelah mandi dan jemur anabul di bawah sinar matahari pagi selama 10-15 menit."
-            )
+            explanation_blocks.append("📌 **Penjelasan Solusi Jamur & Gatal:**\nJamur pada kucing umumnya dipicu kelembapan tinggi. Gunakan **Shampoo Anti Kutu & Jamur** atau salep/obat luka jamur. Pastikan bulu dikeringkan 100% setelah mandi dan jemur anabul di bawah sinar matahari pagi selama 10-15 menit.")
 
-        # Skenario C: Bulu Rontok / Kusam
         elif "bulu rontok" in conditions or any(w in text for w in ["bulu", "rontok", "lebat", "kusam"]):
-            explanation_blocks.append(
-                "📌 **Penjelasan Masalah Bulu:**\n"
-                "Bulu rontok dapat diatasi dengan memberikan makanan kaya **Omega 3 & 6 (Salmon/Tuna)**, rajin menyisir bulu mati setiap hari, dan mandi menggunakan **Shampoo Conditioner** untuk menutrisi akar bulu agar lembut dan tidak mudah kusut."
-            )
+            explanation_blocks.append("📌 **Penjelasan Masalah Bulu:**\nBulu rontok dapat diatasi dengan memberikan makanan kaya **Omega 3 & 6 (Salmon/Tuna)**, rajin menyisir bulu mati setiap hari, dan mandi menggunakan **Shampoo Conditioner** untuk menutrisi akar bulu agar lembut dan tidak mudah kusut.")
 
-        # Skenario D: Diare / Pencernaan Sensitif
         elif "pencernaan / diare" in conditions or any(w in text for w in ["diare", "mencret", "muntah"]):
-            explanation_blocks.append(
-                "📌 **Penjelasan Pencernaan & Diare:**\n"
-                "Jika anabul sedang diare, hindari makanan sembarangan atau susu sapi biasa. Berikan pakan yang mudah dicerna dan pastikan kebutuhan cairan terpenuhi dengan bantuan spetan minum agar tidak dehidrasi."
-            )
+            explanation_blocks.append("📌 **Penjelasan Pencernaan & Diare:**\nJika anabul sedang diare, hindari makanan sembarangan atau susu sapi biasa. Berikan pakan yang mudah dicerna dan pastikan kebutuhan cairan terpenuhi dengan bantuan spetan minum agar tidak dehidrasi.")
 
-        # Skenario E: Nafsu Makan & Penggemuk
         elif "penggemuk / nafsu makan" in conditions or any(w in text for w in ["gemuk", "nafsu makan", "kurus"]):
-            explanation_blocks.append(
-                "📌 **Penjelasan Penggemuk & Nafsu Makan:**\n"
-                "Untuk menambah berat badan anabul secara sehat, berikan dry food tinggi protein dikombinasikan dengan wet food/creamy treat aroma tuna/salmon untuk mendongkrak selera makannya."
-            )
+            explanation_blocks.append("📌 **Penjelasan Penggemuk & Nafsu Makan:**\nUntuk menambah berat badan anabul secara sehat, berikan dry food tinggi protein dikombinasikan dengan wet food/creamy treat aroma tuna/salmon untuk mendongkrak selera makannya.")
 
-        # Skenario F: Shampo / Mandi Umum
         elif "shampo" in categories and not conditions:
-            explanation_blocks.append(
-                "📌 **Penjelasan Perawatan Mandi:**\n"
-                "Gunakan sampo kucing dengan pH balanced yang aman untuk kulit anabul. Tersedia varian sampo pembersih kutu-jamur maupun shampoo conditioner untuk melembutkan bulu harum sepanjang hari."
-            )
+            explanation_blocks.append("📌 **Penjelasan Perawatan Mandi:**\nGunakan sampo kucing dengan pH balanced yang aman untuk kulit anabul. Tersedia varian sampo pembersih kutu-jamur maupun shampoo conditioner untuk melembutkan bulu harum sepanjang hari.")
 
-        # Skenario G: Mainan
         elif "mainan" in categories:
-            explanation_blocks.append(
-                "📌 **Penjelasan Mainan Kucing:**\n"
-                "Mainan sangat penting untuk melatih motorik, mencegah stres, dan menyalurkan insting berburu anabul terutama bagi kucing yang tinggal di dalam ruangan (indoor)."
-            )
+            explanation_blocks.append("📌 **Penjelasan Mainan Kucing:**\nMainan sangat penting untuk melatih motorik, mencegah stres, dan menyalurkan insting berburu anabul terutama bagi kucing yang tinggal di dalam ruangan (indoor).")
 
-        # Skenario H: Aksesoris / Baju / Kalung
         elif "aksesoris" in categories:
-            explanation_blocks.append(
-                "📌 **Penjelasan Aksesoris & Fashion:**\n"
-                "Aksesoris seperti kalung berlonceng membantu melacak keberadaan anabul di rumah, sedangkan baju kucing membuat anabul tampil lucu dan modis saat acara santai."
-            )
+            explanation_blocks.append("📌 **Penjelasan Aksesoris & Fashion:**\nAksesoris seperti kalung berlonceng membantu melacak keberadaan anabul di rumah, sedangkan baju kucing membuat anabul tampil lucu dan modis saat acara santai.")
 
-        # Skenario I: Pasir & Perlengkapan Buang Air
         elif "pasir" in categories or any(w in text for w in ["pasir", "tofu", "litter"]):
-            explanation_blocks.append(
-                "📌 **Penjelasan Pasir Kucing:**\n"
-                "Pasir gumpal wangi dan pasir tofu sangat higienis untuk menyerap urin seketika, mengunci bau tidak sedap, serta praktis dibersihkan dengan serokan pasir."
-            )
+            explanation_blocks.append("📌 **Penjelasan Pasir Kucing:**\nPasir gumpal wangi dan pasir tofu sangat higienis untuk menyerap urin seketika, mengunci bau tidak sedap, serta praktis dibersihkan dengan serokan pasir.")
 
-        # Skenario J: Kandang & Perlengkapan Rumah
         elif "perlengkapan" in categories:
-            explanation_blocks.append(
-                "📌 **Penjelasan Perlengkapan Kucing:**\n"
-                "Perlengkapan berkualitas seperti litter box, kandang ventilasi nyaman, dan tempat makan ergonomis akan mendukung kenyamanan harian anabul di rumah."
-            )
+            explanation_blocks.append("📌 **Penjelasan Perlengkapan Kucing:**\nPerlengkapan berkualitas seperti litter box, kandang ventilasi nyaman, dan tempat makan ergonomis akan mendukung kenyamanan harian anabul di rumah.")
 
-        # Skenario K: Susu & Nutrisi Anakan
         elif "susu" in categories or any(w in text for w in ["susu", "dot"]):
-            explanation_blocks.append(
-                "📌 **Penjelasan Susu & Pertumbuhan:**\n"
-                "Susu khusus kucing (seperti Top Growth) bebas laktosa sehingga aman dan tidak menyebabkan mencret pada kitten, sangat bagus untuk menggantikan air susu induk."
-            )
+            explanation_blocks.append("📌 **Penjelasan Susu & Pertumbuhan:**\nSusu khusus kucing (seperti Top Growth) bebas laktosa sehingga aman dan tidak menyebabkan mencret pada kitten, sangat bagus untuk menggantikan air susu induk.")
 
-        # Skenario L: Makanan Berdasarkan Usia
         elif age_group == "kitten":
-            explanation_blocks.append(
-                "📌 **Penjelasan Nutrisi Kitten (Anak Kucing):**\n"
-                "Kitten membutuhkan formula tinggi protein, kalsium, serta asam folat untuk pembentukan tulang, gigi, dan perkembangan otak yang aktif."
-            )
+            explanation_blocks.append("📌 **Penjelasan Nutrisi Kitten (Anak Kucing):**\nKitten membutuhkan formula tinggi protein, kalsium, serta asam folat untuk pembentukan tulang, gigi, dan perkembangan otak yang aktif.")
         elif age_group == "adult":
-            explanation_blocks.append(
-                "📌 **Penjelasan Nutrisi Adult (Kucing Dewasa):**\n"
-                "Kucing dewasa membutuhkan nutrisi seimbang untuk menjaga berat badan ideal, kesehatan saluran kencing (urinary), dan kilau bulu."
-            )
+            explanation_blocks.append("📌 **Penjelasan Nutrisi Adult (Kucing Dewasa):**\nKucing dewasa membutuhkan nutrisi seimbang untuk menjaga berat badan ideal, kesehatan saluran kencing (urinary), dan kilau bulu.")
+        elif age_group == "senior":
+            explanation_blocks.append("📌 **Penjelasan Nutrisi Senior (Kucing Tua):**\nKucing senior membutuhkan makanan rendah fosfor, tinggi serat, dan mudah dicerna untuk menjaga fungsi ginjal dan pencernaan.")
 
-        # 4. Bangun pengantar katalog rekomendasi produk
         cat_str = ', '.join([c.title() for c in categories]) if categories else "produk"
         brand_str = ', '.join([b.title() for b in brands]) if brands else ""
+
+        # ✅ Sort note
+        sort_note = ""
+        if sort_by == 'price_asc':
+            sort_note = " (diurutkan dari **harga termurah**)"
+        elif sort_by == 'price_desc':
+            sort_note = " (diurutkan dari **harga termahal**)"
 
         intro_katalog = []
         if price_mode == "range" and min_price and max_price:
             if brands:
-                intro_katalog.append(f"katalog {cat_str} **{brand_str}** dengan kisaran harga **{format_rp(min_price)} - {format_rp(max_price)}**:")
+                intro_katalog.append(f"katalog {cat_str} **{brand_str}** dengan kisaran harga **{format_rp(min_price)} - {format_rp(max_price)}**{sort_note}:")
             else:
-                intro_katalog.append(f"katalog **{cat_str}** pilihan di rentang harga **{format_rp(min_price)} - {format_rp(max_price)}**:")
+                intro_katalog.append(f"katalog **{cat_str}** pilihan di rentang harga **{format_rp(min_price)} - {format_rp(max_price)}**{sort_note}:")
         elif price_mode == "max" and max_price:
-            intro_katalog.append(f"katalog **{cat_str}** dengan budget di bawah **{format_rp(max_price)}**:")
+            intro_katalog.append(f"katalog **{cat_str}** dengan budget di bawah **{format_rp(max_price)}**{sort_note}:")
         elif price_mode == "min" and min_price:
-            intro_katalog.append(f"katalog **{cat_str}** mulai dari harga **{format_rp(min_price)}**:")
+            intro_katalog.append(f"katalog **{cat_str}** mulai dari harga **{format_rp(min_price)}**{sort_note}:")
         else:
             if brands:
-                intro_katalog.append(f"katalog {cat_str} dari merek **{brand_str}** yang tersedia di RERe Petshop:")
+                intro_katalog.append(f"katalog {cat_str} dari merek **{brand_str}** yang tersedia di RERe Petshop{sort_note}:")
             elif categories:
-                intro_katalog.append(f"katalog **{cat_str}** pilihan yang cocok untuk anabul Anda:")
+                intro_katalog.append(f"katalog **{cat_str}** pilihan yang cocok untuk anabul Anda{sort_note}:")
             else:
-                intro_katalog.append("katalog rekomendasi produk yang cocok untuk anabul Anda:")
+                intro_katalog.append(f"katalog rekomendasi produk yang cocok untuk anabul Anda{sort_note}:")
 
-        # 5. Susun format pesan terpadu: Sapaan -> Penjelasan Singkat -> Pengantar Katalog
-        lines = [
-            "Halo Cat Lovers! 🐾"
-        ]
+        lines = ["Halo Cat Lovers! 🐾"]
 
         if explanation_blocks:
             lines.extend(explanation_blocks)
