@@ -70,6 +70,7 @@ class PembayaransTable
                     ->dateTime('d M Y H:i')
                     ->sortable(),
             ])
+            ->defaultSort('id_pembayaran', 'desc')
             ->filters([])
             ->recordActions([
                 ViewAction::make(),

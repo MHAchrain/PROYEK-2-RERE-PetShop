@@ -24,7 +24,7 @@ class PengirimanTable
 
         TextColumn::make('resi')
                     ->searchable(),        
-        
+
         TextColumn::make('status_kirim')
     ->label('Status Kirim')
     ->badge()
@@ -65,12 +65,12 @@ class PengirimanTable
         TextColumn::make('tanggal_kirim')
                     ->dateTime()
                     ->sortable(),
-        
+
         TextColumn::make('pesanan.alamat_kirim')
         ->label('Alamat Kirim')
         ->searchable()
         ->wrap(),
-        
+
         TextColumn::make('kurir')
                     ->label('Kurir')
                     ->badge()
@@ -114,6 +114,7 @@ class PengirimanTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('id_pengiriman', 'desc')
             ->filters([
                 //
             ])
