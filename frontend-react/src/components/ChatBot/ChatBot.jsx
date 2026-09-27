@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  MessageCircle, 
-  X, 
-  Send, 
-  Camera, 
-  Image as ImageIcon, 
-  ShoppingCart, 
+import {
+  MessageCircle,
+  X,
+  Send,
+  Camera,
+  Image as ImageIcon,
+  ShoppingCart,
   Sparkles,
   Bot
 } from 'lucide-react';
@@ -28,7 +28,7 @@ export default function ChatBot() {
     {
       id: 1,
       sender: 'bot',
-      text: 'Halo Cat Lovers! 🐾 Selamat datang di **RERe Petshop**.\n\nSaya **Asisten AI RERe Petshop**, siap membantu mencarikan produk terbaik untuk anabul kesayangan Anda:\n\n✨ **Konsultasi Teks:** Ketik usia, keluhan bulu, atau budget (misal: *"makanan adult budget 30rb"*)\n📷 **Analisis Foto:** Klik ikon kamera untuk analisis kondisi fisik kucing via Gemini Vision AI!\n\nAda yang bisa kami bantu carikan hari ini? 🐱',
+      text: 'Halo Cat Lovers! 🐾 Selamat datang di **RERe Petshop**.\n\nSaya **Asisten AI RERe Petshop**, siap membantu mencarikan produk terbaik untuk anabul kesayangan Anda:\n\n **Konsultasi Teks:** Ketik usia, keluhan bulu, atau budget (misal: "makanan adult budget 30rb")\n **Analisis Foto:** Klik ikon kamera untuk analisis kondisi fisik kucing Vision AI!\n\nAda yang bisa kami bantu carikan hari ini? 🐱',
       products: [],
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
