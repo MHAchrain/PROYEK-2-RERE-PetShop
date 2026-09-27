@@ -22,7 +22,7 @@ class Favorite extends Model
     }
 
     // Relasi ke Pelanggan
-    public function pelanggan()
+    public function pelanggan() 
     {
         return $this->belongsTo(Pelanggan::class, 'id_pelanggan', 'id_pelanggan');
     }

@@ -113,9 +113,10 @@ def chat_text(request: TextChatRequest):
         "categories": result["categories"],
         "conditions": result["conditions"],
         "age_group": result["age_group"],
-        "target_price": result["target_price"],
-        "price_mode": result["price_mode"],
-        "max_price": result["max_price"]
+        "min_price": result.get("min_price"),
+        "max_price": result.get("max_price"),
+        "target_price": result.get("target_price"),
+        "price_mode": result.get("price_mode")
     }
 
 
@@ -139,13 +140,15 @@ async def chat_with_image(
         return {
             "mode": "rule_based",
             "message": result["response"],
+            "brands": result["brands"],
             "keywords": result["keywords"],
             "categories": result["categories"],
             "conditions": result["conditions"],
             "age_group": result["age_group"],
-            "target_price": result["target_price"],
-            "price_mode": result["price_mode"],
-            "max_price": result["max_price"]
+            "min_price": result.get("min_price"),
+            "max_price": result.get("max_price"),
+            "target_price": result.get("target_price"),
+            "price_mode": result.get("price_mode")
         }
 
     # Jika ADA gambar -> Gunakan Gemini API Vision

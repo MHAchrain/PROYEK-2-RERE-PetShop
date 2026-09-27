@@ -38,6 +38,8 @@ class RecommendationController extends Controller
         $keywords = [];
         $aiMode = 'rule_based';
         $targetPrice = null;
+        $minPrice = null;
+        $maxPrice = null;
         $priceMode = 'max';
         $ageGroup = null;
 
@@ -69,6 +71,8 @@ class RecommendationController extends Controller
                 $keywords = $data['keywords'] ?? [];
                 $brands = $data['brands'] ?? [];
                 $aiMode = $data['mode'] ?? 'rule_based';
+                $minPrice = $data['min_price'] ?? null;
+                $maxPrice = $data['max_price'] ?? null;
                 $targetPrice = $data['target_price'] ?? $data['max_price'] ?? null;
                 $priceMode = $data['price_mode'] ?? 'max';
                 $ageGroup = $data['age_group'] ?? null;
@@ -89,8 +93,8 @@ class RecommendationController extends Controller
             $categories = [];
         }
 
-        // Cari Produk di Database MySQL berdasarkan Brands, Keywords, Target Price, Usia & Kategori secara ketat
-        $products = $this->findMatchingProducts($keywords, $brands, $targetPrice, $priceMode, $ageGroup, $categories);
+        // Cari Produk di Database MySQL berdasarkan Brands, Keywords, Rentang Harga, Usia & Kategori secara cerdas
+        $products = $this->findMatchingProducts($keywords, $brands, $minPrice, $maxPrice, $targetPrice, $priceMode, $ageGroup, $categories);
 
         // Tips perawatan tambahan
         $tips = [
@@ -104,6 +108,8 @@ class RecommendationController extends Controller
             'mode' => $aiMode,
             'ai_message' => $aiMessage,
             'keywords' => $keywords,
+            'min_price' => $minPrice,
+            'max_price' => $maxPrice,
             'target_price' => $targetPrice,
             'price_mode' => $priceMode,
             'age_group' => $ageGroup,
@@ -113,11 +119,13 @@ class RecommendationController extends Controller
     }
 
     /**
-     * Cari produk di MySQL yang cocok dengan kriteria secara ketat (exact price, kategori, dan usia).
+     * Cari produk di MySQL yang cocok dengan kriteria secara ketat (rentang harga, kategori, dan usia).
      */
     protected function findMatchingProducts(
         array $keywords,
         array $brands = [],
+        ?int $minPrice = null,
+        ?int $maxPrice = null,
         ?int $targetPrice = null,
         string $priceMode = 'max',
         ?string $ageGroup = null,
@@ -125,22 +133,31 @@ class RecommendationController extends Controller
     ) {
         $baseQuery = Produk::with('kategori')->where('stok', '>', 0);
 
-        // 1. FILTER HARGA KETAT (EXACT vs MAX)
-        if ($targetPrice !== null && $targetPrice > 0) {
-            if ($priceMode === 'exact') {
-                // Prioritas mutlak: HANYA harga yang persis sama
-                $exactCandidates = (clone $baseQuery)->where('harga', $targetPrice)->get();
-                if ($exactCandidates->isNotEmpty()) {
-                    $candidates = $exactCandidates;
-                } else {
-                    // Jika benar-benar tidak ada harga persis, beri toleransi sangat tipis (5%)
-                    $minP = (int) ($targetPrice * 0.95);
-                    $maxP = (int) ($targetPrice * 1.05);
-                    $candidates = (clone $baseQuery)->whereBetween('harga', [$minP, $maxP])->get();
-                }
+        // 1. FILTER HARGA CERDAS (RANGE vs MIN vs MAX vs EXACT)
+        if ($priceMode === 'range' && $minPrice !== null && $maxPrice !== null) {
+            $rangeCandidates = (clone $baseQuery)->whereBetween('harga', [$minPrice, $maxPrice])->get();
+            if ($rangeCandidates->isNotEmpty()) {
+                $candidates = $rangeCandidates;
             } else {
-                // Mode Max / Budget
-                $candidates = (clone $baseQuery)->where('harga', '<=', $targetPrice)->get();
+                // Toleransi 10% jika produk dalam rentang persis belum tersedia
+                $tolMin = (int) ($minPrice * 0.90);
+                $tolMax = (int) ($maxPrice * 1.10);
+                $candidates = (clone $baseQuery)->whereBetween('harga', [$tolMin, $tolMax])->get();
+            }
+        } elseif ($priceMode === 'min' && $minPrice !== null) {
+            $candidates = (clone $baseQuery)->where('harga', '>=', $minPrice)->get();
+        } elseif ($priceMode === 'max' && ($maxPrice !== null || $targetPrice !== null)) {
+            $limit = $maxPrice ?? $targetPrice;
+            $candidates = (clone $baseQuery)->where('harga', '<=', $limit)->get();
+        } elseif ($priceMode === 'exact' && $targetPrice !== null && $targetPrice > 0) {
+            // Prioritas exact price
+            $exactCandidates = (clone $baseQuery)->where('harga', $targetPrice)->get();
+            if ($exactCandidates->isNotEmpty()) {
+                $candidates = $exactCandidates;
+            } else {
+                $minP = (int) ($targetPrice * 0.95);
+                $maxP = (int) ($targetPrice * 1.05);
+                $candidates = (clone $baseQuery)->whereBetween('harga', [$minP, $maxP])->get();
             }
         } else {
             $candidates = $baseQuery->get();
