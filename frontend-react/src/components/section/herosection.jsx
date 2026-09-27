@@ -65,7 +65,7 @@ export default function HeroSlider() {
             <div className="absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-3 rounded-t-[28px] p-3 sm:rounded-t-4xl sm:p-5">
                 <div className="max-w-[70%] rounded-full border border-white/70 bg-white/85 px-3 py-1.5 shadow-sm backdrop-blur sm:max-w-none sm:px-4 sm:py-2">
                 <p className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80 sm:text-xs">
-                    Highlight minggu ini
+                    Highlight Tahun Ini
                 </p>
                 </div>
 

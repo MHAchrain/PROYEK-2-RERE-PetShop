@@ -140,7 +140,9 @@ export default function AuthPage() {
             {isRegister && (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Nama Lengkap</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Nama Lengkap
+                  </label>
                   <input
                     type="text"
                     placeholder="Masukkan nama lengkap"
@@ -151,20 +153,27 @@ export default function AuthPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Nomor Handphone</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Nomor Handphone
+                  </label>
                   <input
                     type="text"
                     placeholder="Contoh: 081234567890"
                     value={form.noHp}
                     onChange={(e) =>
-                      handleChange('noHp', e.target.value.replace(/[^0-9]/g, ''))
+                      handleChange(
+                        'noHp',
+                        e.target.value.replace(/[^0-9]/g, ''),
+                      )
                     }
                     className="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-800 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Alamat</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
+                    Alamat
+                  </label>
                   <textarea
                     placeholder="Masukkan alamat lengkap"
                     rows={2}
@@ -179,7 +188,9 @@ export default function AuthPage() {
             {/* EMAIL FIELD UNTUK LOGIN & REGISTER */}
             {(isLogin || isRegister) && (
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Email
+                </label>
                 <input
                   type="email"
                   placeholder="nama@email.com"
@@ -193,7 +204,9 @@ export default function AuthPage() {
             {/* PASSWORD FIELD UNTUK LOGIN & REGISTER */}
             {(isLogin || isRegister) && (
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Kata Sandi</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Kata Sandi
+                </label>
                 <div className="relative w-full">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -225,7 +238,9 @@ export default function AuthPage() {
 
             {isRegister && (
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Konfirmasi Kata Sandi</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Konfirmasi Kata Sandi
+                </label>
                 <input
                   type="password"
                   placeholder="Ulangi kata sandi"
@@ -258,7 +273,9 @@ export default function AuthPage() {
                 {!codeSent && (
                   <>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Email Terdaftar</label>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Email Terdaftar
+                      </label>
                       <input
                         type="email"
                         placeholder="nama@email.com"
@@ -355,7 +372,9 @@ export default function AuthPage() {
                 {codeVerified && (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Kata Sandi Baru</label>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Kata Sandi Baru
+                      </label>
                       <div className="relative w-full">
                         <input
                           type={showNewPassword ? 'text' : 'password'}
@@ -380,7 +399,9 @@ export default function AuthPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">Konfirmasi Kata Sandi Baru</label>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Konfirmasi Kata Sandi Baru
+                      </label>
                       <input
                         type="password"
                         placeholder="Konfirmasi kata sandi baru"
@@ -428,7 +449,9 @@ export default function AuthPage() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="px-3 bg-white text-gray-500 font-medium">atau</span>
+                  <span className="px-3 bg-white text-gray-500 font-medium">
+                    atau
+                  </span>
                 </div>
               </div>
 

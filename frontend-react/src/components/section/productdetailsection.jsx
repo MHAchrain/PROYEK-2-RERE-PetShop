@@ -10,6 +10,7 @@ import { wishlistService } from "../../services/wishlistservice";
 export default function ProductDetailSection({ product, isLoading }) {
     const [qty, setQty] = useState(1);
     const [isBuyingNow, setIsBuyingNow] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [isWishlistLoading, setIsWishlistLoading] = useState(false);
     const [isWishlisted, setIsWishlisted] = useState(false);
     const navigate = useNavigate();
@@ -54,6 +55,33 @@ export default function ProductDetailSection({ product, isLoading }) {
             isMounted = false;
         };
     }, [product?.id, user]);
+
+    const handleAddToCart = async () => {
+        if (!product?.id) return;
+
+        if (safeStock < 1) {
+            toast.error("Produk sedang habis.");
+            return;
+        }
+
+        try {
+            setIsAddingToCart(true);
+
+            const result = await addToCart({
+                productId: product.id,
+                quantity: qty,
+                requireAuth: true,
+                onSuccess: async () => {
+                    toast.success("Produk berhasil ditambahkan ke keranjang.");
+                },
+            });
+            if (!result.ok && result.reason !== "auth_required") {
+                toast.error("Gagal menambahkan produk ke keranjang.");
+            }
+        } finally {
+            setIsAddingToCart(false);
+        }
+    }
 
     const handleBuyNow = async () => {
         if (!product?.id) return;
@@ -115,42 +143,57 @@ export default function ProductDetailSection({ product, isLoading }) {
 
     if (isLoading) {
         return (
-            <div>
+            <div className="w-full">
+                {/* Title & Badge */}
+                <Skeleton className="mb-3 h-9 w-3/4 rounded-md" />
+                <Skeleton className="h-7 w-32 rounded-full" />
 
-            <Skeleton className="w-2/3 h-8 mb-2" />
+                {/* Harga & Deskripsi */}
+                <Skeleton className="mt-4 h-9 w-44 rounded-md" />
+                <Skeleton className="mt-4 h-16 w-full max-w-xl rounded-md" />
 
-            <Skeleton className="w-1/4 h-5 mt-1" />
+                {/* Divider Line */}
+                <div className="my-6 border-t border-gray-200"></div>
 
-            <Skeleton className="w-1/3 h-8 mt-2" />
-            <Skeleton className="w-full h-20 mt-4" />
-            <div className="flex items-center gap-4 mt-6">
-            <div className="flex h-12 border border-gray-300 rounded overflow-hidden">
-                <Skeleton className="w-10 h-full" />
-                <Skeleton className="w-16 h-full border-x border-gray-300" />
-                <Skeleton className="w-10 h-full" />
-            </div>
-            <Skeleton className="h-12 w-40 rounded" />
-            <Skeleton className="h-12 w-12 rounded" />
-            </div>
+                {/* Action Controls (Qty + 3 Tombol) */}
+                <div className="mt-6 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center">
+                    {/* Quantity Counter Box */}
+                    <Skeleton className="h-12 w-full rounded-md sm:w-36" />
 
-            <div className="w-fit border-2 border-gray-400 rounded mt-10">
-                <div className="flex items-center gap-4 p-5">
-                    <Skeleton className="w-10 h-10 rounded" />
-                    <div className="flex flex-col gap-2">
-                    <Skeleton className="w-32 h-4" />
-                    <Skeleton className="w-48 h-3" />
+                    {/* Container Tombol Keranjang, Beli, & Wishlist */}
+                    <div className="flex flex-1 gap-3">
+                        {/* Tombol Keranjang */}
+                        <Skeleton className="h-12 w-14 rounded-md" />
+                        
+                        {/* Tombol Beli Sekarang */}
+                        <Skeleton className="h-12 w-40 rounded-md" />
+                        
+                        {/* Tombol Wishlist (Square) */}
+                        <Skeleton className="h-12 w-12 shrink-0 rounded-md" />
                     </div>
                 </div>
-                <div className="border-t-2 border-gray-400"></div>
-                <div className="flex items-center gap-4 p-5">
-                    <Skeleton className="w-10 h-10 rounded" />
-                    <div className="flex flex-col gap-2">
-                    <Skeleton className="w-32 h-4" />
-                    <Skeleton className="w-48 h-3" />
+
+                {/* Info Card (Gratis Ongkir & Retur) */}
+                <div className="mt-10 w-full overflow-hidden rounded-xl border border-gray-200 shadow-sm sm:max-w-md">
+                    <div className="flex items-center gap-4 p-4 md:p-5">
+                    <Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
+                    <div className="flex flex-1 flex-col gap-2">
+                        <Skeleton className="h-4 w-28 rounded" />
+                        <Skeleton className="h-3 w-48 rounded" />
+                    </div>
+                    </div>
+
+                    <div className="border-t border-gray-200"></div>
+
+                    <div className="flex items-center gap-4 p-4 md:p-5">
+                    <Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
+                    <div className="flex flex-1 flex-col gap-2">
+                        <Skeleton className="h-4 w-28 rounded" />
+                        <Skeleton className="h-3 w-48 rounded" />
+                    </div>
                     </div>
                 </div>
             </div>
-        </div>
         );
     }
     if (!product) return null;
@@ -160,8 +203,10 @@ export default function ProductDetailSection({ product, isLoading }) {
         product={product}
         qty={qty}
         setQty={handleSetQty}
+        onAddToCart={handleAddToCart}
         onBuyNow={handleBuyNow}
         onAddToWishlist={handleAddToWishlist}
+        isAddingToCart={isAddingToCart}
         isBuyingNow={isBuyingNow}
         isWishlistLoading={isWishlistLoading}
         isWishlisted={isWishlisted}
