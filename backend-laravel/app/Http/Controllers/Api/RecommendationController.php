@@ -119,7 +119,8 @@ class RecommendationController extends Controller
     }
 
     /**
-     * Cari produk di MySQL yang cocok dengan kriteria secara ketat (rentang harga, kategori, dan usia).
+     * Cari produk di MySQL: filter KATEGORI dulu (strict), baru HARGA, baru USIA.
+     * Tidak ada cross-category fallback — kalau tidak ada produk sesuai kategori, return kosong.
      */
     protected function findMatchingProducts(
         array $keywords,
@@ -131,175 +132,180 @@ class RecommendationController extends Controller
         ?string $ageGroup = null,
         array $categories = []
     ) {
-        $baseQuery = Produk::with('kategori')->where('stok', '>', 0);
+        // Ambil semua produk dengan stok
+        $allProducts = Produk::with('kategori')->where('stok', '>', 0)->get();
 
-        // 1. FILTER HARGA CERDAS (RANGE vs MIN vs MAX vs EXACT)
-        if ($priceMode === 'range' && $minPrice !== null && $maxPrice !== null) {
-            $rangeCandidates = (clone $baseQuery)->whereBetween('harga', [$minPrice, $maxPrice])->get();
-            if ($rangeCandidates->isNotEmpty()) {
-                $candidates = $rangeCandidates;
-            } else {
-                // Toleransi 10% jika produk dalam rentang persis belum tersedia
-                $tolMin = (int) ($minPrice * 0.90);
-                $tolMax = (int) ($maxPrice * 1.10);
-                $candidates = (clone $baseQuery)->whereBetween('harga', [$tolMin, $tolMax])->get();
-            }
-        } elseif ($priceMode === 'min' && $minPrice !== null) {
-            $candidates = (clone $baseQuery)->where('harga', '>=', $minPrice)->get();
-        } elseif ($priceMode === 'max' && ($maxPrice !== null || $targetPrice !== null)) {
-            $limit = $maxPrice ?? $targetPrice;
-            $candidates = (clone $baseQuery)->where('harga', '<=', $limit)->get();
-        } elseif ($priceMode === 'exact' && $targetPrice !== null && $targetPrice > 0) {
-            // Prioritas exact price
-            $exactCandidates = (clone $baseQuery)->where('harga', $targetPrice)->get();
-            if ($exactCandidates->isNotEmpty()) {
-                $candidates = $exactCandidates;
-            } else {
-                $minP = (int) ($targetPrice * 0.95);
-                $maxP = (int) ($targetPrice * 1.05);
-                $candidates = (clone $baseQuery)->whereBetween('harga', [$minP, $maxP])->get();
-            }
-        } else {
-            $candidates = $baseQuery->get();
-        }
-
-        // Jika filter harga menghasilkan kosong, return kosong
-        if ($candidates->isEmpty()) {
+        if ($allProducts->isEmpty()) {
             return collect();
         }
 
-        // 2. FILTER BRAND / MEREK SECARA KETAT (Jika user mencari brand tertentu seperti 'Cat Choize', HANYA tampilkan Cat Choize!)
+        // ── STEP 1: FILTER BRAND (strict jika ada) ──────────────────────────────
+        $pool = $allProducts;
         if (!empty($brands)) {
-            $brandFiltered = $candidates->filter(function ($prod) use ($brands) {
-                $namaLower = strtolower($prod->nama_produk ?? '');
-                $deskLower = strtolower($prod->deskripsi ?? '');
-                foreach ($brands as $brand) {
-                    $bLower = strtolower(trim($brand));
-                    if ($bLower !== '' && (str_contains($namaLower, $bLower) || str_contains($deskLower, $bLower))) {
-                        return true;
-                    }
+            $brandHit = $pool->filter(function ($prod) use ($brands) {
+                $nama = strtolower($prod->nama_produk ?? '');
+                $desk = strtolower($prod->deskripsi ?? '');
+                foreach ($brands as $b) {
+                    $bl = strtolower(trim($b));
+                    if ($bl !== '' && (str_contains($nama, $bl) || str_contains($desk, $bl))) return true;
                 }
                 return false;
             });
-
-            if ($brandFiltered->isNotEmpty()) {
-                $candidates = $brandFiltered;
-            }
+            if ($brandHit->isNotEmpty()) $pool = $brandHit;
         }
 
-        // 3. FILTER KATEGORI SECARA KETAT (Berdasarkan id_kategori & nama kategori)
+        // ── STEP 2: FILTER KATEGORI (strict, no fallback) ────────────────────────
+        // Helper closure: apakah produk cocok dengan satu kategori?
+        $inCat = function ($prod, string $cat) {
+            $katId = (int)($prod->id_kategori ?? 0);
+            $nama  = strtolower($prod->nama_produk ?? '');
+            $desk  = strtolower($prod->deskripsi ?? '');
+
+            switch ($cat) {
+                case 'makanan':
+                    // Kategori 1, bukan susu/dot/top growth
+                    return $katId === 1
+                        && !str_contains($nama, 'susu')
+                        && !str_contains($nama, 'top growth')
+                        && !str_contains($nama, 'dot');
+
+                case 'shampo':
+                    // Harus ada "shampoo" atau "sampo" di nama/deskripsi
+                    return str_contains($nama, 'shampoo')
+                        || str_contains($nama, 'sampo')
+                        || str_contains($desk, 'shampoo')
+                        || str_contains($desk, 'sampo');
+
+                case 'obat':
+                    // Kategori 2, bukan shampo, ada penanda obat/kutu/jamur/dll
+                    return $katId === 2
+                        && !str_contains($nama, 'shampoo')
+                        && !str_contains($nama, 'sampo')
+                        && !str_contains($nama, 'parfum')
+                        && (
+                            str_contains($nama, 'obat') || str_contains($nama, 'detick')
+                            || str_contains($nama, 'tetes') || str_contains($desk, 'kutu')
+                            || str_contains($desk, 'jamur') || str_contains($desk, 'luka')
+                            || str_contains($desk, 'scabies') || str_contains($desk, 'cacing')
+                            || str_contains($desk, 'antiparasit')
+                        );
+
+                case 'parfum':
+                    return str_contains($nama, 'parfum') || str_contains($desk, 'parfum')
+                        || str_contains($nama, 'pewangi') || str_contains($desk, 'pewangi');
+
+                case 'mainan':
+                    // Kategori 3, bukan baju/kalung
+                    return $katId === 3
+                        && !str_contains($nama, 'baju')
+                        && !str_contains($nama, 'kalung');
+
+                case 'aksesoris':
+                    // Kategori 3 dengan penanda fashion
+                    return $katId === 3
+                        && (str_contains($nama, 'baju') || str_contains($nama, 'kalung')
+                            || str_contains($desk, 'kalung') || str_contains($desk, 'klinting'));
+
+                case 'pasir':
+                    // Kategori 4 dengan penanda pasir/tofu/litter
+                    return $katId === 4
+                        && (str_contains($nama, 'pasir') || str_contains($nama, 'tofu')
+                            || str_contains($nama, 'ps ') || str_contains($desk, 'pasir')
+                            || str_contains($desk, 'litter'));
+
+                case 'perlengkapan':
+                    // Kategori 4 bukan pasir/tofu
+                    return $katId === 4
+                        && !str_contains($nama, 'pasir')
+                        && !str_contains($nama, 'tofu');
+
+                case 'susu':
+                    return str_contains($nama, 'susu') || str_contains($nama, 'top growth')
+                        || str_contains($desk, 'kitten milk') || str_contains($desk, 'susu kitten');
+
+                default:
+                    return str_contains($nama, $cat) || str_contains($desk, $cat);
+            }
+        };
+
         if (!empty($categories)) {
-            $catFiltered = $candidates->filter(function ($prod) use ($categories) {
-                $katId = (int) ($prod->id_kategori ?? 0);
-                $katNama = strtolower($prod->kategori?->nama_kategori ?? '');
-                $prodNama = strtolower($prod->nama_produk ?? '');
-                $prodDesk = strtolower($prod->deskripsi ?? '');
-
+            $catHit = $pool->filter(function ($prod) use ($categories, $inCat) {
                 foreach ($categories as $cat) {
-                    $catLower = strtolower($cat);
-                    // Kategori 1: Makanan
-                    if ($catLower === 'makanan') {
-                        if ($katId === 1 || str_contains($katNama, 'makan') || str_contains($katNama, 'pakan') || str_contains($prodNama, 'food')) {
-                            return true;
-                        }
-                    }
-                    // Kategori 2: Perawatan & Obat
-                    elseif ($catLower === 'perawatan' || $catLower === 'obat' || $catLower === 'vitamin & susu') {
-                        if ($katId === 2 || str_contains($katNama, 'rawat') || str_contains($katNama, 'obat') || str_contains($katNama, 'shampo')) {
-                            return true;
-                        }
-                    }
-                    // Kategori 3: Mainan & Aksesoris
-                    elseif ($catLower === 'mainan & aksesoris') {
-                        if ($katId === 3 || str_contains($katNama, 'main') || str_contains($katNama, 'aksesoris') || str_contains($prodNama, 'kalung') || str_contains($prodNama, 'baju')) {
-                            return true;
-                        }
-                    }
-                    // Kategori 4: Perlengkapan
-                    elseif ($catLower === 'perlengkapan') {
-                        if ($katId === 4 || str_contains($katNama, 'lengkap') || str_contains($katNama, 'pasir') || str_contains($katNama, 'kandang')) {
-                            return true;
-                        }
-                    } else {
-                        if (str_contains($katNama, $catLower) || str_contains($prodNama, $catLower) || str_contains($prodDesk, $catLower)) {
-                            return true;
-                        }
-                    }
+                    if ($inCat($prod, strtolower(trim($cat)))) return true;
                 }
                 return false;
             });
 
-            $candidates = $catFiltered;
-            if ($candidates->isEmpty()) {
+            if ($catHit->isNotEmpty()) {
+                $pool = $catHit;
+            } else {
+                // Tidak ada produk untuk kategori ini → tampilkan kosong, jangan campur kategori lain
                 return collect();
             }
         }
 
-        // 4. FILTER USIA SECARA KETAT (Jika user cari Kitten, HANYA produk Kitten. Jika cari Adult, HANYA produk Adult)
-        if ($ageGroup !== null) {
-            $ageFiltered = $candidates->filter(function ($prod) use ($ageGroup) {
-                $namaLower = strtolower($prod->nama_produk ?? '');
-                $deskLower = strtolower($prod->deskripsi ?? '');
+        // ── STEP 3: FILTER HARGA ─────────────────────────────────────────────────
+        // Harga diterapkan SETELAH kategori agar kategori tidak kehilangan semua produknya
+        if ($priceMode === 'range' && $minPrice !== null && $maxPrice !== null) {
+            $pf = $pool->filter(fn($p) => $p->harga >= $minPrice && $p->harga <= $maxPrice);
+            if ($pf->isEmpty()) {
+                // Toleransi ±20%
+                $pf = $pool->filter(fn($p) => $p->harga >= (int)($minPrice * 0.80) && $p->harga <= (int)($maxPrice * 1.20));
+            }
+            if ($pf->isNotEmpty()) $pool = $pf;
+
+        } elseif ($priceMode === 'min' && $minPrice !== null) {
+            $pf = $pool->filter(fn($p) => $p->harga >= $minPrice);
+            if ($pf->isNotEmpty()) $pool = $pf;
+
+        } elseif (in_array($priceMode, ['max', 'exact']) && ($maxPrice !== null || $targetPrice !== null)) {
+            $limit = $maxPrice ?? $targetPrice;
+            $pf = $pool->filter(fn($p) => $p->harga <= $limit);
+            // Jika tidak ada yang <= limit, tetap tampilkan semua produk kategori (price tidak membunuh hasil)
+            if ($pf->isNotEmpty()) $pool = $pf;
+        }
+
+        // ── STEP 4: FILTER USIA (hanya untuk kategori makanan/susu) ─────────────
+        $ageRelevant = !empty(array_intersect($categories, ['makanan', 'susu']));
+        if ($ageGroup !== null && ($ageRelevant || empty($categories))) {
+            $ageHit = $pool->filter(function ($prod) use ($ageGroup) {
+                $nama = strtolower($prod->nama_produk ?? '');
+                $desk = strtolower($prod->deskripsi ?? '');
                 if ($ageGroup === 'kitten') {
-                    // Wajib mengandung kitten / mother / anakan dan tidak boleh adult
-                    if (str_contains($namaLower, 'adult')) {
-                        return false;
-                    }
-                    return str_contains($namaLower, 'kitten') || str_contains($deskLower, 'kitten') || str_contains($namaLower, 'mother');
+                    if (str_contains($nama, 'adult')) return false;
+                    return str_contains($nama, 'kitten') || str_contains($desk, 'kitten') || str_contains($nama, 'mother');
                 } elseif ($ageGroup === 'adult') {
-                    if (str_contains($namaLower, 'kitten') || str_contains($deskLower, 'kitten')) {
-                        return false;
-                    }
-                    return str_contains($namaLower, 'adult') || str_contains($deskLower, 'adult');
+                    if (str_contains($nama, 'kitten') || str_contains($desk, 'kitten')) return false;
+                    return str_contains($nama, 'adult') || str_contains($desk, 'adult');
                 }
                 return false;
             });
-
-            $candidates = $ageFiltered;
-            if ($candidates->isEmpty()) {
-                return collect();
-            }
+            if ($ageHit->isNotEmpty()) $pool = $ageHit;
+            elseif ($ageRelevant) return collect(); // Kitten/adult diminta tapi tidak ada → kosong
         }
 
-        // 5. PEMBERIAN SKOR & PENGURUTAN
-        $scored = $candidates->map(function ($prod) use ($keywords, $ageGroup, $targetPrice, $priceMode) {
-            $score = 10; // Base score
-            $namaLower = strtolower($prod->nama_produk ?? '');
-            $deskLower = strtolower($prod->deskripsi ?? '');
-            $katLower = strtolower($prod->kategori?->nama_kategori ?? '');
+        // ── STEP 5: SCORING & SORT ────────────────────────────────────────────────
+        $scored = $pool->map(function ($prod) use ($keywords) {
+            $score = 10;
+            $nama  = strtolower($prod->nama_produk ?? '');
+            $desk  = strtolower($prod->deskripsi ?? '');
+            $kat   = strtolower($prod->kategori?->nama_kategori ?? '');
 
-            // Skor kecocokan kata kunci
-            foreach ($keywords as $index => $kw) {
-                $kwLower = strtolower(trim($kw));
-                if ($kwLower === '' || $kwLower === 'kucing' || $kwLower === 'makanan') continue;
-
-                $weight = ($index === 0) ? 10 : 5;
-                if (str_contains($namaLower, $kwLower)) {
-                    $score += 20 * $weight;
-                }
-                if (str_contains($katLower, $kwLower)) {
-                    $score += 5 * $weight;
-                }
-                if (str_contains($deskLower, $kwLower)) {
-                    $score += 5 * $weight;
-                }
+            foreach ($keywords as $i => $kw) {
+                $kl = strtolower(trim($kw));
+                if ($kl === '' || $kl === 'kucing' || $kl === 'makanan') continue;
+                $w = ($i === 0) ? 10 : 5;
+                if (str_contains($nama, $kl)) $score += 20 * $w;
+                if (str_contains($kat, $kl))  $score += 5 * $w;
+                if (str_contains($desk, $kl))  $score += 5 * $w;
             }
 
             $prod->relevance_score = $score;
             return $prod;
         });
 
-        // Filter produk yang nilainya positif (> 0)
-        $matched = $scored->filter(fn($p) => $p->relevance_score > 0)
-            ->sortByDesc('relevance_score')
-            ->values()
-            ->take(6);
-
-        if ($matched->isEmpty()) {
-            return $candidates->take(6)->values();
-        }
-
-        return $matched;
+        $result = $scored->sortByDesc('relevance_score')->values()->take(6);
+        return $result->isNotEmpty() ? $result : $pool->take(6)->values();
     }
 
     /**
