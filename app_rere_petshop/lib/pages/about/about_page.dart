@@ -1,9 +1,9 @@
 // lib/presentation/screens/about/about_screen.dart
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
 
-class AboutScreen extends StatelessWidget {
-  const AboutScreen({super.key});
+class AboutPage extends StatelessWidget {
+  const AboutPage({super.key});
 
   @override
   Widget build(BuildContext context) {

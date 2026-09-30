@@ -1,4 +1,4 @@
-import { groomingServices, groomingSlots } from '../Data';
+import { groomingBookings, groomingServices, groomingSlots } from '../Data';
 
 // Data dummy sementara. Nanti fungsi-fungsi ini bisa diganti dengan request API.
 export const getGroomingServices = async () => {
@@ -9,6 +9,16 @@ export const getGroomingServices = async () => {
 export const getGroomingSlots = async (date) => {
     if (!date) return [];
     return groomingSlots.filter((slot) => slot.date === date);
+};
+
+// Data dummy difilter berdasarkan pemilik booking. Ketika backend siap,
+// identitas pemilik sebaiknya ditentukan dari token login di server.
+export const getGroomingBookings = async (userId) => {
+    if (userId === null || userId === undefined || userId === '') return [];
+
+    return groomingBookings.filter(
+        (booking) => String(booking.userId) === String(userId),
+    );
 };
 
 // Membuat booking dummy. Booking ini belum disimpan permanen dan belum mengubah kapasitas slot; slot baru dianggap terisi setelah pembayaran sukses.

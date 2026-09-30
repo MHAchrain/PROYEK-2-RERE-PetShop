@@ -1,6 +1,6 @@
 // lib/core/theme/app_theme.dart
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {

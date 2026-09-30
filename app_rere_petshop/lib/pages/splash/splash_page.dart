@@ -1,16 +1,16 @@
 // lib/presentation/screens/splash/splash_screen.dart
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
-import '../main_navigation.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/app/navigation.dart';
 
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashPageState extends State<SplashPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;

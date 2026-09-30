@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
-import '../../data/models/product_model.dart';
-import '../../core/constants/app_colors.dart';
+import 'package:app_rere_petshop/models/product_model.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../providers/product_provider.dart';
-import '../../widgets/product_card.dart';
-import '../product/product_detail_screen.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/providers/product_provider.dart';
+import 'package:app_rere_petshop/components/product_card.dart';
+import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
 
-class CatalogScreen extends StatefulWidget {
+class CatalogPage extends StatefulWidget {
   final String? initialCategory;
 
-  const CatalogScreen({super.key, this.initialCategory});
+  const CatalogPage({super.key, this.initialCategory});
 
   @override
-  State<CatalogScreen> createState() => _CatalogScreenState();
+  State<CatalogPage> createState() => _CatalogPageState();
 }
 
-class _CatalogScreenState extends State<CatalogScreen> {
+class _CatalogPageState extends State<CatalogPage> {
   String _selectedCategory = 'Semua';
 
   final List<String> _categoryFilters = [
@@ -179,7 +179,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => ProductDetailScreen(productId: product.id),
+                  builder: (_) => ProductDetailPage(productId: product.id),
                 ),
               ),
             );

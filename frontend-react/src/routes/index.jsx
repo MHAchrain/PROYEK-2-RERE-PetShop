@@ -12,13 +12,14 @@ import ContactPage from '../pages/contactpage';
 import ProductPage from '../pages/productpage';
 import SearchPage from '../pages/searchpage';
 import WishlistPage from '../pages/wishlistpage';
-import GroomingPage from '../pages/groomingpage';
-import GroomingBookingPage from '../pages/groomingbookingpage';
 import CartPage from '../pages/cartpage';
 import ProfilePage from '../pages/profilepage';
 import OrderPage from '../pages/orderpage';
 import OrderDetailPage from '../pages/orderdetailpage';
 import PaymentPage from '../pages/paymentpage';
+import GroomingPage from '../pages/grmpage';
+import GroomingBookingPage from '../pages/grmbookingpage';
+import GroomingHistoryPage from '../pages/grmhistorypage';
 
 // Route yang butuh proteksi (harus login)
 const ProtectedRoute = ({ token }) => {
@@ -41,14 +42,15 @@ export default function AppRoutes() {
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/grooming" element={<GroomingPage />} />
-        <Route path="/grooming/booking" element={<GroomingBookingPage />} />
         <Route element={<ProtectedRoute token={token} />}>
+          <Route path="/grooming/booking" element={<GroomingBookingPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/atur-akun" element={<ProfilePage />} />
           <Route path="/pesanan" element={<OrderPage />} />
           <Route path="/pesanan/:id" element={<OrderDetailPage />} />
           <Route path="/payment/:id" element={<PaymentPage />} />
+          <Route path='/grooming/history' element={<GroomingHistoryPage/>}/>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>

@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Heart, ShoppingCart, User, Search, Package, LogOut, Menu, X } from "lucide-react";
+import { Heart, ShoppingCart, User, Search, Package, LogOut, Menu, X, Tag } from "lucide-react";
 import { useAuth } from "../../context/authcontext";
 import logo from "../../assets/logorere.png";
 import { useCart } from "../../context/cartcontext";
@@ -116,7 +116,11 @@ export default function Navbar() {
                           className="flex items-center gap-3 px-4 py-2.5 w-full hover:bg-gray-200 hover:text-primary transition rounded-lg group"
                         >
                           <span className="text-gray-400 group-hover:text-primary">
-                            {item.iconKey === "user" ? <User size={18} /> : <Package size={18} />}
+                            {item.iconKey === "user" ? (
+                              <User size={18} />
+                              ) : item.iconKey === "package" ? (
+                              <Package size={18} />
+                              ) : (<Tag size={18} /> )}
                           </span>
                           <span className="text-sm font-medium">{item.label}</span>
                         </Link>

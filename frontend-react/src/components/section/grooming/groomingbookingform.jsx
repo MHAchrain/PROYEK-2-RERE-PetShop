@@ -288,9 +288,6 @@ export default function GroomingBookingForm() {
           className="mt-6 w-full rounded-lg bg-primary px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">
           {loading ? 'Memproses...' : 'Lanjutkan booking'}
         </button>
-        <p className="mt-3 text-xs leading-relaxed text-gray-500">
-          Slot baru dianggap terisi setelah pembayaran berhasil.
-        </p>
       </aside>
     </form>
   );
