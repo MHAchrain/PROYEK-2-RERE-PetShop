@@ -2,10 +2,11 @@ import { useAuth } from "../../context/authcontext";
 import { useCartSection } from "../../hooks/usecartsection";
 import CartCard from "../ui/cartcard";
 import Skeleton from "../ui/skeleton";
+import BackButton from "../ui/backbutton";
 
 export default function CartSection() {
   const { token } = useAuth();
-  const { cart, total, isLoading, isCheckingOut, removeItem, updateQty, handleCheckout, navigate } =
+  const { cart, total, isLoading, isCheckingOut, removeItem, updateQty, handleCheckout } =
     useCartSection({ token });
 
   if (isLoading) {
@@ -49,13 +50,7 @@ export default function CartSection() {
       </div>
 
       <div className="flex justify-start">
-        <button
-          onClick={() => navigate("/")}
-          className="group flex w-full items-center justify-center gap-2 rounded-2xl font-medium border-2 border-gray-200 px-5 py-3 text-sm text-gray-700 transition-all duration-300 hover:border-primary hover:text-primary hover:shadow-lg active:scale-95 sm:w-auto sm:px-8"
-        >
-          <span className="transition-transform duration-300 group-hover:-translate-x-1">&larr;</span>
-          Kembali Belanja
-        </button>
+        <BackButton label="Kembali Belanja" to="/" />
       </div>
 
       <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-end">

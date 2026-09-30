@@ -16,6 +16,7 @@ import {
 } from '../services/paymentservice';
 import { getStorageUrl } from '../utils/appconfig';
 import noImage from '../assets/no-image.png';
+import BackButton from '../components/ui/backbutton.jsx';
 
 const paymentStatusMap = {
   pending: {
@@ -202,11 +203,7 @@ export default function PaymentPage() {
     <div className="min-h-screen px-4 py-8 md:px-8 md:py-10 lg:px-16 xl:px-20">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            to="/cart"
-            className="inline-flex items-center gap-2 rounded-2xl border font-medium border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 hover:text-primary transition">
-            <ArrowLeft size={16} /> Kembali
-          </Link>
+          <BackButton label='Kembali' to='/cart'/>
           <div className="inline-flex items-center gap-2 rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary">
             <BadgeCheck size={16} /> Pesanan #{order.id_pesanan}
           </div>

@@ -1,90 +1,89 @@
-import { MessageCircle, CheckCircle2, Clock, MapPin } from 'lucide-react';
-import catbath from '../assets/catbat.jpg';
-import { FaWhatsapp } from 'react-icons/fa';
+import { ArrowRight, CarFront, Store } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { groomingServices } from '../Data';
+import GroomingHero from '../components/section/grooming/groominghero';
+import GroomingServiceList from '../components/section/grooming/groomingservicelist';
+
+const bookingSteps = [
+  ['Pilih layanan', 'Tentukan paket grooming yang sesuai untuk anabul.'],
+  ['Isi data hewan', 'Berikan informasi dasar agar salon siap menerima hewanmu.'],
+  ['Pilih jadwal dan bayar', 'Pilih slot yang tersedia. Booking dikonfirmasi setelah pembayaran berhasil.'],
+];
 
 export default function GroomingPage() {
-  const whatsappNumber = '6281574814563';
-  const message = encodeURIComponent(
-    'Halo, saya ingin tanya tentang layanan grooming di ReRe Petshop!',
-  );
-
-  const services = [
-    'Mandi Sehat & Shampoo Berkualitas',
-    'Potong Kuku & Pembersihan Telinga',
-    'Cukur Bulu (Style / Sanitasi)',
-    'Pemberian Vitamin Kulit & Bulu',
-  ];
-
   return (
-    <div className="flex-1 flex flex-col py-10 px-6 md:px-20 mx-auto w-full">
-      <div className="flex items-center gap-5 mb-10">
-        <div className="bg-primary w-5 h-10 rounded-sm"></div>
-        <p className="text-primary font-semibold text-lg">Layanan Grooming</p>
-      </div>
+    <main className="min-h-screen grow px-4 py-8 md:px-8 md:py-10 lg:px-16 xl:px-20">
+      <div className="mx-auto w-full max-w-7xl space-y-8">
+        <GroomingHero />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-            Berikan Perawatan <span className="text-primary">Terbaik</span>{' '}
-            untuk Anabul kamu
-          </h1>
-
-          <p className="text-gray-600 text-lg leading-relaxed">
-            Layanan grooming profesional kami dirancang untuk memastikan hewan
-            peliharaan kamu tetap bersih, sehat, dan tampil menggemaskan. Kami
-            menggunakan produk ramah hewan dan ditangani oleh tenaga
-            berpengalaman yang ahli dalam perawatan hewan peliharaan.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-            {services.map((service, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <CheckCircle2 className="text-primary" size={20} />
-                <span className="text-gray-700 font-medium">{service}</span>
-              </div>
+        <section aria-labelledby="cara-booking-title">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="font-semibold text-primary">Mudah dan praktis</p>
+            <h2 id="cara-booking-title" className="mt-2 text-3xl font-bold text-gray-900">
+              Cara booking grooming
+            </h2>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {bookingSteps.map(([title, description], index) => (
+              <article key={title} className="rounded-2xl bg-gray-50 shadow-sm p-6">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
+                  {index + 1}
+                </span>
+                <h3 className="mt-4 font-bold text-gray-900">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">{description}</p>
+              </article>
             ))}
           </div>
+        </section>
 
-          <div className="flex flex-wrap gap-6 pt-6">
-            <div className="flex items-center gap-2 text-gray-500">
-              <Clock size={18} />
-              <span>09:00 - 18:00 WIB</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-500">
-              <MapPin size={18} />
-              <span>Tersedia layanan panggilan</span>
-            </div>
-          </div>
+        <GroomingServiceList services={groomingServices} />
 
-          <div className="pt-8">
-            <a
-              href={`https://wa.me/${whatsappNumber}?text=${message}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-[#20ba5a] transition-all shadow-lg hover:shadow-xl active:scale-95">
-              <FaWhatsapp size={24} />
-              Hubungi via WhatsApp
-            </a>
-            <p className="text-sm text-gray-400 mt-3">
-              *Konsultasi gratis & Booking jadwal
+        <section aria-labelledby="metode-kunjungan-title">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="font-semibold text-primary">Pilih cara layanan</p>
+            <h2 id="metode-kunjungan-title" className="mt-2 text-3xl font-bold text-gray-900">
+              Bagaimana anabul datang?
+            </h2>
+            <p className="mt-3 text-gray-600">
+              Untuk sekarang, booking online tersedia untuk kunjungan langsung ke toko.
             </p>
           </div>
-        </div>
 
-        <div className="relative">
-          <div className="aspect-square rounded-3xl bg-primary/10 overflow-hidden border-2 border-primary/20 flex items-center justify-center">
-            <img
-              src={catbath}
-              alt="Layanan grooming"
-              className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
-            />
+          <div className="mx-auto mt-8 grid max-w-4xl gap-5 md:grid-cols-2">
+            <article className="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+              <Store className="text-primary" size={28} />
+              <h3 className="mt-4 text-xl font-bold text-gray-900">Datang ke toko</h3>
+              <p className="mt-2 leading-relaxed text-gray-600">
+                Bawa anabul ke toko pada jadwal grooming yang sudah dipilih.
+              </p>
+            </article>
+
+            <article className="rounded-2xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+              <CarFront className="text-primary" size={28} />
+              <h3 className="mt-4 text-xl font-bold text-gray-900">Antar-jemput</h3>
+              <p className="mt-2 leading-relaxed text-gray-600">
+                Opsi antar-jemput direncanakan. Detail jadwal dan biaya akan tersedia
+                setelah alurnya siap.
+              </p>
+              <span className="mt-5 inline-flex rounded-full bg-gray-200 px-3 py-1 text-sm font-medium text-gray-600">
+                Segera tersedia
+              </span>
+            </article>
           </div>
-          <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-lg hidden md:block border border-gray-100">
-            <p className="text-primary font-bold text-2xl leading-none">100%</p>
-            <p className="text-gray-600 text-sm">Aman & Higienis</p>
-          </div>
-        </div>
+        </section>
+
+        <section className="rounded-3xl bg-primary px-6 py-10 text-center text-white sm:px-10">
+          <h2 className="text-2xl font-bold sm:text-3xl">Siap booking grooming?</h2>
+          <p className="mx-auto mt-3 max-w-xl text-white/85">
+            Pilih layanan dan jadwal yang cocok untuk anabulmu.
+          </p>
+          <Link
+            to="/grooming/booking"
+            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 font-semibold text-primary transition hover:bg-gray-100">
+            Mulai booking <ArrowRight size={18} />
+          </Link>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }

@@ -7,8 +7,8 @@ import {
   PackageCheck,
   PackageX,
   ShoppingCart,
-  Loader2,
 } from 'lucide-react';
+import Button from '../ui/button'
 
 export default function ProductDetail({
   product,
@@ -68,7 +68,7 @@ export default function ProductDetail({
             onClick={() => setQty(Math.max(1, qty - 1))}
             disabled={isOutOfStock || qty <= 1}
             className="flex-1 sm:w-12 flex items-center justify-center hover:bg-gray-100 active:bg-primary active:text-white transition-all disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300">
-            <Minus size={20} />
+            <Minus size={16} />
           </button>
 
           <div
@@ -85,54 +85,54 @@ export default function ProductDetail({
             onClick={() => setQty(qty + 1)}
             disabled={isOutOfStock || isAtMaxQty}
             className="flex-1 sm:w-12 flex items-center justify-center hover:bg-gray-100 active:bg-primary active:text-white transition-all disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300">
-            <Plus size={20} />
+            <Plus size={16} />
           </button>
         </div>
 
-        <div className="flex flex-1 gap-3">
-          <button
+        <div className="flex w-full gap-3">
+          <Button
             type="button"
             onClick={onAddToCart}
-            disabled={isOutOfStock || isAddingToCart}
-            className=" h-12 border border-primary text-gray-800 font-semibold px-6 rounded-md hover:bg-primary/90 hover:text-white shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none">
-            {isOutOfStock
-              ? 'Stok Habis'
-              : isAddingToCart
-                ? <Loader2 size={20} className="animate-spin" />
-                : <ShoppingCart size={20} />}
-          </button>
-          
-          <button
+            disabled={isOutOfStock}
+            loading={isAddingToCart}
+            variant="outline"
+            size="md"
+            startIcon={<ShoppingCart size={20} />}
+            label=""
+            className="h-12 rounded-md font-semibold text-gray-800 shadow-md active:scale-95 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300 disabled:shadow-none disabled:text-gray-800"
+          />
+
+          <Button
             type="button"
             onClick={onBuyNow}
             disabled={isOutOfStock || isBuyingNow}
-            className="min-w-40 max-w-60 h-12 bg-primary text-white px-6 rounded-md hover:bg-primary/90 shadow-md active:scale-95 transition-all text-sm md:text-base disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none">
-            {isOutOfStock
-              ? 'Stok Habis'
-              : isBuyingNow
-                ? 'Memproses...'
-                : 'Beli Sekarang'}
-          </button>
-
-          <button
+            size="md"
+            label={
+              isOutOfStock
+                ? 'Stok Habis'
+                : isBuyingNow
+                  ? 'Memproses...'
+                  : 'Beli Sekarang'
+            }
+            className="h-12 rounded-md flex-1 font-semibold text-gray-800 shadow-md active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none disabled:text-gray-800"
+          />
+          
+          <Button
             type="button"
             onClick={onAddToWishlist}
             disabled={isWishlistLoading}
-            className={`h-12 w-12 flex items-center justify-center rounded-md transition-all group ${
-              isWishlisted
-                ? 'border border-primary bg-primary/10 text-primary'
-                : 'border border-gray-300 hover:border-primary hover:text-primary'
-            } ${isWishlistLoading ? 'cursor-not-allowed opacity-70' : ''}`}
-            title={isWishlisted ? 'Sudah di Wishlist' : 'Tambah ke Wishlist'}>
-            <Heart
-              size={22}
-              className={`transition-all ${
-                isWishlisted
-                  ? 'fill-primary text-primary'
-                  : 'group-active:fill-primary'
-              }`}
-            />
-          </button>
+            loading={isWishlistLoading}
+            variant="outline"
+            size="md"
+            startIcon={
+              <Heart
+                size={20}
+                className={isWishlisted ? 'fill-primary text-primary' : ''}
+              />
+            }
+            label=""
+            className="h-12 rounded-md font-semibold text-gray-800 shadow-md active:scale-95 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-300 disabled:shadow-none disabled:text-gray-800"
+          />
         </div>
       </div>
 

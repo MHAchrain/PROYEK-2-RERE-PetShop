@@ -1,30 +1,25 @@
-import React from "react";
+import Button from './button';
 
-export default function LoadMoreButton({ 
-    onClick, 
-    isLoading, 
-    isShowingAll, 
-    totalData, 
-    threshold = 8 
-    }){
-    // Kalau data sedikit (dibawah batas), tombol nggak usah muncul
-    if (totalData <= threshold) return null;
+export default function LoadMoreButton({
+  onClick,
+  isLoading,
+  isShowingAll,
+  totalData,
+  threshold = 8,
+}) {
+  // Kalau data sedikit (di bawah batas), tombol tidak perlu muncul.
+  if (totalData <= threshold) return null;
 
-    return (
-        <div className="flex justify-center w-full">
-        <button
-            onClick={onClick}
-            disabled={isLoading}
-            className="mt-4 px-12 py-3 rounded-sm bg-primary font-medium text-white hover:bg-primary-600 
-                    transition-all active:scale-95 shadow-lg shadow-primary/20 
-                    flex items-center justify-center min-w-50 disabled:opacity-70"
-        >
-            {isLoading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-            isShowingAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua'
-            )}
-        </button>
-        </div>
-    );
+  return (
+    <div className="flex w-full justify-center">
+      <Button
+        variant="ghost"
+        size="lg"
+        onClick={onClick}
+        loading={isLoading}
+        label={isShowingAll ? 'Tampilkan Lebih Sedikit' : 'Lihat Semua'}
+        className="mt-4 min-w-50 shadow-lg"
+      />
+    </div>
+  );
 }

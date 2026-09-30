@@ -145,3 +145,66 @@ export const branchList = [
     // note: 'Cocok untuk belanja cepat dengan area toko yang nyaman dan stok produk pilihan.',
   },
 ];
+
+export const groomingServices = [
+  {
+    id: 1,
+    name: 'Grooming Basic',
+    description:
+      'Mandi dan perawatan dasar untuk hewan peliharaan Anda.',
+    price: 150000,
+    durationMinutes: 60,
+    isActive: true,
+  },
+  {
+    id: 2,
+    name: 'Grooming Medium',
+    description:
+      'Mandi, perawatan, dan pemotongan bulu untuk hewan peliharaan Anda.',
+    price: 250000,
+    durationMinutes: 60,
+    isActive: true,
+  },
+  {
+    id: 3,
+    name: 'Grooming Premium',
+    description:
+      'Perawatan lengkap termasuk mandi, pemotongan bulu, dan perawatan tambahan untuk hewan peliharaan Anda.',
+    price: 350000,
+    durationMinutes: 90,
+    isActive: true,
+  },
+];
+
+export const groomingSlots = [
+  {
+    date: '2026-09-27',
+    time: '09:00',
+    capacity: 1,
+    booked: 0,
+  },
+  {
+    date: '2026-09-27',
+    time: '11:00',
+    capacity: 1,
+    booked: 0,
+  },
+  {
+    date: '2026-09-27',
+    time: '13:00',
+    capacity: 1,
+    booked: 1,
+  },
+  {
+    date: '2026-09-27',
+    time: '15:00',
+    capacity: 1,
+    booked: 0,
+  },
+  {
+    date: '2026-09-27',
+    time: '17:00',
+    capacity: 1,
+    booked: 1,
+  },
+];
