@@ -1,8 +1,8 @@
 // lib/data/services/api_service.dart
 import 'package:dio/dio.dart';
-import '../models/product_model.dart';
-import '../models/category_model.dart';
-import '../../core/constants/app_constants.dart';
+import 'package:app_rere_petshop/models/product_model.dart';
+import 'package:app_rere_petshop/models/category_model.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
 
 class ApiService {
   late final Dio _dio;

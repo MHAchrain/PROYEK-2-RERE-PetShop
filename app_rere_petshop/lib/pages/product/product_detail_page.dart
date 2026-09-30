@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../data/models/product_model.dart';
-import '../../../data/services/api_service.dart';
-import '../web_view_screen.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
+import 'package:app_rere_petshop/models/product_model.dart';
+import 'package:app_rere_petshop/services/api_service.dart';
+import 'package:app_rere_petshop/pages/web_view_page.dart';
 
-class ProductDetailScreen extends StatefulWidget {
+class ProductDetailPage extends StatefulWidget {
   final int productId;
 
-  const ProductDetailScreen({super.key, required this.productId});
+  const ProductDetailPage({super.key, required this.productId});
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  State<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductDetailPageState extends State<ProductDetailPage> {
   final ApiService _apiService = ApiService();
   Product? _product;
   bool _isLoading = true;
@@ -46,7 +46,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const WebViewScreen(
+        builder: (_) => const WebViewPage(
           url: 'https://rerepetshop.biz.id',
           title: 'ReRe Petshop',
         ),

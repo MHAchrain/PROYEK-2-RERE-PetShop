@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
 
-class GroomingScreen extends StatelessWidget {
-  const GroomingScreen({super.key});
+class GroomingPage extends StatelessWidget {
+  const GroomingPage({super.key});
 
   Future<void> _contactWhatsApp() async {
     final url = Uri.parse(

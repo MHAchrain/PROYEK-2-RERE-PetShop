@@ -1,17 +1,17 @@
 // lib/presentation/screens/contact/contact_screen.dart
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
 
-class ContactScreen extends StatefulWidget {
-  const ContactScreen({super.key});
+class ContactPage extends StatefulWidget {
+  const ContactPage({super.key});
 
   @override
-  State<ContactScreen> createState() => _ContactScreenState();
+  State<ContactPage> createState() => _ContactPageState();
 }
 
-class _ContactScreenState extends State<ContactScreen> {
+class _ContactPageState extends State<ContactPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();

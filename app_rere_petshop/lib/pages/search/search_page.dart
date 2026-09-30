@@ -1,19 +1,19 @@
 // lib/presentation/screens/search/search_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../providers/product_provider.dart';
-import '../../widgets/product_card.dart';
-import '../product/product_detail_screen.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/providers/product_provider.dart';
+import 'package:app_rere_petshop/components/product_card.dart';
+import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
 
-class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+class SearchPage extends StatefulWidget {
+  const SearchPage({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
   bool _hasSearched = false;
 
@@ -178,7 +178,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            ProductDetailScreen(productId: product.id),
+                            ProductDetailPage(productId: product.id),
                       ),
                     ),
                   );

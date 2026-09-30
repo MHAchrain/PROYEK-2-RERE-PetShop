@@ -2,21 +2,21 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../providers/product_provider.dart';
-import '../../widgets/product_card.dart';
-import '../product/product_detail_screen.dart';
-import '../catalog/catalog_screen.dart';
-import '../grooming/grooming_screen.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/providers/product_provider.dart';
+import 'package:app_rere_petshop/components/product_card.dart';
+import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
+import 'package:app_rere_petshop/pages/catalog/catalog_page.dart';
+import 'package:app_rere_petshop/pages/grooming/grooming_page.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomePageState extends State<HomePage> {
   int _currentBanner = 0;
 
   final List<Map<String, String>> _banners = [
@@ -233,7 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const GroomingScreen(),
+                          builder: (_) => const GroomingPage(),
                         ),
                       );
                     } else {
@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => CatalogScreen(
+                          builder: (_) => CatalogPage(
                             initialCategory: cat['name'] as String,
                           ),
                         ),
@@ -347,7 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const CatalogScreen(),
+                          builder: (_) => const CatalogPage(),
                         ),
                       );
                     },
@@ -386,7 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) =>
-                              ProductDetailScreen(productId: product.id),
+                              ProductDetailPage(productId: product.id),
                         ),
                       ),
                     );

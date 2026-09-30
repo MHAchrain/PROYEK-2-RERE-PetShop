@@ -1,11 +1,11 @@
 // lib/presentation/screens/main_navigation.dart
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
-import 'home/home_screen.dart';
-import 'search/search_screen.dart';
-import 'catalog/catalog_screen.dart';
-import 'contact/contact_screen.dart';
-import 'about/about_screen.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/home/home_page.dart';
+import 'package:app_rere_petshop/pages/search/search_page.dart';
+import 'package:app_rere_petshop/pages/catalog/catalog_page.dart';
+import 'package:app_rere_petshop/pages/contact/contact_page.dart';
+import 'package:app_rere_petshop/pages/about/about_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -18,11 +18,11 @@ class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const HomeScreen(),
-    const SearchScreen(),
-    const CatalogScreen(),
-    const ContactScreen(),
-    const AboutScreen(),
+    const HomePage(),
+    const SearchPage(),
+    const CatalogPage(),
+    const ContactPage(),
+    const AboutPage(),
   ];
 
   @override

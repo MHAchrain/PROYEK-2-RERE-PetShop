@@ -1,8 +1,8 @@
 // lib/presentation/providers/product_provider.dart
 import 'package:flutter/material.dart';
-import '../../data/models/product_model.dart';
-import '../../data/models/category_model.dart';
-import '../../data/services/api_service.dart';
+import 'package:app_rere_petshop/models/product_model.dart';
+import 'package:app_rere_petshop/models/category_model.dart';
+import 'package:app_rere_petshop/services/api_service.dart';
 
 class ProductProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();

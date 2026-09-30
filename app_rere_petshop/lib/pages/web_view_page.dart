@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../../../core/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
 
-class WebViewScreen extends StatefulWidget {
+class WebViewPage extends StatefulWidget {
   final String url;
   final String title;
 
-  const WebViewScreen({
+  const WebViewPage({
     super.key,
     required this.url,
     this.title = 'ReRe Petshop',
   });
 
   @override
-  State<WebViewScreen> createState() => _WebViewScreenState();
+  State<WebViewPage> createState() => _WebViewPageState();
 }
 
-class _WebViewScreenState extends State<WebViewScreen> {
+class _WebViewPageState extends State<WebViewPage> {
   late final WebViewController _controller;
   bool _isLoading = true;
 
