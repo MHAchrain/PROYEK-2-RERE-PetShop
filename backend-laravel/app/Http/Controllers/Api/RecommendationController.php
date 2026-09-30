@@ -40,6 +40,9 @@ class RecommendationController extends Controller
         $brands = [];
         $categories = [];
         $sortBy = null;
+        $cheapestOnly = false;    // ← NEW
+        $expensiveOnly = false;   // ← NEW
+        $limit = null;            // ← NEW
 
         try {
             if ($hasImage) {
@@ -54,37 +57,35 @@ class RecommendationController extends Controller
 
             if ($response->successful()) {
                 $data = $response->json();
-                $aiMessage = $data['message'] ?? 'Berikut rekomendasi produk untuk kucing Anda:';
-                $keywords = $data['keywords'] ?? [];
-                $brands = $data['brands'] ?? [];
-                $aiMode = $data['mode'] ?? 'rule_based';
-                $minPrice = $data['min_price'] ?? null;
-                $maxPrice = $data['max_price'] ?? null;
-                $targetPrice = $data['target_price'] ?? $data['max_price'] ?? null;
-                $priceMode = $data['price_mode'] ?? 'max';
-                $ageGroup = $data['age_group'] ?? null;
-                $categories = $data['categories'] ?? [];
-                $sortBy = $data['sort_by'] ?? null;
+                $aiMessage    = $data['message']       ?? 'Berikut rekomendasi produk untuk kucing Anda:';
+                $keywords     = $data['keywords']      ?? [];
+                $brands       = $data['brands']        ?? [];
+                $aiMode       = $data['mode']          ?? 'rule_based';
+                $minPrice     = $data['min_price']     ?? null;
+                $maxPrice     = $data['max_price']     ?? null;
+                $targetPrice  = $data['target_price']  ?? $data['max_price'] ?? null;
+                $priceMode    = $data['price_mode']    ?? 'max';
+                $ageGroup     = $data['age_group']     ?? null;
+                $categories   = $data['categories']    ?? [];
+                $sortBy       = $data['sort_by']       ?? null;
+                $cheapestOnly = $data['cheapest_only'] ?? false;   // ← NEW
+                $expensiveOnly = $data['expensive_only'] ?? false; // ← NEW
+                $limit        = $data['limit']         ?? null;    // ← NEW
             } else {
                 Log::warning('AI Service error response', ['status' => $response->status(), 'body' => $response->body()]);
                 $aiMessage = 'Berikut rekomendasi produk pilihan terbaik dari RERe Petshop untuk anabul Anda:';
                 $keywords = $this->extractFallbackKeywords($message);
-                $brands = [];
-                $categories = [];
-                $sortBy = null;
             }
         } catch (\Exception $e) {
             Log::error('AI Service Connection Error: ' . $e->getMessage());
             $aiMessage = "Halo Cat Lovers! 🐾 Berikut rekomendasi produk terbaik dari katalog RERe Petshop untuk kebutuhan anabul Anda:";
             $keywords = $this->extractFallbackKeywords($message);
-            $brands = [];
-            $categories = [];
-            $sortBy = null;
         }
 
         $products = $this->findMatchingProducts(
             $keywords, $brands, $minPrice, $maxPrice, $targetPrice,
-            $priceMode, $ageGroup, $categories, $sortBy
+            $priceMode, $ageGroup, $categories, $sortBy,
+            $cheapestOnly, $expensiveOnly, $limit   // ← NEW
         );
 
         $tips = [
@@ -112,7 +113,8 @@ class RecommendationController extends Controller
     protected function findMatchingProducts(
         array $keywords, array $brands = [], ?int $minPrice = null,
         ?int $maxPrice = null, ?int $targetPrice = null, string $priceMode = 'max',
-        ?string $ageGroup = null, array $categories = [], ?string $sortBy = null
+        ?string $ageGroup = null, array $categories = [], ?string $sortBy = null,
+        bool $cheapestOnly = false, bool $expensiveOnly = false, ?int $limit = null
     ) {
         $allProducts = Produk::with('kategori')->where('stok', '>', 0)->get();
 
@@ -133,7 +135,7 @@ class RecommendationController extends Controller
             if ($brandHit->isNotEmpty()) $pool = $brandHit;
         }
 
-        // ── STEP 2: FILTER KATEGORI (STRICT) ─────────────────
+        // ── STEP 2: FILTER KATEGORI ───────────────────────────
         $inCat = function ($prod, string $cat) {
             $katId = (int)($prod->id_kategori ?? 0);
             $nama  = strtolower($prod->nama_produk ?? '');
@@ -178,17 +180,15 @@ class RecommendationController extends Controller
                             || str_contains($desk, 'kalung') || str_contains($desk, 'klinting'));
 
                 case 'pasir':
-                    // ✅ FIX: pasir harus ada kata "pasir"/"tofu"/"litter"/"ps " di NAMA
                     return $katId === 4
                         && (
                             str_contains($nama, 'pasir')
                             || str_contains($nama, 'tofu')
                             || str_contains($nama, 'litter')
-                            || preg_match('/\bps\s/i', $nama)  // "ps anabul", "ps 5l"
+                            || preg_match('/\bps\s/i', $nama)
                         );
 
                 case 'perlengkapan':
-                    // ✅ FIX: perlengkapan = kategori 4, BUKAN pasir/tofu/litter
                     return $katId === 4
                         && !str_contains($nama, 'pasir')
                         && !str_contains($nama, 'tofu')
@@ -232,8 +232,8 @@ class RecommendationController extends Controller
             if ($pf->isNotEmpty()) $pool = $pf;
 
         } elseif (in_array($priceMode, ['max', 'exact']) && ($maxPrice !== null || $targetPrice !== null)) {
-            $limit = $maxPrice ?? $targetPrice;
-            $pf = $pool->filter(fn($p) => $p->harga <= $limit);
+            $limitPrice = $maxPrice ?? $targetPrice;
+            $pf = $pool->filter(fn($p) => $p->harga <= $limitPrice);
             if ($pf->isNotEmpty()) $pool = $pf;
         }
 
@@ -269,23 +269,29 @@ class RecommendationController extends Controller
                 $w = ($i === 0) ? 10 : 5;
                 if (str_contains($nama, $kl)) $score += 20 * $w;
                 if (str_contains($kat, $kl))  $score += 5 * $w;
-                if (str_contains($desk, $kl))  $score += 5 * $w;
+                if (str_contains($desk, $kl)) $score += 5 * $w;
             }
 
             $prod->relevance_score = $score;
             return $prod;
         });
 
-        // ✅ STEP 6: SORTING
-        if ($sortBy === 'price_asc') {
-            $result = $scored->sortBy('harga')->values()->take(6);
+        // ✅ STEP 6: SORTING & LIMIT
+        $take = $limit ?? 6;
+
+        if ($cheapestOnly) {
+            $result = $scored->sortBy('harga')->values()->take($take);
+        } elseif ($expensiveOnly) {
+            $result = $scored->sortByDesc('harga')->values()->take($take);
+        } elseif ($sortBy === 'price_asc') {
+            $result = $scored->sortBy('harga')->values()->take($take);
         } elseif ($sortBy === 'price_desc') {
-            $result = $scored->sortByDesc('harga')->values()->take(6);
+            $result = $scored->sortByDesc('harga')->values()->take($take);
         } else {
-            $result = $scored->sortByDesc('relevance_score')->values()->take(6);
+            $result = $scored->sortByDesc('relevance_score')->values()->take($take);
         }
 
-        return $result->isNotEmpty() ? $result : $pool->take(6)->values();
+        return $result->isNotEmpty() ? $result : $pool->take($take)->values();
     }
 
     protected function extractFallbackKeywords(string $text): array

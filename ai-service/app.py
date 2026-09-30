@@ -12,15 +12,12 @@ from google.genai import types
 
 from model.recommender import RuleEngine
 
-# Load Environment Variables
 load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# Initialize FastAPI
 app = FastAPI(title="RERe PetShop AI Service", version="1.0.0")
 
-# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,10 +26,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Rule Engine
 rule_engine = RuleEngine()
 
-# Initialize Gemini Client if API Key is available
 gemini_client = None
 if GEMINI_API_KEY and GEMINI_API_KEY != "your_api_key_here":
     gemini_client = genai.Client(api_key=GEMINI_API_KEY)
@@ -59,22 +54,44 @@ class TextChatRequest(BaseModel):
     message: str
 
 
+def build_rule_response(result: dict, mode: str = "rule_based", extra_message: str = "") -> dict:
+    """
+    Helper: bangun response JSON yang konsisten dari hasil RuleEngine.
+    Semua field penting (cheapest_only, expensive_only, limit, sort_by) diteruskan ke PHP.
+    """
+    message = result["response"]
+    if extra_message:
+        message = extra_message + message
+    
+    return {
+        "mode": mode,
+        "message": message,
+        "brands": result.get("brands", []),
+        "keywords": result.get("keywords", []),
+        "categories": result.get("categories", []),
+        "conditions": result.get("conditions", []),
+        "age_group": result.get("age_group"),
+        "min_price": result.get("min_price"),
+        "max_price": result.get("max_price"),
+        "target_price": result.get("target_price"),
+        "price_mode": result.get("price_mode"),
+        "sort_by": result.get("sort_by"),
+        "cheapest_only": result.get("cheapest_only", False),
+        "expensive_only": result.get("expensive_only", False),
+        "limit": result.get("limit"),
+    }
+
+
 def parse_gemini_response(response_text: str):
-    """
-    Ekstrak teks analisis, rekomendasi, dan keywords dari format standar Gemini.
-    """
     keywords = []
     
-    # Cari bagian [KEYWORD]
     keyword_match = re.search(r'\[KEYWORD\]\s*(.+)', response_text, re.DOTALL | re.IGNORECASE)
     if keyword_match:
         kw_line = keyword_match.group(1).strip()
-        # Ambil baris pertama atau pisahkan berdasarkan koma / baris baru
         kw_items = re.split(r'[\n,]+', kw_line)
         keywords = [k.strip() for k in kw_items if k.strip() and not k.strip().startswith('[')]
     
     if not keywords:
-        # Fallback keywords jika tidak terdeteksi
         words = [w for w in re.findall(r'\b\w{3,}\b', response_text.lower()) if w not in [
             "dari", "gambar", "teks", "karena", "cocok", "untuk", "kucing", "analisis", "rekomendasi", "keyword"
         ]]
@@ -105,19 +122,8 @@ def chat_text(request: TextChatRequest):
 
     result = rule_engine.extract_keywords(request.message)
 
-    return {
-        "mode": "rule_based",
-        "message": result["response"],
-        "brands": result["brands"],
-        "keywords": result["keywords"],
-        "categories": result["categories"],
-        "conditions": result["conditions"],
-        "age_group": result["age_group"],
-        "min_price": result.get("min_price"),
-        "max_price": result.get("max_price"),
-        "target_price": result.get("target_price"),
-        "price_mode": result.get("price_mode")
-    }
+    # ✅ Pakai helper agar field baru (cheapest_only, expensive_only, limit, sort_by) ikut terkirim
+    return build_rule_response(result, mode="rule_based")
 
 
 @app.post("/api/chat-with-image")
@@ -137,52 +143,33 @@ async def chat_with_image(
             raise HTTPException(status_code=400, detail="Mohon kirimkan pesan teks atau foto anabul")
         
         result = rule_engine.extract_keywords(user_prompt)
-        return {
-            "mode": "rule_based",
-            "message": result["response"],
-            "brands": result["brands"],
-            "keywords": result["keywords"],
-            "categories": result["categories"],
-            "conditions": result["conditions"],
-            "age_group": result["age_group"],
-            "min_price": result.get("min_price"),
-            "max_price": result.get("max_price"),
-            "target_price": result.get("target_price"),
-            "price_mode": result.get("price_mode")
-        }
+        return build_rule_response(result, mode="rule_based")
 
     # Jika ADA gambar -> Gunakan Gemini API Vision
     global gemini_client
     if not gemini_client:
-        # Coba inisialisasi ulang jika env baru saja diisi
         load_dotenv()
         key = os.getenv("GEMINI_API_KEY", "")
         if key and key != "your_api_key_here":
             gemini_client = genai.Client(api_key=key)
 
     if not gemini_client:
-        # Fallback jika API key belum diisi pengguna
         result = rule_engine.extract_keywords(user_prompt if user_prompt else "kucing")
-        return {
-            "mode": "rule_based_fallback",
-            "message": (
+        return build_rule_response(
+            result,
+            mode="rule_based_fallback",
+            extra_message=(
                 "🐾 Gambar anabul berhasil diterima!\n\n"
                 "(Catatan: Gemini API Key belum dikonfigurasi di ai-service/.env, beralih ke Rule-Based).\n\n"
-                + result["response"]
-            ),
-            "keywords": result["keywords"],
-            "categories": result["categories"],
-            "age_group": result["age_group"]
-        }
+            )
+        )
 
     try:
-        # Baca data gambar
         contents = await image.read()
         pil_image = Image.open(io.BytesIO(contents))
 
         prompt = user_prompt if user_prompt else "Analisis foto kucing ini dan berikan rekomendasi produk yang cocok."
 
-        # Panggil Gemini API menggunakan google-genai SDK v1.2.0
         response = gemini_client.models.generate_content(
             model='gemini-2.5-flash',
             contents=[pil_image, prompt],
@@ -202,19 +189,15 @@ async def chat_with_image(
         }
 
     except Exception as e:
-        # Error handling & fallback aman
         result = rule_engine.extract_keywords(user_prompt if user_prompt else "kucing")
-        return {
-            "mode": "gemini_error_fallback",
-            "message": (
+        return build_rule_response(
+            result,
+            mode="gemini_error_fallback",
+            extra_message=(
                 f"🐾 Maaf, terjadi kendala saat memproses gambar dengan AI: {str(e)}\n\n"
                 "Berikut rekomendasi berdasarkan katalog produk kami:\n"
-                + result["response"]
-            ),
-            "keywords": result["keywords"],
-            "categories": result["categories"],
-            "age_group": result["age_group"]
-        }
+            )
+        )
 
 
 if __name__ == "__main__":
