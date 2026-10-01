@@ -31,7 +31,7 @@ class RecommendationController extends Controller
 
         $aiMessage = '';
         $keywords = [];
-        $aiMode = 'rule_based';
+        $aiMode = 'error';
         $targetPrice = null;
         $minPrice = null;
         $maxPrice = null;
@@ -40,27 +40,27 @@ class RecommendationController extends Controller
         $brands = [];
         $categories = [];
         $sortBy = null;
-        $cheapestOnly = false;    // ← NEW
-        $expensiveOnly = false;   // ← NEW
-        $limit = null;            // ← NEW
+        $cheapestOnly = false;
+        $expensiveOnly = false;
+        $limit = null;
 
         try {
             if ($hasImage) {
                 $imageFile = $request->file('image');
-                $response = Http::timeout(30)
+                $response = Http::timeout(90)
                     ->attach('image', file_get_contents($imageFile->getRealPath()), $imageFile->getClientOriginalName())
                     ->post("{$pythonServiceUrl}/api/chat-with-image", ['message' => $message]);
             } else {
-                $response = Http::timeout(10)
+                $response = Http::timeout(90)
                     ->post("{$pythonServiceUrl}/api/chat", ['message' => $message]);
             }
 
             if ($response->successful()) {
                 $data = $response->json();
-                $aiMessage    = $data['message']       ?? 'Berikut rekomendasi produk untuk kucing Anda:';
+                $aiMessage    = $data['message']       ?? 'Berikut rekomendasi untuk anabul Anda:';
                 $keywords     = $data['keywords']      ?? [];
                 $brands       = $data['brands']        ?? [];
-                $aiMode       = $data['mode']          ?? 'rule_based';
+                $aiMode       = $data['mode']          ?? 'error';
                 $minPrice     = $data['min_price']     ?? null;
                 $maxPrice     = $data['max_price']     ?? null;
                 $targetPrice  = $data['target_price']  ?? $data['max_price'] ?? null;
@@ -68,25 +68,32 @@ class RecommendationController extends Controller
                 $ageGroup     = $data['age_group']     ?? null;
                 $categories   = $data['categories']    ?? [];
                 $sortBy       = $data['sort_by']       ?? null;
-                $cheapestOnly = $data['cheapest_only'] ?? false;   // ← NEW
-                $expensiveOnly = $data['expensive_only'] ?? false; // ← NEW
-                $limit        = $data['limit']         ?? null;    // ← NEW
+                $cheapestOnly = $data['cheapest_only'] ?? false;
+                $expensiveOnly = $data['expensive_only'] ?? false;
+                $limit        = $data['limit']         ?? null;
             } else {
-                Log::warning('AI Service error response', ['status' => $response->status(), 'body' => $response->body()]);
-                $aiMessage = 'Berikut rekomendasi produk pilihan terbaik dari RERe Petshop untuk anabul Anda:';
-                $keywords = $this->extractFallbackKeywords($message);
+                Log::warning('AI Service error response', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                $aiMessage = '🐾 Maaf, layanan AI kami sedang sibuk. Silakan coba lagi dalam beberapa saat.';
+                $aiMode = 'error';
             }
         } catch (\Exception $e) {
             Log::error('AI Service Connection Error: ' . $e->getMessage());
-            $aiMessage = "Halo Cat Lovers! 🐾 Berikut rekomendasi produk terbaik dari katalog RERe Petshop untuk kebutuhan anabul Anda:";
-            $keywords = $this->extractFallbackKeywords($message);
+            $aiMessage = '🐾 Maaf, layanan AI kami sedang sibuk. Silakan coba lagi dalam beberapa saat.';
+            $aiMode = 'error';
         }
 
-        $products = $this->findMatchingProducts(
-            $keywords, $brands, $minPrice, $maxPrice, $targetPrice,
-            $priceMode, $ageGroup, $categories, $sortBy,
-            $cheapestOnly, $expensiveOnly, $limit   // ← NEW
-        );
+        // ✅ Cuma cari produk kalau AI-nya sukses (bukan error)
+        $successModes = ['ollama', 'gemini_vision', 'rule_based'];
+        $products = in_array($aiMode, $successModes)
+            ? $this->findMatchingProducts(
+                $keywords, $brands, $minPrice, $maxPrice, $targetPrice,
+                $priceMode, $ageGroup, $categories, $sortBy,
+                $cheapestOnly, $expensiveOnly, $limit
+            )
+            : collect();
 
         $tips = [
             'Pastikan anabul selalu minum air bersih secukupnya setiap hari.',

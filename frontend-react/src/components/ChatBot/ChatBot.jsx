@@ -7,12 +7,13 @@ import {
   Image as ImageIcon,
   ShoppingCart,
   Sparkles,
-  Bot
+  Bot,
 } from 'lucide-react';
 import axios from '../../api/axios';
 import { useCart } from '../../context/cartcontext';
 import { getStorageUrl } from '../../utils/appconfig';
 import toast from 'react-hot-toast';
+import TypewriterText from './TypewriterText'; // ← BARU
 import './ChatBot.css';
 
 export default function ChatBot() {
@@ -24,13 +25,20 @@ export default function ChatBot() {
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [addingCartId, setAddingCartId] = useState(null);
 
+  // ← BARU: track typing selesai per message ID
+  const [typedMessages, setTypedMessages] = useState({});
+
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'bot',
       text: 'Halo Cat Lovers! 🐾 Selamat datang di **RERe Petshop**.\n\nSaya **Asisten AI RERe Petshop**, siap membantu mencarikan produk terbaik untuk anabul kesayangan Anda:\n\n **Konsultasi Teks:** Ketik usia, keluhan bulu, atau budget (misal: "makanan adult budget 30rb")\n **Analisis Foto:** Klik ikon kamera untuk analisis kondisi fisik kucing Vision AI!\n\nAda yang bisa kami bantu carikan hari ini? 🐱',
       products: [],
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      skipTyping: true,
     },
   ]);
 
@@ -81,19 +89,20 @@ export default function ChatBot() {
     const currentImg = selectedImage;
     const currentImgPreview = imagePreview;
 
-    // Reset input fields
     setInputMessage('');
     setSelectedImage(null);
     setImagePreview(null);
     setShowPhotoOptions(false);
 
-    // Tambahkan pesan pengguna ke chat
     const userMsg = {
       id: Date.now(),
       sender: 'user',
       text: currentText,
       image: currentImgPreview,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -114,10 +123,15 @@ export default function ChatBot() {
         const botMsg = {
           id: Date.now() + 1,
           sender: 'bot',
-          text: response.data.ai_message || 'Berikut produk yang cocok untuk anabul Anda:',
+          text:
+            response.data.ai_message ||
+            'Berikut produk yang cocok untuk anabul Anda:',
           products: response.data.products || [],
           mode: response.data.mode,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          time: new Date().toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
         };
         setMessages((prev) => [...prev, botMsg]);
       } else {
@@ -130,7 +144,10 @@ export default function ChatBot() {
         sender: 'bot',
         text: 'Maaf, terjadi sedikit kendala koneksi ke AI. Silakan coba kembali sesaat lagi ya Cat Lovers 🐾',
         products: [],
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        time: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -148,7 +165,6 @@ export default function ChatBot() {
 
       if (res.data && res.data.success) {
         toast.success(`${product.nama_produk} dimasukkan ke keranjang! 🛒`);
-        // Refresh keranjang jika ada token
         try {
           const cartRes = await axios.get('/cart');
           if (cartRes.data && cartRes.data.data) {
@@ -163,7 +179,9 @@ export default function ChatBot() {
       if (err.response?.status === 401) {
         toast.error('Silakan login terlebih dahulu untuk menambah keranjang');
       } else {
-        toast.error(err.response?.data?.message || 'Gagal menambahkan ke keranjang');
+        toast.error(
+          err.response?.data?.message || 'Gagal menambahkan ke keranjang',
+        );
       }
     } finally {
       setAddingCartId(null);
@@ -181,7 +199,6 @@ export default function ChatBot() {
   const renderFormattedMessage = (text) => {
     if (!text) return null;
 
-    // Split paragraphs
     const paragraphs = text.split('\n');
 
     return (
@@ -191,7 +208,6 @@ export default function ChatBot() {
             return <div key={idx} className="rere-text-spacer" />;
           }
 
-          // Parse **bold** markdown
           const parts = para.split(/(\*\*.*?\*\*)/g);
           return (
             <p key={idx} className="rere-text-line">
@@ -213,24 +229,25 @@ export default function ChatBot() {
     );
   };
 
+  // ← BARU: callback saat typing selesai
+  const handleTypingComplete = (msgId) => {
+    setTypedMessages((prev) => ({ ...prev, [msgId]: true }));
+  };
+
   return (
     <>
-      {/* Floating Button di Pojok Kanan Bawah */}
       <button
         type="button"
         id="rere-chatbot-trigger"
         className="rere-chat-floating-btn"
         onClick={() => setIsOpen(!isOpen)}
-        title="Chat dengan AI RERe Petshop"
-      >
+        title="Chat dengan AI RERe Petshop">
         {isOpen ? <X size={28} /> : <MessageCircle size={28} />}
         {!isOpen && <span className="rere-chat-floating-badge">AI</span>}
       </button>
 
-      {/* Chat Window Box */}
       {isOpen && (
         <div className="rere-chat-window" id="rere-chat-window">
-          {/* Header */}
           <div className="rere-chat-header">
             <div className="rere-chat-header-info">
               <div className="rere-chat-avatar">
@@ -248,70 +265,97 @@ export default function ChatBot() {
               type="button"
               className="rere-chat-header-close"
               onClick={() => setIsOpen(false)}
-              title="Tutup Chat"
-            >
+              title="Tutup Chat">
               <X size={20} />
             </button>
           </div>
 
-          {/* Area Pesan Chat */}
           <div className="rere-chat-messages">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`rere-message-row ${msg.sender}`}>
-                <div className={`rere-bubble ${msg.sender}`}>
-                  {msg.image && (
-                    <img
-                      src={msg.image}
-                      alt="Upload Anabul"
-                      className="rere-bubble-image-preview"
-                    />
-                  )}
-                  {renderFormattedMessage(msg.text)}
+            {messages.map((msg) => {
+              const isBot = msg.sender === 'bot';
+              const shouldType =
+                isBot && !msg.skipTyping && !typedMessages[msg.id];
+              const typingDone = msg.skipTyping || typedMessages[msg.id];
 
-                  {/* Tampilkan Daftar Produk Rekomendasi */}
-                  {msg.products && msg.products.length > 0 && (
-                    <div className="rere-product-recommendations">
-                      {msg.products.map((prod) => {
-                        const imgSrc = prod.foto_base64 || getStorageUrl(prod.foto) || 'https://placehold.co/100x100?text=Produk';
-                        return (
-                          <div key={prod.id_produk} className="rere-product-card">
-                            <img
-                              src={imgSrc}
-                              alt={prod.nama_produk}
-                              className="rere-product-img"
-                              onError={(e) => {
-                                e.currentTarget.src = 'https://placehold.co/100x100?text=Produk';
-                              }}
-                            />
-                            <div className="rere-product-info">
-                              <div className="rere-product-name" title={prod.nama_produk}>
-                                {prod.nama_produk}
+              return (
+                <div key={msg.id} className={`rere-message-row ${msg.sender}`}>
+                  <div className={`rere-bubble ${msg.sender}`}>
+                    {msg.image && (
+                      <img
+                        src={msg.image}
+                        alt="Upload Anabul"
+                        className="rere-bubble-image-preview"
+                      />
+                    )}
+
+                    {shouldType ? (
+                      <div className="rere-text-content">
+                        <p className="rere-text-line">
+                          <TypewriterText
+                            text={msg.text}
+                            speed={15}
+                            onComplete={() => handleTypingComplete(msg.id)}
+                          />
+                        </p>
+                      </div>
+                    ) : (
+                      renderFormattedMessage(msg.text)
+                    )}
+
+                    {msg.products && msg.products.length > 0 && typingDone && (
+                      <div className="rere-product-recommendations">
+                        {msg.products.map((prod) => {
+                          const imgSrc =
+                            prod.foto_base64 ||
+                            getStorageUrl(prod.foto) ||
+                            'https://placehold.co/100x100?text=Produk';
+                          return (
+                            <div
+                              key={prod.id_produk}
+                              className="rere-product-card">
+                              <img
+                                src={imgSrc}
+                                alt={prod.nama_produk}
+                                className="rere-product-img"
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    'https://placehold.co/100x100?text=Produk';
+                                }}
+                              />
+                              <div className="rere-product-info">
+                                <div
+                                  className="rere-product-name"
+                                  title={prod.nama_produk}>
+                                  {prod.nama_produk}
+                                </div>
+                                <div className="rere-product-price">
+                                  {formatRupiah(prod.harga)}
+                                </div>
                               </div>
-                              <div className="rere-product-price">
-                                {formatRupiah(prod.harga)}
-                              </div>
+                              <button
+                                type="button"
+                                className="rere-btn-add-cart"
+                                disabled={addingCartId === prod.id_produk}
+                                onClick={() => handleAddToCart(prod)}
+                                title="Tambah ke Keranjang">
+                                <ShoppingCart size={13} />
+                                <span>
+                                  {addingCartId === prod.id_produk
+                                    ? '...'
+                                    : '+'}
+                                </span>
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              className="rere-btn-add-cart"
-                              disabled={addingCartId === prod.id_produk}
-                              onClick={() => handleAddToCart(prod)}
-                              title="Tambah ke Keranjang"
-                            >
-                              <ShoppingCart size={13} />
-                              <span>{addingCartId === prod.id_produk ? '...' : '+'}</span>
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <span className="rere-message-time">{msg.time}</span>
                 </div>
-                <span className="rere-message-time">{msg.time}</span>
-              </div>
-            ))}
+              );
+            })}
 
-            {/* Loading Animation Saat AI Mengetik */}
             {isLoading && (
               <div className="rere-message-row bot">
                 <div className="rere-loading-dots">
@@ -325,7 +369,6 @@ export default function ChatBot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Thumbnail Gambar yang Dipilih Sebelum Dikirim */}
           {imagePreview && (
             <div className="rere-preview-bar">
               <div className="rere-preview-info">
@@ -334,20 +377,20 @@ export default function ChatBot() {
                   alt="Preview"
                   className="rere-preview-thumbnail"
                 />
-                <span className="rere-preview-text">Foto anabul siap dianalisis</span>
+                <span className="rere-preview-text">
+                  Foto anabul siap dianalisis
+                </span>
               </div>
               <button
                 type="button"
                 className="rere-preview-remove"
                 onClick={removeSelectedImage}
-                title="Hapus foto"
-              >
+                title="Hapus foto">
                 <X size={16} />
               </button>
             </div>
           )}
 
-          {/* Popup Pilihan Kamera / Galeri */}
           {showPhotoOptions && (
             <div className="rere-photo-options-popup">
               <button
@@ -355,8 +398,7 @@ export default function ChatBot() {
                 className="rere-photo-option-btn"
                 onClick={() => {
                   fileGalleryInputRef.current?.click();
-                }}
-              >
+                }}>
                 <ImageIcon size={16} />
                 Pilih dari Galeri
               </button>
@@ -365,15 +407,13 @@ export default function ChatBot() {
                 className="rere-photo-option-btn"
                 onClick={() => {
                   fileCameraInputRef.current?.click();
-                }}
-              >
+                }}>
                 <Camera size={16} />
                 Ambil Foto Kamera
               </button>
             </div>
           )}
 
-          {/* Hidden File Inputs */}
           <input
             type="file"
             ref={fileGalleryInputRef}
@@ -390,14 +430,12 @@ export default function ChatBot() {
             onChange={handleImageChange}
           />
 
-          {/* Form Input Pesan */}
           <form className="rere-chat-input-area" onSubmit={handleSendMessage}>
             <button
               type="button"
               className="rere-btn-camera"
               onClick={() => setShowPhotoOptions(!showPhotoOptions)}
-              title="Kirim Foto Anabul (Mode AI Gemini)"
-            >
+              title="Kirim Foto Anabul (Mode AI Gemini)">
               <Camera size={19} />
             </button>
 
@@ -414,8 +452,7 @@ export default function ChatBot() {
               type="submit"
               className="rere-btn-send"
               disabled={isLoading || (!inputMessage.trim() && !selectedImage)}
-              title="Kirim Pesan"
-            >
+              title="Kirim Pesan">
               <Send size={16} />
             </button>
           </form>
