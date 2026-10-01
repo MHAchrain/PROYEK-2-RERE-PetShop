@@ -13,7 +13,7 @@ import axios from '../../api/axios';
 import { useCart } from '../../context/cartcontext';
 import { getStorageUrl } from '../../utils/appconfig';
 import toast from 'react-hot-toast';
-import TypewriterText from './TypewriterText'; // ← BARU
+import TypewriterText from './TypeWriterText';
 import './ChatBot.css';
 
 export default function ChatBot() {
