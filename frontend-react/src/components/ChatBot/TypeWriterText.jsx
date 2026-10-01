@@ -1,28 +1,44 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
+
+function typewriterReducer(state, action) {
+  switch (action.type) {
+    case 'reset':
+      return { displayed: '', index: 0 };
+    case 'tick':
+      return {
+        displayed: state.displayed + action.char,
+        index: state.index + 1,
+      };
+    default:
+      return state;
+  }
+}
 
 export default function TypewriterText({ text, speed = 15, onComplete }) {
-  const [displayed, setDisplayed] = useState('');
-  const [index, setIndex] = useState(0);
+  const [state, dispatch] = useReducer(typewriterReducer, {
+    displayed: '',
+    index: 0,
+  });
   const completedRef = useRef(false);
 
   useEffect(() => {
-    setDisplayed('');
-    setIndex(0);
+    dispatch({ type: 'reset' });
     completedRef.current = false;
   }, [text]);
 
   useEffect(() => {
-    if (index < text.length) {
+    if (state.index < text.length) {
       const timer = setTimeout(() => {
-        setDisplayed((prev) => prev + text[index]);
-        setIndex((prev) => prev + 1);
+        dispatch({ type: 'tick', char: text[state.index] });
       }, speed);
       return () => clearTimeout(timer);
-    } else if (!completedRef.current && onComplete) {
+    }
+
+    if (!completedRef.current && onComplete) {
       completedRef.current = true;
       onComplete();
     }
-  }, [index, text, speed, onComplete]);
+  }, [state.index, text, speed, onComplete]);
 
-  return <span style={{ whiteSpace: 'pre-wrap' }}>{displayed}</span>;
+  return <span style={{ whiteSpace: 'pre-wrap' }}>{state.displayed}</span>;
 }
