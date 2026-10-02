@@ -43,6 +43,7 @@ class RecommendationController extends Controller
         $cheapestOnly = false;
         $expensiveOnly = false;
         $limit = null;
+        $cta = null;   // ← BARU
 
         try {
             if ($hasImage) {
@@ -71,6 +72,7 @@ class RecommendationController extends Controller
                 $cheapestOnly = $data['cheapest_only'] ?? false;
                 $expensiveOnly = $data['expensive_only'] ?? false;
                 $limit        = $data['limit']         ?? null;
+                $cta          = $data['cta']           ?? null;   // ← BARU
             } else {
                 Log::warning('AI Service error response', [
                     'status' => $response->status(),
@@ -85,7 +87,8 @@ class RecommendationController extends Controller
             $aiMode = 'error';
         }
 
-        // ✅ Cuma cari produk kalau AI-nya sukses (bukan error)
+        // ✅ Cuma cari produk kalau AI-nya sukses
+        // Mode "special" (grooming CTA) & "off_topic" nggak perlu produk
         $successModes = ['ollama', 'gemini_vision', 'rule_based'];
         $products = in_array($aiMode, $successModes)
             ? $this->findMatchingProducts(
@@ -113,6 +116,7 @@ class RecommendationController extends Controller
             'age_group' => $ageGroup,
             'sort_by' => $sortBy,
             'products' => $products,
+            'cta' => $cta,   // ← BARU
             'tips' => $tips,
         ]);
     }
@@ -264,41 +268,62 @@ class RecommendationController extends Controller
         }
 
         // ── STEP 5: SCORING ───────────────────────────────────
-        $scored = $pool->map(function ($prod) use ($keywords) {
-            $score = 10;
+        $stopwords = [
+            'kucing', 'anabul', 'hewan', 'perawatan', 'kesehatan',
+            'produk', 'toko', 'petshop', 'yang', 'dan', 'atau',
+            'untuk', 'dengan', 'saya', 'aku', 'ini', 'itu', 'makanan',
+        ];
+
+        $scored = $pool->map(function ($prod) use ($keywords, $stopwords) {
+            $score = 0;
             $nama  = strtolower($prod->nama_produk ?? '');
             $desk  = strtolower($prod->deskripsi ?? '');
             $kat   = strtolower($prod->kategori?->nama_kategori ?? '');
 
             foreach ($keywords as $i => $kw) {
                 $kl = strtolower(trim($kw));
-                if ($kl === '' || $kl === 'kucing' || $kl === 'makanan') continue;
-                $w = ($i === 0) ? 10 : 5;
-                if (str_contains($nama, $kl)) $score += 20 * $w;
-                if (str_contains($kat, $kl))  $score += 5 * $w;
-                if (str_contains($desk, $kl)) $score += 5 * $w;
+                if ($kl === '' || in_array($kl, $stopwords)) continue;
+
+                $kataKata = preg_split('/\s+/', $kl);
+                $matchCount = 0;
+                foreach ($kataKata as $kata) {
+                    if (strlen($kata) < 3) continue;
+                    if (str_contains($nama, $kata)) $matchCount += 2;
+                    if (str_contains($desk, $kata)) $matchCount += 1;
+                    if (str_contains($kat, $kata))  $matchCount += 1;
+                }
+
+                $w = ($i === 0) ? 3 : 1;
+                $score += $matchCount * $w * 5;
             }
 
             $prod->relevance_score = $score;
             return $prod;
         });
 
-        // ✅ STEP 6: SORTING & LIMIT
-        $take = $limit ?? 6;
+        // ── STEP 6: THRESHOLD + SORTING + LIMIT ───────────────
+        $take = $limit ?? 4;
+        $threshold = 15;
 
-        if ($cheapestOnly) {
-            $result = $scored->sortBy('harga')->values()->take($take);
-        } elseif ($expensiveOnly) {
-            $result = $scored->sortByDesc('harga')->values()->take($take);
-        } elseif ($sortBy === 'price_asc') {
-            $result = $scored->sortBy('harga')->values()->take($take);
-        } elseif ($sortBy === 'price_desc') {
-            $result = $scored->sortByDesc('harga')->values()->take($take);
-        } else {
-            $result = $scored->sortByDesc('relevance_score')->values()->take($take);
+        $filtered = $scored->filter(fn($p) => $p->relevance_score >= $threshold);
+
+        if ($filtered->isEmpty()) {
+            return collect();
         }
 
-        return $result->isNotEmpty() ? $result : $pool->take($take)->values();
+        if ($cheapestOnly) {
+            $result = $filtered->sortBy('harga')->values()->take($take);
+        } elseif ($expensiveOnly) {
+            $result = $filtered->sortByDesc('harga')->values()->take($take);
+        } elseif ($sortBy === 'price_asc') {
+            $result = $filtered->sortBy('harga')->values()->take($take);
+        } elseif ($sortBy === 'price_desc') {
+            $result = $filtered->sortByDesc('harga')->values()->take($take);
+        } else {
+            $result = $filtered->sortByDesc('relevance_score')->values()->take($take);
+        }
+
+        return $result;
     }
 
     protected function extractFallbackKeywords(string $text): array

@@ -25,7 +25,7 @@ export default function ChatBot() {
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [addingCartId, setAddingCartId] = useState(null);
 
-  // ← BARU: track typing selesai per message ID
+  // ← track typing selesai per message ID
   const [typedMessages, setTypedMessages] = useState({});
 
   const [messages, setMessages] = useState([
@@ -127,6 +127,7 @@ export default function ChatBot() {
             response.data.ai_message ||
             'Berikut produk yang cocok untuk anabul Anda:',
           products: response.data.products || [],
+          cta: response.data.cta || null, // ← BARU
           mode: response.data.mode,
           time: new Date().toLocaleTimeString([], {
             hour: '2-digit',
@@ -229,7 +230,7 @@ export default function ChatBot() {
     );
   };
 
-  // ← BARU: callback saat typing selesai
+  // ← callback saat typing selesai
   const handleTypingComplete = (msgId) => {
     setTypedMessages((prev) => ({ ...prev, [msgId]: true }));
   };
@@ -300,6 +301,13 @@ export default function ChatBot() {
                       </div>
                     ) : (
                       renderFormattedMessage(msg.text)
+                    )}
+
+                    {/* CTA Button — muncul setelah typing selesai */}
+                    {msg.cta && typingDone && (
+                      <a href={msg.cta.url} className="rere-cta-button">
+                        {msg.cta.text} →
+                      </a>
                     )}
 
                     {msg.products && msg.products.length > 0 && typingDone && (
