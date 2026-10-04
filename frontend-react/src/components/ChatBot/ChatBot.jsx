@@ -22,6 +22,7 @@ export default function ChatBot() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingSeconds, setLoadingSeconds] = useState(0);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [addingCartId, setAddingCartId] = useState(null);
 
@@ -32,7 +33,7 @@ export default function ChatBot() {
     {
       id: 1,
       sender: 'bot',
-      text: 'Halo Cat Lovers! 🐾 Selamat datang di **RERe Petshop**.\n\nSaya **Asisten AI RERe Petshop**, siap membantu mencarikan produk terbaik untuk anabul kesayangan Anda:\n\n **Konsultasi Teks:** Ketik usia, keluhan bulu, atau budget (misal: "makanan adult budget 30rb")\n **Analisis Foto:** Klik ikon kamera untuk analisis kondisi fisik kucing Vision AI!\n\nAda yang bisa kami bantu carikan hari ini? 🐱',
+      text: 'Halo Cat Lovers! 🐾 \n\nSelamat datang di **RERe Petshop**.\n\nSaya **(ARPET) Asisten RERe Petshop**, siap membantu mencarikan produk terbaik untuk anabul kesayangan Anda \n\nAda yang bisa kami bantu carikan hari ini? ',
       products: [],
       time: new Date().toLocaleTimeString([], {
         hour: '2-digit',
@@ -50,6 +51,20 @@ export default function ChatBot() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    let timer;
+    if (isLoading) {
+      setLoadingSeconds(0);
+      const startTime = Date.now();
+      timer = setInterval(() => {
+        setLoadingSeconds(((Date.now() - startTime) / 1000).toFixed(1));
+      }, 100);
+    } else {
+      setLoadingSeconds(0);
+    }
+    return () => clearInterval(timer);
+  }, [isLoading]);
 
   useEffect(() => {
     if (isOpen) {
@@ -108,6 +123,8 @@ export default function ChatBot() {
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
+    const startTime = performance.now();
+
     try {
       const formData = new FormData();
       if (currentText) formData.append('message', currentText);
@@ -119,6 +136,9 @@ export default function ChatBot() {
         },
       });
 
+      const endTime = performance.now();
+      const loadSeconds = ((endTime - startTime) / 1000).toFixed(1);
+
       if (response.data && response.data.success) {
         const botMsg = {
           id: Date.now() + 1,
@@ -129,6 +149,7 @@ export default function ChatBot() {
           products: response.data.products || [],
           cta: response.data.cta || null, // ← BARU
           mode: response.data.mode,
+          loadTime: `${loadSeconds}s`,
           time: new Date().toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
@@ -244,7 +265,7 @@ export default function ChatBot() {
         onClick={() => setIsOpen(!isOpen)}
         title="Chat dengan AI RERe Petshop">
         {isOpen ? <X size={28} /> : <MessageCircle size={28} />}
-        {!isOpen && <span className="rere-chat-floating-badge">AI</span>}
+        {!isOpen && <span className="rere-chat-floating-badge">ARPET</span>}
       </button>
 
       {isOpen && (
@@ -255,10 +276,10 @@ export default function ChatBot() {
                 <Bot size={22} />
               </div>
               <div>
-                <div className="rere-chat-title">🐾 AI RERe Petshop</div>
+                <div className="rere-chat-title">Asisten RERe Petshop</div>
                 <div className="rere-chat-status">
                   <span className="rere-chat-status-dot"></span>
-                  Online • Siap Rekomendasi
+                  Online
                 </div>
               </div>
             </div>
@@ -359,17 +380,27 @@ export default function ChatBot() {
                       </div>
                     )}
                   </div>
-                  <span className="rere-message-time">{msg.time}</span>
+                  <div className="rere-message-meta">
+                    <span className="rere-message-time">{msg.time}</span>
+                    {msg.loadTime && (
+                      <span className="rere-message-duration">
+                        · {msg.loadTime}
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
 
             {isLoading && (
               <div className="rere-message-row bot">
-                <div className="rere-loading-dots">
-                  <span className="rere-dot"></span>
-                  <span className="rere-dot"></span>
-                  <span className="rere-dot"></span>
+                <div className="rere-loading-wrapper">
+                  <div className="rere-loading-dots">
+                    <span className="rere-dot"></span>
+                    <span className="rere-dot"></span>
+                    <span className="rere-dot"></span>
+                  </div>
+                  <span className="rere-loading-timer">{loadingSeconds}s</span>
                 </div>
               </div>
             )}

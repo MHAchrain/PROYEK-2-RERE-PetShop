@@ -52,7 +52,25 @@ export default function GroomingBookingForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const booking = await submitBooking();
-    if (booking) setCreatedBooking(booking);
+    if (booking) {
+      setCreatedBooking(booking);
+
+      // Trigger Midtrans Snap Popup jika token tersedia
+      if (booking.snap_token && window.snap?.pay) {
+        window.snap.pay(booking.snap_token, {
+          onSuccess: async function () {
+            await import('../../../services/groomingservice').then(m => m.syncGroomingPayment(booking.id, 'settlement'));
+            setCreatedBooking(prev => prev ? { ...prev, status: 'terjadwal' } : null);
+          },
+          onPending: async function () {
+            await import('../../../services/groomingservice').then(m => m.syncGroomingPayment(booking.id, 'pending'));
+          },
+          onError: async function () {
+            await import('../../../services/groomingservice').then(m => m.syncGroomingPayment(booking.id, 'deny'));
+          },
+        });
+      }
+    }
   };
 
   const today = new Date();
@@ -93,12 +111,31 @@ export default function GroomingBookingForm() {
             <dd className="font-medium text-gray-900">{createdBooking.price}</dd>
           </div>
         </dl>
-        <button
-          type="button"
-          onClick={() => setCreatedBooking(null)}
-          className="mt-6 rounded-lg border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-50">
-          Buat booking lain
-        </button>
+        <div className="mt-6 flex flex-wrap gap-3">
+          {createdBooking.status === 'menunggu_pembayaran' && createdBooking.snap_token && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.snap?.pay) {
+                  window.snap.pay(createdBooking.snap_token, {
+                    onSuccess: async function () {
+                      await import('../../../services/groomingservice').then(m => m.syncGroomingPayment(createdBooking.id, 'settlement'));
+                      setCreatedBooking(prev => prev ? { ...prev, status: 'terjadwal' } : null);
+                    },
+                  });
+                }
+              }}
+              className="rounded-lg bg-primary px-5 py-3 font-semibold text-white transition hover:opacity-90">
+              Bayar Sekarang via Midtrans
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setCreatedBooking(null)}
+            className="rounded-lg border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 transition hover:bg-gray-50">
+            Buat booking lain
+          </button>
+        </div>
       </section>
     );
   }

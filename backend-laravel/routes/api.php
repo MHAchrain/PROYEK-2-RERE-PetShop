@@ -201,7 +201,19 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // [GROOMING EXTENSION] - baris baru, tidak mengubah logic lama
+    Route::get('/grooming/history', [\App\Http\Controllers\Api\GroomingBookingController::class, 'history']);
+    Route::post('/grooming/bookings', [\App\Http\Controllers\Api\GroomingBookingController::class, 'store']);
+    Route::get('/grooming/bookings/{id}', [\App\Http\Controllers\Api\GroomingBookingController::class, 'show']);
+    Route::post('/grooming/bookings/{id}/cancel', [\App\Http\Controllers\Api\GroomingBookingController::class, 'cancel']);
+    Route::post('/grooming/bookings/{id}/sync-payment', [\App\Http\Controllers\Api\GroomingBookingController::class, 'syncPayment']);
+    Route::get('/grooming/bookings/{id}/payment-token', [\App\Http\Controllers\Api\GroomingBookingController::class, 'getPaymentToken']);
 });
+
+// [GROOMING EXTENSION] - baris baru publik, tidak mengubah logic lama
+Route::get('/grooming/services', [\App\Http\Controllers\Api\GroomingBookingController::class, 'services']);
+Route::get('/grooming/slots', [\App\Http\Controllers\Api\GroomingBookingController::class, 'slots']);
 
 /*
 |--------------------------------------------------------------------------

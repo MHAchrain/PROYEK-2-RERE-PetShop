@@ -99,11 +99,43 @@ export default function GroomingBookingCard({ booking }) {
             </div>
             </div>
 
-            <div className="shrink-0 border-t border-gray-100 pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
-            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                <Clock3 size={14} /> Harga layanan
-            </p>
-            <p className="mt-1 text-lg font-bold text-gray-900">{formatPrice(booking.price)}</p>
+            <div className="shrink-0 flex flex-col items-end gap-3 border-t border-gray-100 pt-4 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+                <div>
+                    <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        <Clock3 size={14} /> Harga layanan
+                    </p>
+                    <p className="mt-1 text-lg font-bold text-gray-900">{formatPrice(booking.price)}</p>
+                </div>
+
+                {status === 'menunggu_pembayaran' && (
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            try {
+                                const { getGroomingPaymentToken, syncGroomingPayment } = await import('../../../services/groomingservice');
+                                const token = await getGroomingPaymentToken(booking.id);
+                                if (token && window.snap?.pay) {
+                                    window.snap.pay(token, {
+                                        onSuccess: async function () {
+                                            await syncGroomingPayment(booking.id, 'settlement');
+                                            window.location.reload();
+                                        },
+                                        onPending: async function () {
+                                            await syncGroomingPayment(booking.id, 'pending');
+                                        },
+                                        onError: async function () {
+                                            await syncGroomingPayment(booking.id, 'deny');
+                                        },
+                                    });
+                                }
+                            } catch (e) {
+                                alert(e.message || 'Gagal memuat pembayaran Midtrans.');
+                            }
+                        }}
+                        className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:opacity-90 active:scale-95">
+                        Bayar Sekarang
+                    </button>
+                )}
             </div>
         </div>
         </article>

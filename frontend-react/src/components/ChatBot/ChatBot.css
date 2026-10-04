@@ -262,11 +262,24 @@
   display: block;
 }
 
+.rere-message-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
 .rere-message-time {
   font-size: 10px;
   color: #9ca3af;
-  margin-top: 4px;
-  padding: 0 4px;
+}
+
+.rere-message-duration {
+  font-size: 9.5px;
+  color: #a1a1aa;
+  font-style: italic;
+  font-family: monospace;
 }
 
 /* Recommended Products Container */
@@ -392,6 +405,20 @@
   border-bottom-left-radius: 3px;
   border: 1px solid #e5e7eb;
   width: fit-content;
+}
+
+.rere-loading-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.rere-loading-timer {
+  font-size: 10px;
+  color: #9ca3af;
+  padding-left: 4px;
+  font-weight: 500;
 }
 
 .rere-dot {
