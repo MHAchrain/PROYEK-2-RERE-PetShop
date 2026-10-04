@@ -276,7 +276,7 @@ export default function ChatBot() {
                 <Bot size={22} />
               </div>
               <div>
-                <div className="rere-chat-title">Asisten RERe Petshop</div>
+                <div className="rere-chat-title">ARPET</div>
                 <div className="rere-chat-status">
                   <span className="rere-chat-status-dot"></span>
                   Online
