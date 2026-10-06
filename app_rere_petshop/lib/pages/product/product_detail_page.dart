@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:app_rere_petshop/pages/product/widgets/product_hero_image.dart';
+import 'package:app_rere_petshop/pages/product/widgets/product_website_button.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
-import 'package:app_rere_petshop/constants/app_constants.dart';
 import 'package:app_rere_petshop/models/product_model.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/pages/web_view_page.dart';
@@ -58,7 +58,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      bottomNavigationBar: _product != null ? _buildBottomBar() : null,
+      bottomNavigationBar: _product != null
+          ? ProductWebsiteButton(onPressed: _openWebsite)
+          : null,
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary))
@@ -93,7 +95,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
           ),
           flexibleSpace: FlexibleSpaceBar(
-            background: _buildProductImage(product),
+            background: ProductHeroImage(product: product),
           ),
         ),
         SliverToBoxAdapter(
@@ -187,23 +189,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  Widget _buildProductImage(Product product) {
-    if (product.image == null || product.image!.isEmpty) {
-      return Container(
-          color: AppColors.greyLight,
-          child: const Icon(Icons.pets, size: 80, color: AppColors.grey));
-    }
-    return CachedNetworkImage(
-      imageUrl: product.image!,
-      fit: BoxFit.contain,
-      placeholder: (_, __) => const Center(
-          child: CircularProgressIndicator(color: AppColors.primary)),
-      errorWidget: (_, __, ___) => Container(
-          color: AppColors.greyLight,
-          child: const Icon(Icons.pets, size: 80, color: AppColors.grey)),
-    );
-  }
-
   Widget _infoTile(
       {required IconData icon,
       required String title,
@@ -226,33 +211,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   fontSize: 12, color: AppColors.textSecondary)),
         ]),
       ]),
-    );
-  }
-
-  Widget _buildBottomBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8)],
-      ),
-      child: SafeArea(
-        child: SizedBox(
-          width: double.infinity,
-          height: 48,
-          child: ElevatedButton.icon(
-            onPressed: _openWebsite,
-            icon: const Icon(Icons.web),
-            label: const Text('Kunjungi Website',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-        ),
-      ),
     );
   }
 
