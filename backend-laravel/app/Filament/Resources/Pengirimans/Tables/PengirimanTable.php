@@ -119,7 +119,7 @@ class PengirimanTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('id_pengiriman', 'desc')
-            ->paginationPageOptions([10])
+            ->paginationPageOptions([50])
             ->filters([
                 //
             ])

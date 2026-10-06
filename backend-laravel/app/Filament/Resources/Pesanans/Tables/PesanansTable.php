@@ -79,7 +79,7 @@ class PesanansTable
                     ),
             ])
             ->defaultSort('id_pesanan', 'desc')
-            ->paginationPageOptions([10])
+            ->paginationPageOptions([50])
             ->filters([
                 //
             ])

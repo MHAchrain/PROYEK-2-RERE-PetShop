@@ -78,7 +78,7 @@ class PembayaransTable
                     ->sortable(),
             ])
             ->defaultSort('id_pembayaran', 'desc')
-            ->paginationPageOptions([10])
+            ->paginationPageOptions([50])
             ->filters([])
             ->recordActions([
                 ViewAction::make(),
