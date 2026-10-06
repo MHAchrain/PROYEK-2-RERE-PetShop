@@ -21,7 +21,10 @@ class PesanansTable
 
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
-                    ->formatStateUsing(fn ($state) => 'ORD-' . str_pad($state, 4, '0', STR_PAD_LEFT))
+                    ->formatStateUsing(function ($state) {
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        return 'ORD-' . $last3;
+                    })
                     ->sortable()
                     ->searchable(),
 
@@ -59,7 +62,6 @@ class PesanansTable
                         'batal'    => 'Dibatalkan',
                         default    => $state,
                     })
-                    // ✅ ACTION UBAH STATUS (BIAR MUNCUL POPUP)
                     ->action(
                         \Filament\Actions\Action::make('ubah_status')
                             ->form([

@@ -20,7 +20,11 @@ class PelanggansTable
 
                 TextColumn::make('id_pelanggan')
                     ->label('ID Pelanggan')
-                    ->formatStateUsing(fn ($state) => 'PLG-' . str_pad((string) $state, 4, '0', STR_PAD_LEFT))
+                    ->formatStateUsing(function ($state) {
+                        // Ambil 3 digit terakhir
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        return 'PLG-' . $last3;
+                    })
                     ->sortable(),
 
                 TextColumn::make('nama')

@@ -25,12 +25,18 @@ class PembayaransTable
 
                 TextColumn::make('id_pembayaran')
                     ->label('ID Pembayaran')
-                    ->formatStateUsing(fn ($state) => 'PAY-' . str_pad($state, 4, '0', STR_PAD_LEFT))
+                    ->formatStateUsing(function ($state) {
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        return 'PAY-' . $last3;
+                    })
                     ->sortable(),
 
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
-                    ->formatStateUsing(fn ($state) => 'ORD-' . str_pad($state, 4, '0', STR_PAD_LEFT))
+                    ->formatStateUsing(function ($state) {
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        return 'ORD-' . $last3;
+                    })
                     ->sortable()
                     ->searchable(),
 

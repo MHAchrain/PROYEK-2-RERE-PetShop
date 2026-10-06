@@ -59,10 +59,13 @@ class ProduksTable
                     }),
             ])
             ->columns([
-                TextColumn::make('id_produk')
-                    ->label('ID PRODUK')
-                    ->formatStateUsing(fn ($state) => 'PRO-' . str_pad($state, 4, '0', STR_PAD_LEFT))
-                    ->sortable(),
+               TextColumn::make('id_produk')
+                   ->label('IDProduk')
+                   ->formatStateUsing(function ($state) {
+                       $last4 = substr(str_pad($state, 4, '0', STR_PAD_LEFT), -4);
+                       return 'PRO-' . $last4;
+                   })
+                   ->sortable(),
 
                 TextColumn::make('id_kategori')
                     ->label('Kategori')
