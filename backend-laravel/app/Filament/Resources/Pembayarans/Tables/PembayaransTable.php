@@ -19,6 +19,10 @@ class PembayaransTable
     {
         return $table
             ->columns([
+                TextColumn::make('row_index')
+                    ->label('#')
+                    ->rowIndex(),
+
                 TextColumn::make('id_pembayaran')
                     ->label('ID Pembayaran')
                     ->formatStateUsing(fn ($state) => 'PAY-' . str_pad($state, 4, '0', STR_PAD_LEFT))
@@ -71,6 +75,7 @@ class PembayaransTable
                     ->sortable(),
             ])
             ->defaultSort('id_pembayaran', 'desc')
+            ->paginationPageOptions([10])
             ->filters([])
             ->recordActions([
                 ViewAction::make(),

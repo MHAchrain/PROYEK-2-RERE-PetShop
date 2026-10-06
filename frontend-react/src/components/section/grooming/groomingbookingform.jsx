@@ -246,7 +246,20 @@ export default function GroomingBookingForm() {
               ) : (
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {slots.map((slot) => {
-                    const isAvailable = slot.booked < slot.capacity;
+                    const isCapacityAvailable = slot.booked < slot.capacity;
+                    
+                    // Cek jika tanggal yang dipilih adalah hari ini dan jam slot sudah lewat
+                    let isTimePassed = false;
+                    if (selectedDate === minimumDate) {
+                      const now = new Date();
+                      const [slotHour, slotMinute] = (slot.time || '00:00').split(':').map(Number);
+                      const slotDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), slotHour, slotMinute || 0);
+                      if (slotDateTime <= now) {
+                        isTimePassed = true;
+                      }
+                    }
+
+                    const isAvailable = isCapacityAvailable && !isTimePassed;
                     const isSelected = bookingData.time === slot.time;
 
                     return (
@@ -267,11 +280,16 @@ export default function GroomingBookingForm() {
                               : 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
                         }`}>
                         {slot.time}
-                        {/* {!isAvailable && (
-                          <span className="mt-1 block text-xs font-normal no-underline">
+                        {isTimePassed && (
+                          <span className="mt-1 block text-xs font-normal text-gray-400">
+                            Lewat
+                          </span>
+                        )}
+                        {!isCapacityAvailable && !isTimePassed && (
+                          <span className="mt-1 block text-xs font-normal text-gray-400">
                             Penuh
                           </span>
-                        )} */}
+                        )}
                       </button>
                     );
                   })}

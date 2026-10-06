@@ -15,10 +15,9 @@ class PesanansTable
     {
         return $table
             ->columns([
-                // ✅ NOMOR URUT = ID Pesanan (terbesar di atas)
-                TextColumn::make('id_pesanan')
+                TextColumn::make('row_index')
                     ->label('#')
-                    ->sortable(),
+                    ->rowIndex(),
 
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
@@ -81,6 +80,7 @@ class PesanansTable
                     ),
             ])
             ->defaultSort('id_pesanan', 'desc')
+            ->paginationPageOptions([10])
             ->filters([
                 //
             ])

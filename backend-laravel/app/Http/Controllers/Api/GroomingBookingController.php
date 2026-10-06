@@ -170,6 +170,17 @@ class GroomingBookingController extends Controller
             ], 404);
         }
 
+        // Validasi jika booking untuk hari ini, jam tidak boleh yang sudah lewat
+        if ($request->date === now()->format('Y-m-d')) {
+            $slotDateTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $request->date . ' ' . $request->time, config('app.timezone'));
+            if ($slotDateTime->isPast()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Slot waktu pada jam tersebut sudah lewat untuk hari ini.',
+                ], 422);
+            }
+        }
+
         // Cek kapasitas slot
         $existingBookings = GroomingBooking::where('date', $request->date)
             ->where('time', $request->time)

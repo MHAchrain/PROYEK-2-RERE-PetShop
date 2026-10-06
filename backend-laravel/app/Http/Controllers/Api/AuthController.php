@@ -402,6 +402,12 @@ class AuthController extends Controller
             $user = User::where('email', $googleUser->getEmail())->first();
             
             if (!$user) {
+                $pelanggan = Pelanggan::create([
+                    'nama' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+
                 $user = User::create([
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
@@ -409,21 +415,30 @@ class AuthController extends Controller
                     'google_id' => $googleUser->getId(),
                     'email_verified_at' => now(),
                     'role' => 'customer',
+                    'pelanggan_id' => $pelanggan->id_pelanggan,
                 ]);
-
-                $pelanggan = Pelanggan::create([
-                    'nama' => $googleUser->getName(),
-                    'email' => $googleUser->getEmail(),
-                    'password' => Hash::make(Str::random(16)),
-                ]);
-                
-                $user->pelanggan_id = $pelanggan->id_pelanggan;
-                $user->save();
             } else {
                 if (!$user->google_id) {
                     $user->google_id = $googleUser->getId();
-                    $user->save();
                 }
+
+                // Jika user sudah ada tapi belum punya data pelanggan di tabel pelanggan
+                $pelanggan = $user->pelanggan_id
+                    ? Pelanggan::find($user->pelanggan_id)
+                    : Pelanggan::where('email', $user->email)->first();
+
+                if (!$pelanggan) {
+                    $pelanggan = Pelanggan::create([
+                        'nama' => $user->name,
+                        'email' => $user->email,
+                        'password' => $user->password,
+                    ]);
+                }
+
+                if ($user->pelanggan_id !== $pelanggan->id_pelanggan) {
+                    $user->pelanggan_id = $pelanggan->id_pelanggan;
+                }
+                $user->save();
             }
 
             Auth::login($user);
@@ -469,6 +484,12 @@ FILE: " . $e->getFile() . "
             $user = User::where('email', $googleUser->getEmail())->first();
             
             if (!$user) {
+                $pelanggan = Pelanggan::create([
+                    'nama' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+
                 $user = User::create([
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
@@ -476,21 +497,29 @@ FILE: " . $e->getFile() . "
                     'google_id' => $googleUser->getId(),
                     'email_verified_at' => now(),
                     'role' => 'customer',
+                    'pelanggan_id' => $pelanggan->id_pelanggan,
                 ]);
-
-                $pelanggan = Pelanggan::create([
-                    'nama' => $googleUser->getName(),
-                    'email' => $googleUser->getEmail(),
-                    'password' => Hash::make(Str::random(16)),
-                ]);
-                
-                $user->pelanggan_id = $pelanggan->id_pelanggan;
-                $user->save();
             } else {
                 if (!$user->google_id) {
                     $user->google_id = $googleUser->getId();
-                    $user->save();
                 }
+
+                $pelanggan = $user->pelanggan_id
+                    ? Pelanggan::find($user->pelanggan_id)
+                    : Pelanggan::where('email', $user->email)->first();
+
+                if (!$pelanggan) {
+                    $pelanggan = Pelanggan::create([
+                        'nama' => $user->name,
+                        'email' => $user->email,
+                        'password' => $user->password,
+                    ]);
+                }
+
+                if ($user->pelanggan_id !== $pelanggan->id_pelanggan) {
+                    $user->pelanggan_id = $pelanggan->id_pelanggan;
+                }
+                $user->save();
             }
 
             $user->tokens()->delete();
