@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Pelanggans\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -15,41 +14,50 @@ class PelanggansTable
     {
         return $table
             ->columns([
-    TextColumn::make('id_pelanggan')
-        ->label('ID Pelanggan')
-        ->formatStateUsing(fn ($state) => 'PLG-' . str_pad((string) $state, 4, '0', STR_PAD_LEFT))
-        ->sortable(),
+                TextColumn::make('row_index')
+                    ->label('#')
+                    ->rowIndex(),
 
-    TextColumn::make('nama')
-        ->searchable(),
+                TextColumn::make('id_pelanggan')
+                    ->label('ID Pelanggan')
+                    ->formatStateUsing(function ($state) {
+                        // Ambil 3 digit terakhir
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        return 'PLG-' . $last3;
+                    })
+                    ->sortable(),
 
-    TextColumn::make('email')
-        ->label('Email address')
-        ->searchable(),
+                TextColumn::make('nama')
+                    ->searchable(),
 
-    TextColumn::make('no_hp')
-        ->searchable(),
+                TextColumn::make('email')
+                    ->label('Email address')
+                    ->searchable(),
 
-    TextColumn::make('alamat')
-                ->label('Alamat')
-                ->searchable(),    
+                TextColumn::make('no_hp')
+                    ->searchable(),
 
-    TextColumn::make('created_at')
-        ->dateTime()
-        ->sortable()
-        ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('alamat')
+                    ->label('Alamat')
+                    ->searchable(),
 
-    TextColumn::make('updated_at')
-        ->dateTime()
-        ->sortable()
-        ->toggleable(isToggledHiddenByDefault: true),
-])
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->defaultSort('id_pelanggan', 'desc')
+            ->paginationPageOptions([10])
             ->filters([
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                
+                \Filament\Actions\DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -58,4 +66,3 @@ class PelanggansTable
             ]);
     }
 }
- 

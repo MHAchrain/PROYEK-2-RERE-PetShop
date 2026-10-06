@@ -16,4 +16,10 @@ class Pelanggan extends Model
 {
     return 'PLG-' . str_pad((string) $this->id_pelanggan, 4, '0', STR_PAD_LEFT);
 }
+
+    // [GROOMING EXTENSION] - baris baru, tidak mengubah logic lama
+    public function groomingBookings()
+    {
+        return $this->hasMany(GroomingBooking::class, 'id_pelanggan', 'id_pelanggan');
+    }
 }

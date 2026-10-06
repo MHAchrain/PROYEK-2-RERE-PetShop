@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PelangganController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\TrackingController;
+use App\Http\Controllers\Api\RecommendationController;
 use App\Http\Controllers\ImageController;
 
 /*
@@ -62,6 +63,13 @@ Route::get('/kategori/{id}/produk', [KategoriController::class, 'produkByKategor
 
 Route::get('/produk', [ProdukController::class, 'index']);
 Route::get('/produk/{id}', [ProdukController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| AI CHATBOT & REKOMENDASI
+|--------------------------------------------------------------------------
+*/
+Route::post('/chat-ai', [RecommendationController::class, 'chatAI']);
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +139,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites', [FavoriteController::class, 'store']);
     Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy']);
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -138,6 +147,7 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
 
+    
     Route::post('/cart/add', [CartController::class, 'add']);
     Route::get('/cart', [CartController::class, 'cart']);
     Route::patch('/cart/item/{id}', [CartController::class, 'update']);
@@ -160,9 +170,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pesanan', [PesananController::class, 'index']);
     Route::get('/pesanan/{id}', [PesananController::class, 'show']);
     Route::get('/pesanan/{id}/status', [PesananController::class, 'status']);
+    
 
     Route::post('/pesanan/{id}/selesai', [PesananController::class, 'selesai']);
     Route::post('/pesanan/{id}/batal', [PesananController::class, 'batal']);
+    
 
     /*
     |--------------------------------------------------------------------------
@@ -180,6 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/pesanan/{id}/pengiriman', [PengirimanController::class, 'show']);
+    Route::post('/pengiriman/{id}/terima', [PengirimanController::class, 'terima']);  // ✅ TAMBAH
 
     /*
     |--------------------------------------------------------------------------
@@ -188,7 +201,19 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // [GROOMING EXTENSION] - baris baru, tidak mengubah logic lama
+    Route::get('/grooming/history', [\App\Http\Controllers\Api\GroomingBookingController::class, 'history']);
+    Route::post('/grooming/bookings', [\App\Http\Controllers\Api\GroomingBookingController::class, 'store']);
+    Route::get('/grooming/bookings/{id}', [\App\Http\Controllers\Api\GroomingBookingController::class, 'show']);
+    Route::post('/grooming/bookings/{id}/cancel', [\App\Http\Controllers\Api\GroomingBookingController::class, 'cancel']);
+    Route::post('/grooming/bookings/{id}/sync-payment', [\App\Http\Controllers\Api\GroomingBookingController::class, 'syncPayment']);
+    Route::get('/grooming/bookings/{id}/payment-token', [\App\Http\Controllers\Api\GroomingBookingController::class, 'getPaymentToken']);
 });
+
+// [GROOMING EXTENSION] - baris baru publik, tidak mengubah logic lama
+Route::get('/grooming/services', [\App\Http\Controllers\Api\GroomingBookingController::class, 'services']);
+Route::get('/grooming/slots', [\App\Http\Controllers\Api\GroomingBookingController::class, 'slots']);
 
 /*
 |--------------------------------------------------------------------------
