@@ -14,18 +14,13 @@ class PelanggansTable
     {
         return $table
             ->columns([
+                // ✅ ID PELANGGAN (PLG-001, PLG-002, ...)
                 TextColumn::make('row_index')
-                    ->label('#')
-                    ->rowIndex(),
-
-                TextColumn::make('id_pelanggan')
                     ->label('ID Pelanggan')
+                    ->rowIndex()
                     ->formatStateUsing(function ($state) {
-                        // Ambil 3 digit terakhir
-                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
-                        return 'PLG-' . $last3;
-                    })
-                    ->sortable(),
+                        return 'PLG-' . str_pad((string) $state, 3, '0', STR_PAD_LEFT);
+                    }),
 
                 TextColumn::make('nama')
                     ->searchable(),
@@ -51,8 +46,8 @@ class PelanggansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('id_pelanggan', 'desc')
-            ->paginationPageOptions([10])
+            ->defaultSort('id_pelanggan', 'asc')   // ← UBAH JADI 'asc'
+            ->paginationPageOptions([100])
             ->filters([
                 //
             ])

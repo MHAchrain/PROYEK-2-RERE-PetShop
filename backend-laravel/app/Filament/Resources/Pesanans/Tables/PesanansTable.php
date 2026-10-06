@@ -15,9 +15,6 @@ class PesanansTable
     {
         return $table
             ->columns([
-                TextColumn::make('row_index')
-                    ->label('#')
-                    ->rowIndex(),
 
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
@@ -82,7 +79,7 @@ class PesanansTable
                     ),
             ])
             ->defaultSort('id_pesanan', 'desc')
-            ->paginationPageOptions([10])
+            ->paginationPageOptions([50])
             ->filters([
                 //
             ])
