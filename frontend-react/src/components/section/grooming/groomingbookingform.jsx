@@ -20,6 +20,18 @@ function FormField({ label, name, value, onChange, required = false, ...props })
   );
 }
 
+const formatPrice = (value) => {
+  if (value === null || value === undefined || value === '') return '—';
+  const numericValue = typeof value === 'number' ? value : Number(value);
+  if (isNaN(numericValue)) return value;
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(numericValue);
+};
+
 export default function GroomingBookingForm() {
   const {
     services,
@@ -108,7 +120,7 @@ export default function GroomingBookingForm() {
           </div>
           <div>
             <dt className="text-gray-500">Harga layanan</dt>
-            <dd className="font-medium text-gray-900">{createdBooking.price}</dd>
+            <dd className="font-medium text-gray-900">{formatPrice(createdBooking.price)}</dd>
           </div>
         </dl>
         <div className="mt-6 flex flex-wrap gap-3">
@@ -161,7 +173,7 @@ export default function GroomingBookingForm() {
               <option value="">Pilih layanan</option>
               {services.map((service) => (
                 <option key={service.id} value={service.id}>
-                  {service.name} — {service.price}
+                  {service.name} — {formatPrice(service.price)}
                 </option>
               ))}
             </select>
@@ -326,7 +338,7 @@ export default function GroomingBookingForm() {
           <div className="border-t border-gray-100 pt-4">
             <dt className="text-gray-500">Total</dt>
             <dd className="mt-1 text-lg font-bold text-gray-900">
-              {selectedService?.price || '—'}
+              {formatPrice(selectedService?.price)}
             </dd>
           </div>
         </dl>

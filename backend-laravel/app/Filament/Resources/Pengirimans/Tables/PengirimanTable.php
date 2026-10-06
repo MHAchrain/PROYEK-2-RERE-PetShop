@@ -17,10 +17,7 @@ class PengirimanTable
     {
         return $table
             ->columns([
-                TextColumn::make('row_index')
-                    ->label('#')
-                    ->rowIndex(),
-
+    
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
                     ->formatStateUsing(function ($state) {
