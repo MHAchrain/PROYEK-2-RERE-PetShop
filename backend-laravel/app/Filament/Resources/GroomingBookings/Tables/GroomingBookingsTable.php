@@ -20,13 +20,19 @@ class GroomingBookingsTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
+                // ✅ NOMOR URUT (1, 2, 3, 4, 5, ...)
+                TextColumn::make('row_index')
                     ->label('#')
-                    ->sortable(),
+                    ->rowIndex(),
 
+                // ✅ ID BOOKING (3 DIGIT TERAKHIR)
                 TextColumn::make('kode_booking')
                     ->label('ID Booking')
                     ->weight('bold')
+                    ->formatStateUsing(function ($state, $record) {
+                        $last3 = substr(str_pad((string) $record->id, 3, '0', STR_PAD_LEFT), -3);
+                        return 'GR-' . $last3;
+                    })
                     ->searchable(query: function ($query, string $search) {
                         $clean = preg_replace('/[^0-9]/', '', $search);
                         if (! empty($clean)) {
@@ -82,7 +88,6 @@ class GroomingBookingsTable
                         'gagal'               => 'Gagal',
                         default               => $state,
                     })
-                    // Quick Action: Ubah Status langsung dari badge/kolom
                     ->action(
                         Action::make('ubah_status')
                             ->label('Ubah Status')
