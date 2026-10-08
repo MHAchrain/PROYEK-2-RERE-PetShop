@@ -17,11 +17,10 @@ class PengirimanTable
     {
         return $table
             ->columns([
-    
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
                     ->formatStateUsing(function ($state) {
-                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), 0);
                         return 'ORD-' . $last3;
                     })
                     ->sortable(),
@@ -118,7 +117,7 @@ class PengirimanTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('id_pengiriman', 'desc')
+            ->defaultSort('tanggal_kirim', 'desc')   // ← Terbaru di atas
             ->paginationPageOptions([50])
             ->filters([
                 //

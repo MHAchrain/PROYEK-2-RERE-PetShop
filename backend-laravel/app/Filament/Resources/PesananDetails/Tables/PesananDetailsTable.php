@@ -14,24 +14,36 @@ class PesananDetailsTable
     {
         return $table
             ->columns([
-                 TextColumn::make('id_pesanan')
-        ->label('ID Pesanan')
-        ->formatStateUsing(fn ($state) => 'ORD-' . str_pad($state, 4, '0', STR_PAD_LEFT))
-        ->sortable(),
-                TextColumn::make('id_produk')
-        ->label('ID Produk')
-        ->formatStateUsing(fn ($state) => 'PRO-' . str_pad($state, 4, '0', STR_PAD_LEFT))
-        ->sortable(),
+                TextColumn::make('id_pesanan')
+                    ->label('ID Pesanan')
+                    ->formatStateUsing(function ($state) {
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), 0);
+                        return 'ORD-' . $last3;
+                    })
+                    ->sortable(),
+
+                TextColumn::make('produk.nama_produk')
+                    ->label('Nama Produk')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('qty')
+                    ->label('Qty')
                     ->numeric()
                     ->sortable(),
+
                 TextColumn::make('harga_satuan')
-                    ->numeric()
+                    ->label('Harga Satuan')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
+
                 TextColumn::make('subtotal')
-                    ->numeric()
+                    ->label('Subtotal')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
                     ->sortable(),
             ])
+            ->defaultSort('id_detail', 'desc')   // ← Terbaru di atas
+            ->paginationPageOptions([100])
             ->filters([
                 //
             ])

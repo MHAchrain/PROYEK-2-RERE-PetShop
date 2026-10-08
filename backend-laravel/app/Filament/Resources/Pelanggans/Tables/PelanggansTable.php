@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Pelanggans\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ViewAction;
+use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -46,13 +46,13 @@ class PelanggansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('id_pelanggan', 'asc')   // ← UBAH JADI 'asc'
+            ->defaultSort('id_pelanggan', 'asc')
             ->paginationPageOptions([100])
             ->filters([
                 //
             ])
             ->recordActions([
-                \Filament\Actions\DeleteAction::make(),
+                DeleteAction::make(),   // ← Cuma Delete (Edit dihapus)
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

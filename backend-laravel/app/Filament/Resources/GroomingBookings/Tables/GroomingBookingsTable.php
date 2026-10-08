@@ -30,7 +30,7 @@ class GroomingBookingsTable
                     ->label('ID Booking')
                     ->weight('bold')
                     ->formatStateUsing(function ($state, $record) {
-                        $last3 = substr(str_pad((string) $record->id, 3, '0', STR_PAD_LEFT), -3);
+                        $last3 = substr(str_pad((string) $record->id, 3, '0', STR_PAD_LEFT), 0);
                         return 'GR-' . $last3;
                     })
                     ->searchable(query: function ($query, string $search) {

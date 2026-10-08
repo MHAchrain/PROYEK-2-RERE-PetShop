@@ -19,7 +19,6 @@ class PembayaransTable
     {
         return $table
             ->columns([
-               
                 TextColumn::make('id_pembayaran')
                     ->label('ID Pembayaran')
                     ->formatStateUsing(function ($state) {
@@ -31,11 +30,17 @@ class PembayaransTable
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
                     ->formatStateUsing(function ($state) {
-                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), 0);
                         return 'ORD-' . $last3;
                     })
                     ->sortable()
                     ->searchable(),
+
+                // ✅ NAMA PELANGGAN (via relasi pesanan)
+                TextColumn::make('pesanan.pelanggan.nama')
+                    ->label('Pelanggan')
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('status_bayar')
                     ->label('Status Bayar')

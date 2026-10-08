@@ -59,21 +59,21 @@ class ProduksTable
                     }),
             ])
             ->columns([
-                TextColumn::make('id_produk')
+                // ✅ ID PRODUK (PAKAI ROW INDEX)
+                TextColumn::make('row_index')
                     ->label('ID Produk')
+                    ->rowIndex()
                     ->formatStateUsing(function ($state) {
-                        $last4 = substr(str_pad($state, 4, '0', STR_PAD_LEFT), -4);
-                        return 'PRO-' . $last4;
-                    })
-                    ->sortable(),
+                        return 'PRO-' . str_pad((string) $state, 4, '0', STR_PAD_LEFT);
+                    }),
 
+                // ✅ KATEGORI (TANPA SORTABLE)
                 TextColumn::make('id_kategori')
                     ->label('Kategori')
                     ->formatStateUsing(function ($state, $record) {
                         return 'CAT-' . str_pad($record->kategori->id_kategori, 4, '0', STR_PAD_LEFT)
                             . ' - ' . $record->kategori->nama_kategori;
-                    })
-                    ->sortable(),
+                    }),
 
                 TextColumn::make('nama_produk')
                     ->label('Nama Produk')

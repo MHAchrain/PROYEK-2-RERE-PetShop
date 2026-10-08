@@ -14,10 +14,6 @@ class KategorisTable
     {
         return $table
             ->columns([
-                TextColumn::make('row_index')
-                    ->label('#')
-                    ->rowIndex(),
-
                 TextColumn::make('id_kategori')
                     ->label('ID Kategori')
                     ->formatStateUsing(function ($state) {
@@ -40,7 +36,7 @@ class KategorisTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('id_kategori', 'desc')
+            ->defaultSort('id_kategori', 'asc')
             ->filters([
                 //
             ])

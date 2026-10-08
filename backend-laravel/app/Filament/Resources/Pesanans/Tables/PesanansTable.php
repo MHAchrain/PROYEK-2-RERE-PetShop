@@ -15,15 +15,20 @@ class PesanansTable
     {
         return $table
             ->columns([
-
                 TextColumn::make('id_pesanan')
                     ->label('ID Pesanan')
                     ->formatStateUsing(function ($state) {
-                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
+                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), 0);
                         return 'ORD-' . $last3;
                     })
                     ->sortable()
                     ->searchable(),
+
+                // ✅ NAMA PELANGGAN
+                TextColumn::make('pelanggan.nama')
+                    ->label('Pelanggan')
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('tanggal_pesanan')
                     ->label('Tanggal')
