@@ -4,7 +4,7 @@ class AppConstants {
   // Ganti dengan URL Laravel kamu
   static const String baseUrl =
       // 'https://api.rerepetshop.biz.id/api'; // untuk Android emulator
-  'http://localhost:8000/api'; // untuk Chrome/web
+      'http://127.0.0.1:8000/api'; // untuk lokal (Chrome/web)
 
   static const String appName = 'ReRe Petshop';
   static const String whatsappNumber = '6281319410250'; // 0813-1941-0250

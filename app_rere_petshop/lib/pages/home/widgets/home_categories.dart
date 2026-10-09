@@ -11,6 +11,8 @@ class HomeCategories extends StatefulWidget {
 }
 
 class _HomeCategoriesState extends State<HomeCategories> {
+  int? _selectedIndex;
+
   final List<Map<String, dynamic>> _categories = [
     {'name': 'Equipment', 'icon': Icons.build_outlined},
     {'name': 'Toys', 'icon': Icons.toys_outlined},
@@ -39,11 +41,15 @@ class _HomeCategoriesState extends State<HomeCategories> {
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, i) {
                 final cat = _categories[i];
+                final isSelected = _selectedIndex == i;
                 return GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    setState(() {
+                      _selectedIndex = i;
+                    });
                     // 🔥 CEK: Kalau Grooming → ke halaman Grooming
                     if (cat['name'] == 'Grooming') {
-                      Navigator.push(
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const GroomingPage(),
@@ -51,7 +57,7 @@ class _HomeCategoriesState extends State<HomeCategories> {
                       );
                     } else {
                       // Kategori lain → ke Catalog
-                      Navigator.push(
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => CatalogPage(
@@ -59,6 +65,12 @@ class _HomeCategoriesState extends State<HomeCategories> {
                           ),
                         ),
                       );
+                    }
+
+                    if (mounted) {
+                      setState(() {
+                        _selectedIndex = null;
+                      });
                     }
                   },
                   child: Column(
@@ -68,7 +80,9 @@ class _HomeCategoriesState extends State<HomeCategories> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: AppColors.white,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -80,17 +94,17 @@ class _HomeCategoriesState extends State<HomeCategories> {
                         ),
                         child: Icon(
                           cat['icon'] as IconData,
-                          color: AppColors.primary,
+                          color: isSelected ? AppColors.white : AppColors.primary,
                           size: 28,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         cat['name'] as String,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? AppColors.primary : AppColors.textSecondary,
                         ),
                       ),
                     ],

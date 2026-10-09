@@ -37,7 +37,7 @@ class Product {
       description: json['deskripsi'],
       // ⚠️ PERHATIKAN: ini pakai API, BUKAN storage langsung!
       image: fotoPath != null
-          ? 'https://api.rerepetshop.biz.id/api/image/$fotoPath'
+          ? 'http://127.0.0.1:8000/api/image/$fotoPath'
           : null,
       stock: json['stok'],
       category: json['kategori']?['nama_kategori'],

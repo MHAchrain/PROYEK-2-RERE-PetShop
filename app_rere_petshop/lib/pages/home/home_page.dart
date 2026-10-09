@@ -1,6 +1,7 @@
 // lib/presentation/screens/home/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/providers/product_provider.dart';
 import 'package:app_rere_petshop/pages/home/widgets/home_banner.dart';
@@ -51,10 +52,29 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: AppColors.white,
       elevation: 1,
       titleSpacing: 16,
-      title: Image.asset(
-        'assets/images/logo-rere.png',
-        height: 40,
-        fit: BoxFit.contain,
+      title: Consumer<AuthProvider>(
+        builder: (context, auth, _) {
+          if (!auth.isLoggedIn) {
+            return Image.asset(
+              'assets/images/logo-rere.png',
+              height: 40,
+              fit: BoxFit.contain,
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Welcome,', style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.1)),
+              Text(
+                auth.displayName?.trim().isNotEmpty == true ? auth.displayName! : 'Pelanggan',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary, height: 1.2),
+              ),
+            ],
+          );
+        },
       ),
       actions: [
         IconButton(

@@ -169,7 +169,7 @@ class _CatalogPageState extends State<CatalogPage> {
             crossAxisCount: 2,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: 0.80, // 👈 UBAH INI
+            childAspectRatio: 0.62,
           ),
           itemCount: provider.products.length,
           itemBuilder: (context, i) {

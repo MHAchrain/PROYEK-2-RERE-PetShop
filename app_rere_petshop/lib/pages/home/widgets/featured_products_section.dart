@@ -91,7 +91,7 @@ class FeaturedSection extends StatelessWidget {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 0.72,
+                    childAspectRatio: 0.62,
                   ),
                   itemCount: provider.featuredProducts.length,
                   itemBuilder: (context, i) {
@@ -123,7 +123,7 @@ class FeaturedSection extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.72,
+        childAspectRatio: 0.62,
       ),
       itemCount: 6,
       itemBuilder: (_, __) => Container(
