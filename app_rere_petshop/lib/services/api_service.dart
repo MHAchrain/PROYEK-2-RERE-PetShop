@@ -31,9 +31,13 @@ class ApiService {
     return _authService.authOptions();
   }
 
-  Future<void> addToCart(int productId) async {
+  Future<void> addToCart(int productId, {int quantity = 1}) async {
     try {
-      await _dio.post('/cart/add', data: {'id_produk': productId, 'qty': 1}, options: await _authOptions());
+      await _dio.post(
+        '/cart/add',
+        data: {'id_produk': productId, 'qty': quantity},
+        options: await _authOptions(),
+      );
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -52,6 +56,29 @@ class ApiService {
     try {
       final response = await _dio.get('/cart', options: await _authOptions());
       return Map<String, dynamic>.from(response.data['data'] ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> updateCartItem(int itemId, int quantity) async {
+    try {
+      await _dio.patch(
+        '/cart/item/$itemId',
+        data: {'qty': quantity},
+        options: await _authOptions(),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> removeCartItem(int itemId) async {
+    try {
+      await _dio.delete(
+        '/cart/item/$itemId',
+        options: await _authOptions(),
+      );
     } on DioException catch (e) {
       throw _handleError(e);
     }

@@ -29,6 +29,11 @@ class AuthService {
   Future<bool> hasAuthToken() async =>
       (await SharedPreferences.getInstance()).getString('auth_token') != null;
 
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+  }
+
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {
       final response = await _dio.get('/me', options: await authOptions());

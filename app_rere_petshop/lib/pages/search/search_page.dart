@@ -1,10 +1,16 @@
-// lib/presentation/screens/search/search_screen.dart
+import 'dart:async';
+
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/models/category_model.dart';
+import 'package:app_rere_petshop/models/product_model.dart';
+import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
+import 'package:app_rere_petshop/pages/search/models/search_filter.dart';
+import 'package:app_rere_petshop/pages/search/widgets/product_search_field.dart';
+import 'package:app_rere_petshop/pages/search/widgets/search_filter_sheet.dart';
+import 'package:app_rere_petshop/pages/search/widgets/search_results_view.dart';
+import 'package:app_rere_petshop/providers/product_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:app_rere_petshop/constants/app_colors.dart';
-import 'package:app_rere_petshop/providers/product_provider.dart';
-import 'package:app_rere_petshop/components/product_card.dart';
-import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -15,18 +21,88 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
+  Timer? _debounce;
   bool _hasSearched = false;
+  SearchFilter _filter = const SearchFilter();
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _onQueryChanged(String value) {
+    _debounce?.cancel();
+    final query = value.trim();
+
+    if (query.length < 2) {
+      setState(() => _hasSearched = false);
+      context.read<ProductProvider>().clearSearch();
+      return;
+    }
+
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      if (mounted) _search(query);
+    });
   }
 
   void _search(String query) {
     if (query.trim().isEmpty) return;
     setState(() => _hasSearched = true);
     context.read<ProductProvider>().searchProducts(query.trim());
+  }
+
+  Future<void> _openFilters(List<Category> categories) async {
+    final selectedFilter = await showModalBottomSheet<SearchFilter>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => SearchFilterSheet(
+        categories: categories,
+        initialFilter: _filter,
+      ),
+    );
+
+    if (selectedFilter != null && mounted) {
+      setState(() => _filter = selectedFilter);
+    }
+  }
+
+  List<Product> _filterProducts(List<Product> products) {
+    final result = products.where((product) {
+      if (_filter.categoryId != null &&
+          product.categoryId != _filter.categoryId) {
+        return false;
+      }
+      if (_filter.minPrice != null && product.price < _filter.minPrice!) {
+        return false;
+      }
+      if (_filter.maxPrice != null && product.price > _filter.maxPrice!) {
+        return false;
+      }
+      if (_filter.inStockOnly && !product.isInStock) return false;
+      return true;
+    }).toList();
+
+    if (_filter.sortOrder == SearchSortOrder.priceLowToHigh) {
+      result.sort((a, b) => a.price.compareTo(b.price));
+    } else if (_filter.sortOrder == SearchSortOrder.priceHighToLow) {
+      result.sort((a, b) => b.price.compareTo(a.price));
+    }
+    return result;
+  }
+
+  void _openProduct(Product product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProductDetailPage(productId: product.id),
+      ),
+    );
   }
 
   @override
@@ -36,6 +112,10 @@ class _SearchPageState extends State<SearchPage> {
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 1,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text(
           'Cari Produk',
           style: TextStyle(
@@ -47,147 +127,32 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: Column(
         children: [
-          _buildSearchBar(),
-          Expanded(child: _buildSearchResult()),
+          Consumer<ProductProvider>(
+            builder: (context, provider, _) => ProductSearchField(
+              controller: _controller,
+              filterCount: _filter.activeCount,
+              onChanged: _onQueryChanged,
+              onSubmitted: _search,
+              onFilterTap: () => _openFilters(provider.categories),
+            ),
+          ),
+          Expanded(
+            child: Consumer<ProductProvider>(
+              builder: (context, provider, _) {
+                final products = _filterProducts(provider.searchResults);
+                return SearchResultsView(
+                  hasSearched: _hasSearched,
+                  isLoading: provider.isSearching,
+                  query: _controller.text,
+                  products: products,
+                  hasUnfilteredResults: provider.searchResults.isNotEmpty,
+                  onProductTap: _openProduct,
+                );
+              },
+            ),
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      color: AppColors.white,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: TextField(
-        controller: _controller,
-        autofocus: false,
-        onSubmitted: _search,
-        decoration: InputDecoration(
-          hintText: 'Cari makanan, obat, mainan...',
-          hintStyle: const TextStyle(color: AppColors.grey, fontSize: 14),
-          prefixIcon: const Icon(Icons.search, color: AppColors.grey),
-          suffixIcon: _controller.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.close, color: AppColors.grey),
-                  onPressed: () {
-                    _controller.clear();
-                    context.read<ProductProvider>().clearSearch();
-                    setState(() => _hasSearched = false);
-                  },
-                )
-              : null,
-          filled: true,
-          fillColor: AppColors.greyBg,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        onChanged: (val) {
-          setState(() {});
-          if (val.length >= 3) _search(val);
-        },
-      ),
-    );
-  }
-
-  Widget _buildSearchResult() {
-    return Consumer<ProductProvider>(
-      builder: (context, provider, _) {
-        // Belum search
-        if (!_hasSearched) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.search, size: 72, color: AppColors.greyLight),
-                SizedBox(height: 16),
-                Text(
-                  'Cari produk petshop',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Ketik nama produk, kategori, atau merek',
-                  style: TextStyle(fontSize: 13, color: AppColors.grey),
-                ),
-              ],
-            ),
-          );
-        }
-
-        // Loading
-        if (provider.isSearching) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
-          );
-        }
-
-        // Tidak ada hasil
-        if (provider.searchResults.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.pets, size: 64, color: AppColors.greyLight),
-                const SizedBox(height: 16),
-                Text(
-                  'Produk "${_controller.text}" tidak ditemukan',
-                  style: const TextStyle(color: AppColors.grey),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
-        }
-
-        // Hasil search
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Text(
-                '${provider.searchResults.length} produk ditemukan',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-            Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.62,
-                ),
-                itemCount: provider.searchResults.length,
-                itemBuilder: (context, i) {
-                  final product = provider.searchResults[i];
-                  return ProductCard(
-                    product: product,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ProductDetailPage(productId: product.id),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

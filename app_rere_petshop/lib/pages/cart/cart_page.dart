@@ -1,83 +1,116 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
-import 'package:app_rere_petshop/pages/auth/login_page.dart';
-import 'package:app_rere_petshop/services/api_service.dart';
-import 'package:app_rere_petshop/services/auth_service.dart';
+import 'package:app_rere_petshop/pages/cart/cart_controller.dart';
+import 'package:app_rere_petshop/pages/cart/widgets/cart_bottom_bar.dart';
+import 'package:app_rere_petshop/pages/cart/widgets/cart_product_list.dart';
+import 'package:app_rere_petshop/pages/cart/widgets/cart_selection_header.dart';
+import 'package:app_rere_petshop/pages/cart/widgets/cart_status_view.dart';
 import 'package:flutter/material.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
+
   @override
   State<CartPage> createState() => _CartPageState();
 }
 
 class _CartPageState extends State<CartPage> {
-  final _api = ApiService();
-  final _auth = AuthService();
-  bool _loading = true;
-  String? _error;
-  Map<String, dynamic> _cart = {};
+  final _cart = CartController();
 
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _cart.load(context));
+  }
 
-  Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
-    try {
-      if (!await _auth.hasAuthToken()) {
-        if (!mounted) return;
-        final loggedIn = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const LoginPage()));
-        if (loggedIn != true) { setState(() { _loading = false; _error = 'Masuk untuk melihat keranjang.'; }); return; }
-      }
-      final cart = await _api.getCart();
-      if (mounted) setState(() { _cart = cart; _loading = false; });
-    } catch (e) { if (mounted) setState(() { _error = e.toString(); _loading = false; }); }
+  @override
+  void dispose() {
+    _cart.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final items = (_cart['items'] as List? ?? const []).cast<dynamic>();
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Keranjang'), backgroundColor: AppColors.white),
-      body: _loading 
-        ? const Center(
-            child: CircularProgressIndicator(color: AppColors.primary)
-          )
-          : _error != null 
-            ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24), 
-                child: Column(
-                  mainAxisSize: MainAxisSize.min, 
-                  children: [
-                    Text(_error!, textAlign: TextAlign.center), 
-                    const SizedBox(height: 12), 
-                    ElevatedButton(
-                      onPressed: _load, 
-                      child: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-          : items.isEmpty ? const Center(child: Text('Keranjang belanja kamu kosong.'))
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: items.length + 1,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                if (index == items.length) {
-                  final total = num.tryParse(_cart['total']?.toString() ?? '') ?? 0;
-                  return Card(child: Padding(padding: const EdgeInsets.all(16), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Text('Total', style: TextStyle(fontWeight: FontWeight.bold)), Text('Rp ${total.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary))])));
-                }
-                final item = Map<String, dynamic>.from(items[index] as Map);
-                final product = Map<String, dynamic>.from(item['produk'] as Map? ?? {});
-                final qty = item['qty'] ?? 1;
-                final name = product['nama_produk']?.toString() ?? 'Produk';
-                final amount = num.tryParse(item['subtotal']?.toString() ?? '') ?? 0;
-                return Card(child: ListTile(leading: const CircleAvatar(backgroundColor: AppColors.greyBg, child: Icon(Icons.pets, color: AppColors.primary)), title: Text(name, maxLines: 2, overflow: TextOverflow.ellipsis), subtitle: Text('Jumlah: $qty'), trailing: Text('Rp ${amount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w600))));
-              },
-            ),
+    return AnimatedBuilder(
+      animation: _cart,
+      builder: (context, _) {
+        final items = _cart.items;
+        final busy = _cart.isDeleting || _cart.updatingItemIds.isNotEmpty;
+
+        return Scaffold(
+          backgroundColor: AppColors.white,
+          appBar: AppBar(
+            title: const Text('Keranjang'),
+            backgroundColor: AppColors.white,
+            surfaceTintColor: Colors.transparent,
+          ),
+          body: _buildBody(items, busy),
+          bottomNavigationBar: !_cart.isLoading &&
+                  _cart.error == null &&
+                  items.isNotEmpty
+              ? CartBottomBar(
+                  total: _cart.selectedTotal,
+                  selectedProductCount: _cart.selectedIds.length,
+                  isBusy: busy,
+                  onCheckout: _cart.selectedIds.isEmpty
+                      ? null
+                      : () => _showMessage(
+                            'Checkout akan dilanjutkan setelah halaman checkout tersedia.',
+                          ),
+                )
+              : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildBody(List<Map<String, dynamic>> items, bool busy) {
+    if (_cart.isLoading) return const CartStatusView.loading();
+    if (_cart.error != null) {
+      return CartStatusView.error(
+        _cart.error!,
+        onRetry: () => _cart.load(context),
+      );
+    }
+    if (items.isEmpty) {
+      return const CartStatusView.message('Keranjang belanja kamu kosong.');
+    }
+
+    return Column(
+      children: [
+        CartSelectionHeader(
+          allSelected: _cart.selectedIds.length == items.length,
+          isBusy: busy,
+          hasSelection: _cart.selectedIds.isNotEmpty,
+          onSelectAll: _cart.toggleAll,
+          onDelete: () => _runAction(_cart.deleteSelected()),
+        ),
+        Expanded(
+          child: CartProductList(
+            items: items,
+            selectedItemIds: _cart.selectedItemIds,
+            updatingItemIds: _cart.updatingItemIds,
+            isUpdating: _cart.isDeleting,
+            onItemSelected: _cart.toggleItem,
+            onDecrease: (item) => _changeQuantity(item, -1),
+            onIncrease: (item) => _changeQuantity(item, 1),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _changeQuantity(Map<String, dynamic> item, int delta) async {
+    await _runAction(_cart.changeQuantity(item, delta));
+  }
+
+  Future<void> _runAction(Future<String?> action) async {
+    final message = await action;
+    if (message != null) _showMessage(message);
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:app_rere_petshop/pages/product/widgets/product_hero_image.dart';
-import 'package:app_rere_petshop/pages/product/widgets/product_website_button.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/models/product_model.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
-import 'package:app_rere_petshop/pages/web_view_page.dart';
+import 'package:app_rere_petshop/pages/cart/cart_page.dart';
+import 'package:app_rere_petshop/pages/auth/login_page.dart';
+import 'package:app_rere_petshop/services/auth_service.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
+import 'package:app_rere_petshop/pages/product/widgets/product_action_bar.dart';
+import 'package:app_rere_petshop/pages/product/widgets/product_detail_content.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final int productId;
@@ -19,6 +23,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   final ApiService _apiService = ApiService();
   Product? _product;
   bool _isLoading = true;
+  bool _isAddingToCart = false;
+  bool _isBuyingNow = false;
+  int _quantity = 1;
   String? _error;
 
   @override
@@ -42,16 +49,75 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
   }
 
-  void _openWebsite() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const WebViewPage(
-          url: 'https://rerepetshop.biz.id',
-          title: 'ReRe Petshop',
-        ),
-      ),
+  Future<bool> _ensureSignedIn() async {
+    if (await AuthService().hasAuthToken()) return true;
+    if (!mounted) return false;
+    return await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+        ) ==
+        true;
+  }
+
+  Future<void> _addToCart({bool buyNow = false}) async {
+    final product = _product;
+    if (product == null || !product.isInStock) return;
+    if (!await _ensureSignedIn()) return;
+
+    setState(() {
+      if (buyNow) {
+        _isBuyingNow = true;
+      } else {
+        _isAddingToCart = true;
+      }
+    });
+    try {
+      await _apiService.addToCart(product.id, quantity: _quantity);
+      if (!mounted) return;
+      if (buyNow) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CartPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produk ditambahkan ke keranjang.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menambahkan ke keranjang: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAddingToCart = false;
+          _isBuyingNow = false;
+        });
+      }
+    }
+  }
+
+  void _setQuantity(int quantity) {
+    final stock = _product?.stock ?? 0;
+    final maxQuantity = stock > 0 ? stock : 1;
+    setState(() {
+      _quantity = quantity.clamp(1, maxQuantity).toInt();
+    });
+  }
+
+  Future<void> _chatAboutProduct() async {
+    final product = _product;
+    if (product == null) return;
+    final text = Uri.encodeComponent(
+      'Halo ReRe Petshop, saya ingin bertanya tentang ${product.name}.',
     );
+    final uri = Uri.parse('https://wa.me/${AppConstants.whatsappNumber}?text=$text');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   @override
@@ -59,158 +125,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       bottomNavigationBar: _product != null
-          ? ProductWebsiteButton(onPressed: _openWebsite)
+          ? ProductActionBar(
+              isInStock: _product!.isInStock,
+              isAddingToCart: _isAddingToCart,
+              isBuyingNow: _isBuyingNow,
+              onChat: _chatAboutProduct,
+              onAddToCart: () => _addToCart(),
+              onBuyNow: () => _addToCart(buyNow: true),
+            )
           : null,
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary))
           : _error != null
               ? _buildError()
-              : _buildDetail(),
-    );
-  }
-
-  Widget _buildDetail() {
-    final product = _product!;
-    final hasDescription =
-        product.description != null && product.description!.isNotEmpty;
-
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 320,
-          pinned: true,
-          backgroundColor: AppColors.white,
-          leading: GestureDetector(
-            onTap: () {
-              if (Navigator.canPop(context)) Navigator.pop(context);
-            },
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-            ),
-          ),
-          flexibleSpace: FlexibleSpaceBar(
-            background: ProductHeroImage(product: product),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Container(
-            color: AppColors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text('PRODUK',
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: AppColors.primary,
-                              letterSpacing: 1,
-                              fontWeight: FontWeight.w600)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(product.name,
-                      style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary)),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: product.isInStock
-                          ? AppColors.success.withValues(alpha: 0.1)
-                          : Colors.red.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      product.isInStock ? 'In Stock' : 'Out of Stock',
-                      style: TextStyle(
-                          color: product.isInStock
-                              ? AppColors.success
-                              : Colors.red,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(product.formattedPrice,
-                      style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary)),
-                  const SizedBox(height: 16),
-                  if (hasDescription) ...[
-                    const Divider(),
-                    const SizedBox(height: 12),
-                    Text(product.description!,
-                        style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textSecondary,
-                            height: 1.6)),
-                    const SizedBox(height: 16),
-                  ],
-                  const Divider(),
-                  const SizedBox(height: 12),
-                  _infoTile(
-                      icon: Icons.local_shipping_outlined,
-                      title: 'Free Shipping',
-                      subtitle: 'Free delivery over Rp 200.000'),
-                  const SizedBox(height: 8),
-                  _infoTile(
-                      icon: Icons.replay_outlined,
-                      title: 'Easy Returns',
-                      subtitle: '30-day return policy'),
-                  const SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _infoTile(
-      {required IconData icon,
-      required String title,
-      required String subtitle}) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.greyLight),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(children: [
-        Icon(icon, color: AppColors.primary, size: 28),
-        const SizedBox(width: 12),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-          Text(subtitle,
-              style: const TextStyle(
-                  fontSize: 12, color: AppColors.textSecondary)),
-        ]),
-      ]),
+              : ProductDetailContent(
+                  product: _product!,
+                  quantity: _quantity,
+                  onQuantityChanged: _setQuantity,
+                ),
     );
   }
 

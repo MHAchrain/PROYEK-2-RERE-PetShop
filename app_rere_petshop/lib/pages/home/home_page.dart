@@ -7,6 +7,7 @@ import 'package:app_rere_petshop/providers/product_provider.dart';
 import 'package:app_rere_petshop/pages/home/widgets/home_banner.dart';
 import 'package:app_rere_petshop/pages/home/widgets/home_categories.dart';
 import 'package:app_rere_petshop/pages/home/widgets/featured_products_section.dart';
+import 'package:app_rere_petshop/pages/home/widgets/home_search_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,6 +35,7 @@ class _HomePageState extends State<HomePage> {
         child: CustomScrollView(
           slivers: [
             _buildAppBar(),
+            const SliverToBoxAdapter(child: HomeSearchWidget()),
             const SliverToBoxAdapter(child: HomeBanner()),
             const SliverToBoxAdapter(child: HomeCategories()),
             const SliverToBoxAdapter(child: FeaturedSection()),
@@ -65,12 +67,12 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Welcome,', style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.1)),
+              const Text('Welcome,', style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.1)),
               Text(
                 auth.displayName?.trim().isNotEmpty == true ? auth.displayName! : 'Pelanggan',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary, height: 1.2),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary, height: 1.2),
               ),
             ],
           );

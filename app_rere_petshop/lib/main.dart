@@ -9,13 +9,15 @@ import 'package:app_rere_petshop/providers/auth_provider.dart';
 // import 'package:app_rere_petshop/pages/splash/splash_page.dart';
 import 'package:app_rere_petshop/app/navigation.dart';  
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarBrightness: Brightness.light, // Teks jam hitam di iOS
       statusBarIconBrightness: Brightness.dark, // Ikon hitam di Android
-      systemNavigationBarColor: Colors.white,
+      systemNavigationBarColor: Colors.transparent,
       systemNavigationBarIconBrightness: Brightness.dark,
       systemNavigationBarDividerColor: Colors.white,
       systemNavigationBarContrastEnforced: false,
