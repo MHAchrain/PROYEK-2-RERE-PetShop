@@ -1,8 +1,12 @@
 import ProductSection from '../components/section/productsection';
 import { useSearchPage } from '../hooks/usesearchpage';
 import SectionTitle from '../components/ui/sectiontitle';
+import { useState } from 'react';
+import ProductSortSelect from '../components/ui/productsortselect';
+import { sortProducts } from '../utils/productsorting';
 
 export default function SearchPage() {
+  const [sortBy, setSortBy] = useState('recommended');
   const {
     submittedQuery,
     results,
@@ -39,7 +43,10 @@ export default function SearchPage() {
 
           {hasQuery && (
             <>
-              <ProductSection products={results} isLoading={isLoading} />
+              <div className="flex justify-end">
+                <ProductSortSelect value={sortBy} onChange={setSortBy} />
+              </div>
+              <ProductSection products={sortProducts(results, sortBy)} isLoading={isLoading} />
 
               {!isLoading && !hasResults && !errorMessage && (
                 <div className="rounded-[28px] border border-dashed border-gray-300 px-6 py-14 text-center">

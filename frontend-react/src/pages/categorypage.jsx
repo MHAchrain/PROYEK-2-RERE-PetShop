@@ -7,6 +7,8 @@ import NotFoundPage from './notfoundpage';
 import Skeleton from '../components/ui/skeleton';
 import LoadMoreButton from '../components/ui/loadmorebutton';
 import SectionTitle from '../components/ui/sectiontitle';
+import ProductSortSelect from '../components/ui/productsortselect';
+import { sortProducts } from '../utils/productsorting';
 
 export default function CategoryPage() {
   const { id } = useParams();
@@ -17,6 +19,7 @@ export default function CategoryPage() {
   const [notFound, setNotFound] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const [isBtnLoading, setIsBtnLoading] = useState(false);
+  const [sortBy, setSortBy] = useState('recommended');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +41,7 @@ export default function CategoryPage() {
     };
     fetchData();
     setVisibleCount(8);
+    setSortBy('recommended');
   }, [id]);
 
   const toggleVisible = () => {
@@ -73,7 +77,13 @@ export default function CategoryPage() {
           />
         )}
 
-        <ProductSectionByCategory products={products.slice(0, visibleCount)} isLoading={isLoading} />
+        {!isLoading && products.length > 0 && (
+          <div className="flex justify-end">
+            <ProductSortSelect value={sortBy} onChange={setSortBy} />
+          </div>
+        )}
+
+        <ProductSectionByCategory products={sortProducts(products, sortBy).slice(0, visibleCount)} isLoading={isLoading} />
 
         <LoadMoreButton
           onClick={toggleVisible}
