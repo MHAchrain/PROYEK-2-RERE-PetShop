@@ -46,7 +46,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
       ),
-      fontFamily: 'Roboto',
+      fontFamily: 'Plus Jakarta Sans',
     );
   }
 }

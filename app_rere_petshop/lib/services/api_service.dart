@@ -3,9 +3,11 @@ import 'package:dio/dio.dart';
 import 'package:app_rere_petshop/models/product_model.dart';
 import 'package:app_rere_petshop/models/category_model.dart';
 import 'package:app_rere_petshop/constants/app_constants.dart';
+import 'package:app_rere_petshop/services/auth_service.dart';
 
 class ApiService {
   late final Dio _dio;
+  final AuthService _authService = AuthService();
 
   ApiService() {
     _dio = Dio(BaseOptions(
@@ -23,6 +25,63 @@ class ApiService {
       requestBody: true,
       responseBody: true,
     ));
+  }
+
+  Future<Options> _authOptions() async {
+    return _authService.authOptions();
+  }
+
+  Future<void> addToCart(int productId, {int quantity = 1}) async {
+    try {
+      await _dio.post(
+        '/cart/add',
+        data: {'id_produk': productId, 'qty': quantity},
+        options: await _authOptions(),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<bool> toggleWishlist(int productId) async {
+    try {
+      final response = await _dio.post('/favorites', data: {'produk_id': productId}, options: await _authOptions());
+      return response.data['is_favorite'] == true;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getCart() async {
+    try {
+      final response = await _dio.get('/cart', options: await _authOptions());
+      return Map<String, dynamic>.from(response.data['data'] ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> updateCartItem(int itemId, int quantity) async {
+    try {
+      await _dio.patch(
+        '/cart/item/$itemId',
+        data: {'qty': quantity},
+        options: await _authOptions(),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> removeCartItem(int itemId) async {
+    try {
+      await _dio.delete(
+        '/cart/item/$itemId',
+        options: await _authOptions(),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
   }
 
   // ─── PRODUCTS ─────────────────────────────────────────────
@@ -99,7 +158,7 @@ class ApiService {
       case DioExceptionType.connectionError:
         return 'Tidak bisa terhubung ke server.';
       default:
-        return e.response?.data?['message'] ?? 'Terjadi kesalahan.';
+        return e.response?.data?['message']?.toString() ?? 'Terjadi kesalahan.';
     }
   }
 }

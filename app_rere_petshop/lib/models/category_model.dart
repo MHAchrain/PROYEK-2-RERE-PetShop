@@ -15,10 +15,15 @@ class Category {
 
   factory Category.fromJson(Map<String, dynamic> json) {
     return Category(
-      id: json['id'] ?? 0,
-      name: json['name'] ?? json['nama'] ?? '',
+      id: int.tryParse(
+            (json['id_kategori'] ?? json['id'] ?? 0).toString(),
+          ) ??
+          0,
+      name: json['nama_kategori'] ?? json['name'] ?? json['nama'] ?? '',
       icon: json['icon'],
-      productCount: json['products_count'] ?? json['jumlah_produk'],
+      productCount: int.tryParse(
+        (json['products_count'] ?? json['jumlah_produk'] ?? '').toString(),
+      ),
     );
   }
 
