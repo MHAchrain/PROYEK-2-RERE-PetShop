@@ -26,11 +26,22 @@ class GroomingServiceResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Layanan Grooming';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Grooming';
+    protected static string|UnitEnum|null $navigationGroup = 'Layanan Grooming';
 
     protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $total = static::getModel()::count();
+        return $total > 0 ? (string) $total : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'gray';
+    }
 
     public static function form(Schema $schema): Schema
     {

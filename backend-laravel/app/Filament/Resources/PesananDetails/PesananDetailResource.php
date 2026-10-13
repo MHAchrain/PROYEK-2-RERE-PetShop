@@ -18,11 +18,12 @@ class PesananDetailResource extends Resource
 {
     protected static ?string $model = PesananDetail::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-list-bullet';
-    protected static string|\UnitEnum|null $navigationGroup = 'Manajemen Toko';
-    protected static ?string $navigationLabel = 'Pesanan Detail';
-    protected static ?string $modelLabel = 'Pesanan Detail';
-    protected static ?string $pluralModelLabel = 'Pesanan Detail';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string|\UnitEnum|null $navigationGroup = 'Transaksi & Pesanan';
+    protected static ?int $navigationSort = 4;
+    protected static ?string $navigationLabel = 'Detail Item Pesanan';
+    protected static ?string $modelLabel = 'Detail Item Pesanan';
+    protected static ?string $pluralModelLabel = 'Detail Item Pesanan';
 
     public static function form(Schema $schema): Schema
     {

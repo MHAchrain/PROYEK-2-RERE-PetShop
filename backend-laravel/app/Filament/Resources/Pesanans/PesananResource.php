@@ -15,12 +15,13 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PesananResource extends Resource
 {
     protected static ?string $model = Pesanan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?string $navigationLabel = 'Pesanan';
 
@@ -28,7 +29,27 @@ class PesananResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pesanan';
 
+    protected static string|UnitEnum|null $navigationGroup = 'Transaksi & Pesanan';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $recordTitleAttribute = 'id_pesanan';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::whereIn('status_pesanan', ['baru', 'diproses'])->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Pesanan baru/diproses perlu ditangani';
+    }
 
     public static function form(Schema $schema): Schema
     {

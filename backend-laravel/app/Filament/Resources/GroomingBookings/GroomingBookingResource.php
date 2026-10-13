@@ -27,11 +27,27 @@ class GroomingBookingResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Booking Grooming';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Grooming';
+    protected static string|UnitEnum|null $navigationGroup = 'Layanan Grooming';
 
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::whereIn('status', ['menunggu_pembayaran', 'terjadwal', 'dikonfirmasi'])->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Booking grooming yang sedang aktif / terjadwal';
+    }
 
     public static function form(Schema $schema): Schema
     {

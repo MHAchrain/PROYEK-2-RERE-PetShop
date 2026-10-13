@@ -28,7 +28,24 @@ class PengirimanResource extends Resource
     protected static ?string $navigationLabel = 'Pengiriman';
     protected static ?string $modelLabel = 'Pengiriman';
     protected static ?string $pluralModelLabel = 'Pengiriman';
-    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Toko';
+    protected static string|UnitEnum|null $navigationGroup = 'Transaksi & Pesanan';
+    protected static ?int $navigationSort = 3;
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::whereIn('status_kirim', ['diproses', 'dikirim'])->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'primary';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Pengiriman aktif / dalam perjalanan';
+    }
 
     public static function form(Schema $schema): Schema
     {

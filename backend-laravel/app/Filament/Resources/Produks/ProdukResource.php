@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class ProdukResource extends Resource
 {
@@ -26,7 +27,34 @@ class ProdukResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Produk';
 
-    protected static ?string $recordTitleAttribute = 'Produk';
+    protected static string|UnitEnum|null $navigationGroup = 'Katalog Produk';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'nama_produk';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $lowStock = static::getModel()::where('stok', '<', 5)->count();
+        if ($lowStock > 0) {
+            return "{$lowStock} Stok Tipis";
+        }
+
+        $total = static::getModel()::count();
+        return $total > 0 ? (string) $total : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        $lowStock = static::getModel()::where('stok', '<', 5)->count();
+        return $lowStock > 0 ? 'danger' : 'gray';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        $lowStock = static::getModel()::where('stok', '<', 5)->count();
+        return $lowStock > 0 ? "Ada {$lowStock} produk dengan stok menipis (< 5)" : 'Total produk di katalog';
+    }
 
     public static function form(Schema $schema): Schema
     {

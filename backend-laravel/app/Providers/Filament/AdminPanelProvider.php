@@ -7,10 +7,12 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use App\Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Navigation\NavigationGroup;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -31,20 +33,29 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('Admin Rere Petshop')
-            ->favicon(secure_asset('logo.png'))
-            ->brandLogo(new HtmlString(sprintf(
-                '<div style="height: 100%%; padding-block: 0.5rem; 
-                box-sizing: border-box;">
-                <img src="%s" alt="Admin Rere Petshop" style="height: 100%%; width: auto;" />
-                </div>',
-                asset('images/logorere.png'),
-            )))
-            ->brandLogoHeight('5rem')
+            ->favicon(asset('images/logorere.png'))
+            ->brandLogo(fn () => view('filament.components.brand-logo'))
+            ->brandLogoHeight('2.6rem')
+            ->navigationGroups([
+                NavigationGroup::make('Transaksi & Pesanan')
+                    ->collapsible(true),
+                NavigationGroup::make('Katalog Produk')
+                    ->collapsible(true),
+                NavigationGroup::make('Layanan Grooming')
+                    ->collapsible(true),
+                NavigationGroup::make('Pengguna & Pelanggan')
+                    ->collapsible(true),
+            ])
             ->login()
             ->colors([
                 'primary' => Color::Amber,
+                'gray' => Color::Slate,
             ])
             ->font('Poppins')
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn () => view('filament.components.custom-styles'),
+            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -54,10 +65,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 \App\Filament\Widgets\DigitalClock::class,
-                \App\Filament\Widgets\PesananSiapKirim::class,  // ← TAMBAH INI
-                // \App\Filament\Widgets\KataKata::class,
-             
-                //FilamentInfoWidget::class,
+                \App\Filament\Widgets\PesananSiapKirim::class,
                 StatsOverview::class,
             ])
             ->middleware([

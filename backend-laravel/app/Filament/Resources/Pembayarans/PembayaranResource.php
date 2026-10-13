@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PembayaranResource extends Resource
 {
@@ -28,7 +29,27 @@ class PembayaranResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pembayaran';
 
+    protected static string|UnitEnum|null $navigationGroup = 'Transaksi & Pesanan';
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $recordTitleAttribute = 'id_pembayaran';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::where('status_bayar', 'pending')->count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'info';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Menunggu konfirmasi pembayaran';
+    }
 
     public static function form(Schema $schema): Schema
     {

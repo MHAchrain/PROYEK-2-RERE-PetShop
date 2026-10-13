@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PelangganResource extends Resource
 {
@@ -28,7 +29,27 @@ class PelangganResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pelanggan';
 
-    protected static ?string $recordTitleAttribute = 'Pelanggan';
+    protected static string|UnitEnum|null $navigationGroup = 'Pengguna & Pelanggan';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'nama';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::count();
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'gray';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Total pelanggan terdaftar';
+    }
 
     public static function form(Schema $schema): Schema
     {

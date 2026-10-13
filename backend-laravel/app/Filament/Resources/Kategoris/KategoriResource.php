@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class KategoriResource extends Resource
 {
@@ -26,7 +27,22 @@ class KategoriResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Kategori';
 
-    protected static ?string $recordTitleAttribute = 'Kategori';
+    protected static string|UnitEnum|null $navigationGroup = 'Katalog Produk';
+
+    protected static ?int $navigationSort = 2;
+
+    protected static ?string $recordTitleAttribute = 'nama_kategori';
+
+    public static function getNavigationBadge(): ?string
+    {
+        $total = static::getModel()::count();
+        return $total > 0 ? (string) $total : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'gray';
+    }
 
     public static function form(Schema $schema): Schema
     {
