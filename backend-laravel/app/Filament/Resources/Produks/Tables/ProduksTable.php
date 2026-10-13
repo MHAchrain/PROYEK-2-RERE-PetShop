@@ -59,21 +59,23 @@ class ProduksTable
                     }),
             ])
             ->columns([
-                // ✅ ID PRODUK (PAKAI ROW INDEX)
-                TextColumn::make('row_index')
+                // ✅ ID PRODUK (ID ASLI, 4 DIGIT TERAKHIR)
+                TextColumn::make('id_produk')
                     ->label('ID Produk')
-                    ->rowIndex()
                     ->formatStateUsing(function ($state) {
-                        return 'PRO-' . str_pad((string) $state, 4, '0', STR_PAD_LEFT);
-                    }),
+                        $last4 = substr(str_pad((string) $state, 4, '0', STR_PAD_LEFT), -4);
+                        return 'PRO-' . $last4;
+                    })
+                    ->sortable(),
 
-                // ✅ KATEGORI (TANPA SORTABLE)
+                // ✅ KATEGORI (SAMA KAYAK TABEL KATEGORI)
                 TextColumn::make('id_kategori')
                     ->label('Kategori')
                     ->formatStateUsing(function ($state, $record) {
                         return 'CAT-' . str_pad($record->kategori->id_kategori, 4, '0', STR_PAD_LEFT)
                             . ' - ' . $record->kategori->nama_kategori;
-                    }),
+                    })
+                    ->sortable(),
 
                 TextColumn::make('nama_produk')
                     ->label('Nama Produk')

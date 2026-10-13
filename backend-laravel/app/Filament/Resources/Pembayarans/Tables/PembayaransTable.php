@@ -13,7 +13,7 @@ use Filament\Schemas\Components\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class PembayaransTable
+class PembayaransTable   // ← INI HARUS PembayaransTable
 {
     public static function configure(Table $table): Table
     {
@@ -21,26 +21,15 @@ class PembayaransTable
             ->columns([
                 TextColumn::make('id_pembayaran')
                     ->label('ID Pembayaran')
-                    ->formatStateUsing(function ($state) {
-                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), -3);
-                        return 'PAY-' . $last3;
-                    })
-                    ->sortable(),
-
-                TextColumn::make('id_pesanan')
-                    ->label('ID Pesanan')
-                    ->formatStateUsing(function ($state) {
-                        $last3 = substr(str_pad((string) $state, 3, '0', STR_PAD_LEFT), 0);
-                        return 'ORD-' . $last3;
-                    })
+                    ->formatStateUsing(fn ($state) => 'PAY-' . $state)
                     ->sortable()
                     ->searchable(),
 
-                // ✅ NAMA PELANGGAN (via relasi pesanan)
-                TextColumn::make('pesanan.pelanggan.nama')
-                    ->label('Pelanggan')
-                    ->searchable()
-                    ->sortable(),
+                TextColumn::make('id_pesanan')
+                    ->label('ID Pesanan')
+                    ->formatStateUsing(fn ($state) => 'ORD-' . $state)
+                    ->sortable()
+                    ->searchable(),
 
                 TextColumn::make('status_bayar')
                     ->label('Status Bayar')

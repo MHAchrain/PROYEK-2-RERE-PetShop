@@ -15,9 +15,10 @@ class GroomingServicesTable
     {
         return $table
             ->columns([
-                TextColumn::make('id')
+                // ✅ NOMOR URUT (1, 2, 3, ...)
+                TextColumn::make('row_index')
                     ->label('#')
-                    ->sortable(),
+                    ->rowIndex(),
 
                 TextColumn::make('name')
                     ->label('Nama Layanan')
