@@ -2,10 +2,11 @@ import { useAuth } from "../../context/authcontext";
 import { useCartSection } from "../../hooks/usecartsection";
 import CartCard from "../ui/cartcard";
 import Skeleton from "../ui/skeleton";
+import BackButton from "../ui/backbutton";
 
 export default function CartSection() {
   const { token } = useAuth();
-  const { cart, total, isLoading, isCheckingOut, removeItem, updateQty, handleCheckout, navigate } =
+  const { cart, total, isLoading, isCheckingOut, removeItem, updateQty, handleCheckout } =
     useCartSection({ token });
 
   if (isLoading) {
@@ -29,7 +30,7 @@ export default function CartSection() {
   if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <div className="rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-        <h1 className="font-semibold text-gray-600">Keranjang belanja Anda kosong.</h1>
+        <h1 className="font-semibold text-gray-600">Keranjang belanja kamu kosong.</h1>
       </div>
     );
   }
@@ -49,28 +50,11 @@ export default function CartSection() {
       </div>
 
       <div className="flex justify-start">
-        <button
-          onClick={() => navigate("/")}
-          className="group flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-gray-200 px-5 py-3 text-sm font-bold text-gray-700 transition-all duration-300 hover:border-primary hover:text-primary hover:shadow-lg active:scale-95 sm:w-auto sm:px-8"
-        >
-          <span className="transition-transform duration-300 group-hover:-translate-x-1">&larr;</span>
-          Kembali Belanja
-        </button>
+        <BackButton label="Kembali Belanja" to="/" />
       </div>
 
-      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-        <div className="flex w-full flex-col gap-3 sm:flex-row xl:w-auto">
-          <input
-            type="text"
-            placeholder="Masukkan kode kupon"
-            className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none transition focus:border-black sm:flex-1 xl:w-72"
-          />
-          <button className="rounded-2xl bg-[#8B100E] px-6 py-3 font-medium whitespace-nowrap text-white transition hover:bg-[#6f0d0c]">
-            Pakai Kupon
-          </button>
-        </div>
-
-        <div className="w-full rounded-3xl border border-gray-200 bg-white p-6 shadow-sm xl:max-w-sm">
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-end">
+        <div className="w-full rounded-[28px] border border-gray-200 bg-white p-6 shadow-sm xl:max-w-sm">
           <h3 className="mb-5 text-xl font-bold">Ringkasan Belanja</h3>
 
           <div className="flex justify-between border-b border-gray-200 pb-3">
@@ -79,8 +63,8 @@ export default function CartSection() {
           </div>
 
           <div className="flex justify-between border-b border-gray-200 py-3">
-            <span>Shipping:</span>
-            <span className="text-gray-500">Free</span>
+            <span>Pengiriman:</span>
+            <span className="text-gray-500">Gratis</span>
           </div>
 
           <div className="flex justify-between pt-3 text-lg font-bold">
@@ -91,7 +75,7 @@ export default function CartSection() {
           <button
             onClick={handleCheckout}
             disabled={isCheckingOut}
-            className={`mt-5 w-full rounded-2xl bg-primary py-4 font-medium text-white transition-all ${
+            className={`mt-5 w-full rounded-2xl bg-primary py-4 font-semibold text-white transition-all ${
               isCheckingOut ? "opacity-50 cursor-not-allowed" : "hover:bg-primary-600"
             }`}
           >

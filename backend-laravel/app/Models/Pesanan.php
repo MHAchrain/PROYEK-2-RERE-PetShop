@@ -9,6 +9,10 @@ class Pesanan extends Model
 {
     use HasFactory;
 
+    protected static function booted(): void
+{
+    static::observe(\App\Observers\PesananObserver::class);
+}
     protected $table = 'pesanan';
     protected $primaryKey = 'id_pesanan';
 

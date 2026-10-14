@@ -1,9 +1,10 @@
-import { Heart, Star } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { useAuth } from "../../context/authcontext";
-import { wishlistService } from "../../services/wishlistservice";
-import { useAddToCart } from "../../hooks/useaddtocart";
+import { Heart, PackageCheck, PackageX, Star } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from '../../utils/toast.jsx';
+import { useAuth } from '../../context/authcontext';
+import { wishlistService } from '../../services/wishlistservice';
+import { useAddToCart } from '../../hooks/useaddtocart';
+import noImage from '../../assets/no-image.png';
 
 export default function ProductCard({
   id,
@@ -12,13 +13,19 @@ export default function ProductCard({
   image,
   diskon,
   rating,
+  stok,
   product,
   onWishlistAdded,
 }) {
-  const imageSrc = Array.isArray(image) ? image[0] : image;
+  // Prioritaskan foto_base64 langsung dari objek product
+  const rawImage = product?.foto_base64 || image || product?.foto;
+  const imageSrc = Array.isArray(rawImage) ? rawImage[0] : rawImage;
+
   const safeHarga = Number(harga) || 0;
   const safeDiskon = Number(diskon) || 0;
   const safeRating = Number(rating) || 0;
+  const safeStock = Number(stok ?? product?.stok ?? product?.stock ?? 0) || 0;
+  const isOutOfStock = safeStock < 1;
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart } = useAddToCart();
@@ -31,12 +38,17 @@ export default function ProductCard({
   const handleAddToCart = async (e) => {
     e.stopPropagation();
 
-    const success = await addToCart({ productId: id });
+    if (isOutOfStock) {
+      toast.error('Stok produk sedang habis');
+      return;
+    }
 
-    if (success) {
-      toast.success("Berhasil masuk ke keranjang");
-    } else {
-      toast.error("Gagal masuk ke keranjang");
+    const result = await addToCart({ productId: id, requireAuth: true });
+
+    if (result.ok) {
+      toast.success('Berhasil masuk ke keranjang');
+    } else if (result.reason !== 'auth_required') {
+      toast.error('Gagal masuk ke keranjang');
     }
   };
 
@@ -44,8 +56,8 @@ export default function ProductCard({
     e.stopPropagation();
 
     if (!user) {
-      toast.error("Login dulu buat tambah ke wishlist");
-      navigate("/auth");
+      toast.error('Masuk dulu buat tambah ke wishlist');
+      navigate('/auth');
       return;
     }
 
@@ -59,39 +71,57 @@ export default function ProductCard({
           foto: image,
           diskon,
           rating,
-        }
+          stok: safeStock,
+        },
       );
-      toast.success("Berhasil ditambahkan ke wishlist");
+      toast.success('Berhasil ditambahkan ke wishlist');
     } catch (error) {
       console.error(error);
-      toast.error("Gagal menambahkan ke wishlist");
+      toast.error('Gagal menambahkan ke wishlist');
     }
   };
 
   return (
-    <div className="relative group rounded-sm overflow-hidden transition-all duration-500 hover:scale-105">
+    <div
+      className={`relative group overflow-hidden rounded-sm transition-all duration-500 ${
+        isOutOfStock ? 'opacity-80 grayscale-[35%]' : 'hover:scale-105'
+      }`}>
       <div className="relative aspect-square overflow-hidden">
         <Link to={`/product/${id}`} className="block w-full h-full">
           <img
-            src={imageSrc || "../assets/no-image.png"}
-            alt={nama || "product"}
+            src={imageSrc || noImage}
+            alt={nama || 'produk'}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = noImage;
+            }}
+            className={`w-full h-full object-cover transition-transform duration-500 ${
+              isOutOfStock ? '' : 'group-hover:scale-110'
+            }`}
           />
         </Link>
 
-        {hasDiskon && (
-          <div className="absolute top-3 left-3 z-20 rounded-md bg-primary px-3 py-1 text-xs text-white">
-            -{safeDiskon}%
-          </div>
-        )}
+        <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+          {hasDiskon && !isOutOfStock && (
+            <div className="rounded-md bg-primary px-3 py-1 text-xs text-white">
+              -{safeDiskon}%
+            </div>
+          )}
+
+          {isOutOfStock && (
+            <div className="inline-flex items-center gap-1 rounded-md bg-gray-900 px-3 py-1 text-xs font-semibold text-white shadow">
+              <PackageX size={13} />
+              Habis
+            </div>
+          )}
+        </div>
 
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-20">
           <button
             type="button"
             onClick={handleAddToWishlist}
-            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition"
-          >
+            className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition">
             <Heart size={18} />
           </button>
         </div>
@@ -100,31 +130,54 @@ export default function ProductCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className="w-full bg-primary py-3 font-medium text-white transition-all hover:bg-primary-600 active:scale-[0.98]"
-          >
-            Tambah ke Keranjang
+            disabled={isOutOfStock}
+            className={`w-full py-3 font-semibold text-white transition-all active:scale-[0.98] ${
+              isOutOfStock
+                ? 'cursor-not-allowed bg-gray-500'
+                : 'bg-primary hover:bg-primary-600'
+            }`}>
+            {isOutOfStock ? 'Stok Habis' : 'Tambah ke Keranjang'}
           </button>
         </div>
       </div>
 
-      <Link to={`/product/${id}`} className="block pt-4 space-y-2 text-sm md:text-base">
+      <Link
+        to={`/product/${id}`}
+        className="block pt-4 space-y-2 text-sm md:text-base">
         <h4 className="font-semibold truncate">{nama}</h4>
 
-        <div className="flex items-center gap-2">
-          <p className={`font-semibold ${hasDiskon ? "text-primary" : "text-gray-800"}`}>
-            Rp {hargaFinal.toLocaleString("id-ID")}
-          </p>
-
-          {hasDiskon && (
-            <p className="text-gray-400 line-through text-sm">
-              Rp {safeHarga.toLocaleString("id-ID")}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <p
+              className={`font-semibold ${hasDiskon ? 'text-primary' : 'text-gray-800'}`}>
+              Rp {hargaFinal.toLocaleString('id-ID')}
             </p>
-          )}
+
+            {hasDiskon && (
+              <p className="text-gray-400 line-through text-sm">
+                Rp {safeHarga.toLocaleString('id-ID')}
+              </p>
+            )}
+          </div>
+
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+              isOutOfStock
+                ? 'bg-rose-50 text-rose-600 ring-1 ring-rose-100'
+                : 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100'
+            }`}>
+            {isOutOfStock ? <PackageX size={13} /> : <PackageCheck size={13} />}
+            {isOutOfStock ? 'Habis' : `${safeStock} stok`}
+          </span>
         </div>
 
         <div className="flex gap-1">
           {[...Array(safeRating)].map((_, i) => (
-            <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
+            <Star
+              key={i}
+              size={16}
+              className="fill-yellow-400 text-yellow-400"
+            />
           ))}
         </div>
       </Link>

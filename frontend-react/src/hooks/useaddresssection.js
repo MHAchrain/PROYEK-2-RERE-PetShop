@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { updateCustomerProfile } from "../services/profileservice";
 
 export const useAddressSection = ({ user, updateUser }) => {
@@ -26,7 +26,7 @@ export const useAddressSection = ({ user, updateUser }) => {
         setIsModalOpen(false);
       }
     } catch (error) {
-      toast.error("Gagal update alamat", { id: toastId });
+      toast.error("Gagal memperbarui alamat", { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -42,3 +42,5 @@ export const useAddressSection = ({ user, updateUser }) => {
     handleUpdateAlamat,
   };
 };
+
+

@@ -12,11 +12,29 @@ const shuffleProducts = (products = []) => {
   return shuffled;
 };
 
+const getProductStock = (product = {}) => Number(product.stok ?? product.stock ?? 0) || 0;
+
+const sortAvailableFirst = (products = []) =>
+  [...products]
+    .map((product, index) => ({ product, index }))
+    .sort((a, b) => {
+      const aHasStock = getProductStock(a.product) > 0;
+      const bHasStock = getProductStock(b.product) > 0;
+
+      if (aHasStock === bHasStock) {
+        return a.index - b.index;
+      }
+
+      return aHasStock ? -1 : 1;
+    })
+    .map(({ product }) => product);
+
 export const getProducts = async ({ shuffle = true } = {}) => {
   const res = await api.get("/produk");
   const products = Array.isArray(res.data.data) ? res.data.data : [];
+  const preparedProducts = shuffle ? shuffleProducts(products) : products;
 
-  return shuffle ? shuffleProducts(products) : products;
+  return sortAvailableFirst(preparedProducts);
 };
 
 export const searchProducts = async (query) => {
@@ -32,7 +50,7 @@ export const searchProducts = async (query) => {
     },
   });
 
-  return Array.isArray(res.data.data) ? res.data.data : [];
+  return sortAvailableFirst(Array.isArray(res.data.data) ? res.data.data : []);
 };
 
 export const getProductById = async (id) => {
@@ -43,5 +61,5 @@ export const getProductById = async (id) => {
 export const getProductsByCategory = async (id) => {
   const res = await api.get(`/kategori/${id}/produk`);
   const result = res.data?.data?.produks || [];
-  return result;
+  return sortAvailableFirst(result);
 };

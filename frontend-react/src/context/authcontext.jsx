@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import api from "../api/axios";
 import { AUTH_SESSION_EXPIRED_EVENT } from "../utils/appconfig";
 
@@ -124,3 +124,5 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+
+

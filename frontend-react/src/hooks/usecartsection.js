@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { useCart } from "../context/cartcontext";
 import { useAuth } from "../context/authcontext";
 import { fetchCart, removeCartItem, checkoutCart, updateCartItemQty } from "../services/cartservice";
@@ -59,7 +59,7 @@ export const useCartSection = ({ token }) => {
           items: nextItems,
         };
       });
-      toast.success("Item dihapus dari keranjang.");
+      toast.success("Produk dihapus dari keranjang.");
     } catch (error) {
       console.log(error);
       toast.error("Gagal menghapus item.");
@@ -101,7 +101,7 @@ export const useCartSection = ({ token }) => {
     const noTelp = pelanggan?.no_hp?.trim();
 
     if (!alamatKirim || !noTelp) {
-      toast.error("Lengkapi alamat dan nomor telepon dulu di profil sebelum checkout.");
+      toast.error("Lengkapi alamat dan nomor telepon dulu di profil sebelum membuat pesanan.");
       navigate("/atur-akun");
       return;
     }
@@ -124,7 +124,7 @@ export const useCartSection = ({ token }) => {
         });
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Checkout gagal.");
+      toast.error(error.response?.data?.message || "Gagal membuat pesanan.");
     } finally {
       setIsCheckingOut(false);
     }
@@ -141,3 +141,5 @@ export const useCartSection = ({ token }) => {
     navigate,
   };
 };
+
+

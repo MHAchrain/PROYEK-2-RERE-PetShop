@@ -13,9 +13,9 @@ export default function ProfileSection() {
       <div className="flex flex-col gap-4 rounded-[28px] border border-primary/10 bg-[linear-gradient(135deg,rgba(249,115,22,0.08)_0%,rgba(255,255,255,1)_55%,rgba(248,250,252,1)_100%)] p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">Profil Saya</p>
-          <h3 className="mt-2 text-2xl font-bold text-gray-900">Kelola informasi akun Anda</h3>
+          <h3 className="mt-2 text-2xl font-bold text-gray-900">Kelola informasi akun kamu</h3>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">
-            Pastikan nama dan nomor telepon selalu terbaru agar proses checkout dan pengiriman berjalan lebih lancar.
+            Pastikan nama dan nomor telepon selalu terbaru agar proses belanja dan pengiriman berjalan lebih lancar.
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export default function ProfileSection() {
           <div className="space-y-5 rounded-[28px] border border-gray-100 bg-gray-50/60 p-5 sm:p-6">
             <div>
               <h4 className="text-lg font-bold text-gray-900">Informasi Dasar</h4>
-              <p className="mt-1 text-sm text-gray-500">Data ini digunakan untuk identitas akun dan kontak utama Anda.</p>
+              <p className="mt-1 text-sm text-gray-500">Data ini digunakan untuk identitas akun dan kontak utama kamu.</p>
             </div>
 
             <div className="space-y-1 opacity-70">
@@ -80,7 +80,7 @@ export default function ProfileSection() {
           <div className="rounded-[28px] border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
             <h4 className="text-lg font-bold text-gray-900">Simpan Perubahan</h4>
             <p className="mt-2 text-sm leading-relaxed text-gray-500">
-              Setelah diperbarui, data profil ini akan dipakai untuk kebutuhan akun dan checkout berikutnya.
+              Setelah diperbarui, data profil ini akan dipakai untuk kebutuhan akun dan belanja berikutnya.
             </p>
 
             <div className="mt-6 rounded-2xl border border-dashed border-primary/20 bg-primary/5 px-4 py-4">
@@ -93,7 +93,7 @@ export default function ProfileSection() {
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-sm text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
             </button>

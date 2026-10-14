@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Password;
+
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProdukController;
 use App\Http\Controllers\Api\CartController;
@@ -13,55 +15,226 @@ use App\Http\Controllers\Api\PengirimanController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PelangganController;
 use App\Http\Controllers\Api\FavoriteController;
+<<<<<<< HEAD
 use App\Http\Controllers\ImageController;
+=======
+use App\Http\Controllers\Api\TrackingController;
+use App\Http\Controllers\Api\RecommendationController;
+use App\Http\Controllers\ImageController;
+
+/*
+|--------------------------------------------------------------------------
+| LOGIN FALLBACK
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/login', function () {
+    return response()->json([
+        'message' => 'Unauthenticated'
+    ], 401);
+})->name('login');
+
+/*
+|--------------------------------------------------------------------------
+| PUBLIC ROUTES
+|--------------------------------------------------------------------------
+*/
+>>>>>>> origin/rayen
 
 Route::get('/test', function () {
     return response()->json([
-        'message' => 'API jalan',
+        'message' => 'API jalan'
     ]);
 });
+
+Route::get('/track-order/{id_pesanan}', [TrackingController::class, 'track']);
+
+/*
+|--------------------------------------------------------------------------
+| KATEGORI
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/kategori', [KategoriController::class, 'index']);
 Route::get('/kategori/{id}', [KategoriController::class, 'show']);
 Route::get('/kategori/{id}/produk', [KategoriController::class, 'produkByKategori']);
 
+/*
+|--------------------------------------------------------------------------
+| PRODUK
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/produk', [ProdukController::class, 'index']);
 Route::get('/produk/{id}', [ProdukController::class, 'show']);
 
+/*
+|--------------------------------------------------------------------------
+| AI CHATBOT & REKOMENDASI
+|--------------------------------------------------------------------------
+*/
+Route::post('/chat-ai', [RecommendationController::class, 'chatAI']);
+
+/*
+|--------------------------------------------------------------------------
+| AUTH
+|--------------------------------------------------------------------------
+*/
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/login/google', [AuthController::class, 'loginWithGoogle']);
+
+// ⬇️ ROUTE GOOGLE OAUTH (DITAMBAHKAN) ⬇️
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+Route::post('/auth/google', [AuthController::class, 'googleLogin']);
+// ⬆️ SAMPAI SINI ⬆️
+
 Route::post('/forgot-password/send-code', [AuthController::class, 'sendResetCode']);
 Route::post('/forgot-password/verify-code', [AuthController::class, 'verifyResetCode']);
 Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword']);
 
+<<<<<<< HEAD
 Route::get('/image/{path}', [ImageController::class, 'show'])->where('path', '.*');
+=======
+/*
+|--------------------------------------------------------------------------
+| MIDTRANS WEBHOOK
+|--------------------------------------------------------------------------
+*/
 
-Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
+Route::post('/midtrans/webhook', [PembayaranController::class, 'webhook']);
+>>>>>>> origin/rayen
+
+/*
+|--------------------------------------------------------------------------
+| PEMBAYARAN PUBLIC
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/pembayaran/{id}', [PembayaranController::class, 'show']);
+
+/*
+|--------------------------------------------------------------------------
+| PROTECTED ROUTES
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware('auth:sanctum')->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH USER
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/me', [AuthController::class, 'me']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | PELANGGAN
+    |--------------------------------------------------------------------------
+    */
+
     Route::post('/pelanggan/update', [PelangganController::class, 'updateProfile']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | FAVORITES
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites', [FavoriteController::class, 'store']);
     Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy']);
+    
+
+    /*
+    |--------------------------------------------------------------------------
+    | CART
+    |--------------------------------------------------------------------------
+    */
+
+    
     Route::post('/cart/add', [CartController::class, 'add']);
     Route::get('/cart', [CartController::class, 'cart']);
     Route::patch('/cart/item/{id}', [CartController::class, 'update']);
     Route::delete('/cart/item/{id}', [CartController::class, 'remove']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECKOUT
+    |--------------------------------------------------------------------------
+    */
+
     Route::post('/checkout', [CheckoutController::class, 'checkout']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | PESANAN
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/pesanan', [PesananController::class, 'index']);
     Route::get('/pesanan/{id}', [PesananController::class, 'show']);
-    Route::post('/pembayaran', [PembayaranController::class, 'store']);
-    Route::get('/pembayaran/{id}', [PembayaranController::class, 'show']);
-    Route::get('/pesanan/{id}/pengiriman', [PengirimanController::class, 'show']);
+    Route::get('/pesanan/{id}/status', [PesananController::class, 'status']);
+    
+
     Route::post('/pesanan/{id}/selesai', [PesananController::class, 'selesai']);
     Route::post('/pesanan/{id}/batal', [PesananController::class, 'batal']);
+    
+
+    /*
+    |--------------------------------------------------------------------------
+    | PEMBAYARAN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/pembayaran', [PembayaranController::class, 'store']);
+    Route::patch('/pembayaran/{id}/sync', [PembayaranController::class, 'sync']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | PENGIRIMAN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/pesanan/{id}/pengiriman', [PengirimanController::class, 'show']);
+    Route::post('/pengiriman/{id}/terima', [PengirimanController::class, 'terima']);  // ✅ TAMBAH
+
+    /*
+    |--------------------------------------------------------------------------
+    | DASHBOARD
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::get('/pesanan/{id}/status', [PesananController::class, 'status']);
+
+    // [GROOMING EXTENSION] - baris baru, tidak mengubah logic lama
+    Route::get('/grooming/history', [\App\Http\Controllers\Api\GroomingBookingController::class, 'history']);
+    Route::post('/grooming/bookings', [\App\Http\Controllers\Api\GroomingBookingController::class, 'store']);
+    Route::get('/grooming/bookings/{id}', [\App\Http\Controllers\Api\GroomingBookingController::class, 'show']);
+    Route::post('/grooming/bookings/{id}/cancel', [\App\Http\Controllers\Api\GroomingBookingController::class, 'cancel']);
+    Route::post('/grooming/bookings/{id}/sync-payment', [\App\Http\Controllers\Api\GroomingBookingController::class, 'syncPayment']);
+    Route::get('/grooming/bookings/{id}/payment-token', [\App\Http\Controllers\Api\GroomingBookingController::class, 'getPaymentToken']);
 });
 
+<<<<<<< HEAD
 Route::get('/cek-token', function (Request $request) {
+=======
+// [GROOMING EXTENSION] - baris baru publik, tidak mengubah logic lama
+Route::get('/grooming/services', [\App\Http\Controllers\Api\GroomingBookingController::class, 'services']);
+Route::get('/grooming/slots', [\App\Http\Controllers\Api\GroomingBookingController::class, 'slots']);
+
+/*
+|--------------------------------------------------------------------------
+| DEBUG TOKEN
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/cek-token', function (Request $request) {
+
+>>>>>>> origin/rayen
     $token = $request->bearerToken();
 
     $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
@@ -71,4 +244,54 @@ Route::get('/cek-token', function (Request $request) {
         'token_ketemu' => $accessToken ? true : false,
         'user' => $accessToken?->tokenable,
     ]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| IMAGE
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/image/{path}', [ImageController::class, 'show'])
+    ->where('path', '.*');
+
+Route::options('/image/{path}', [ImageController::class, 'options'])
+    ->where('path', '.*');
+
+/*
+|--------------------------------------------------------------------------
+| FORGOT PASSWORD (LINK RESET VIA EMAIL) - TAMBAHAN
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/forgot-password-link', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email|exists:users,email'
+    ]);
+
+    $status = Password::sendResetLink($request->only('email'));
+
+    return $status === Password::RESET_LINK_SENT
+        ? response()->json(['message' => 'Link reset password telah dikirim ke email Anda.'], 200)
+        : response()->json(['message' => 'Gagal mengirim link reset.'], 400);
+});
+
+Route::post('/reset-password-link', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'token' => 'required|string',
+        'password' => 'required|min:6|confirmed'
+    ]);
+
+    $status = Password::reset(
+        $request->only('email', 'password', 'password_confirmation', 'token'),
+        function ($user, $password) {
+            $user->password = bcrypt($password);
+            $user->save();
+        }
+    );
+
+    return $status === Password::PASSWORD_RESET
+        ? response()->json(['message' => 'Password berhasil direset. Silakan login.'], 200)
+        : response()->json(['message' => 'Token tidak valid atau sudah kadaluarsa.'], 400);
 });

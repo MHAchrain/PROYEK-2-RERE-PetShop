@@ -25,7 +25,7 @@ export default function SecuritySection() {
       <div className="flex flex-col gap-4 rounded-[28px] border border-primary/10 bg-[linear-gradient(135deg,rgba(249,115,22,0.08)_0%,rgba(255,255,255,1)_55%,rgba(248,250,252,1)_100%)] p-5 sm:p-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">Keamanan Akun</p>
-          <h3 className="mt-2 text-2xl font-bold text-gray-900">Perbarui kata sandi Anda</h3>
+          <h3 className="mt-2 text-2xl font-bold text-gray-900">Perbarui kata sandi kamu</h3>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">
             Jaga akun tetap aman dengan kata sandi yang kuat dan unik. Ubah secara berkala untuk mengurangi risiko akses tidak sah.
           </p>
@@ -33,7 +33,7 @@ export default function SecuritySection() {
 
         <div className="grid gap-3 sm:grid-cols-2 lg:w-[20rem] lg:grid-cols-1">
           <div className="rounded-2xl border border-white/80 bg-white/80 px-4 py-3 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Panjang Password</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Panjang Kata Sandi</p>
             <p className="mt-2 text-sm font-semibold text-gray-800">
               {passwordLength > 0 ? `${passwordLength} karakter` : "Belum diisi"}
             </p>
@@ -45,7 +45,7 @@ export default function SecuritySection() {
               {pwdData.password_confirmation.length === 0
                 ? "Menunggu konfirmasi"
                 : isPasswordMatch
-                  ? "Password cocok"
+                  ? "Kata sandi cocok"
                   : "Belum cocok"}
             </p>
           </div>
@@ -56,8 +56,8 @@ export default function SecuritySection() {
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="space-y-5 rounded-[28px] border border-gray-100 bg-gray-50/60 p-5 sm:p-6">
             <div>
-              <h4 className="text-lg font-bold text-gray-900">Form Ubah Password</h4>
-              <p className="mt-1 text-sm text-gray-500">Masukkan password baru dan konfirmasi dengan benar sebelum disimpan.</p>
+              <h4 className="text-lg font-bold text-gray-900">Form Ubah Kata Sandi</h4>
+              <p className="mt-1 text-sm text-gray-500">Masukkan kata sandi baru dan konfirmasi dengan benar sebelum disimpan.</p>
             </div>
 
             <div className="space-y-1">
@@ -82,7 +82,7 @@ export default function SecuritySection() {
                 {passwordLength === 0
                   ? "Gunakan minimal 6 karakter."
                   : isPasswordStrong
-                    ? "Bagus, panjang password sudah kuat."
+                    ? "Bagus, panjang kata sandi sudah kuat."
                     : "Saran: gunakan 8 karakter atau lebih agar lebih aman."}
               </p>
             </div>
@@ -115,10 +115,10 @@ export default function SecuritySection() {
                 }`}
               >
                 {pwdData.password_confirmation.length === 0
-                  ? "Konfirmasi password Anda di sini."
+                  ? "Konfirmasi kata sandi kamu di sini."
                   : isPasswordMatch
-                    ? "Konfirmasi password sudah sesuai."
-                    : "Konfirmasi password belum cocok."}
+                    ? "Konfirmasi kata sandi sudah sesuai."
+                    : "Konfirmasi kata sandi belum cocok."}
               </p>
             </div>
           </div>
@@ -127,7 +127,7 @@ export default function SecuritySection() {
             <div>
               <h4 className="text-lg font-bold text-gray-900">Tips Keamanan</h4>
               <p className="mt-2 text-sm leading-relaxed text-gray-500">
-                Ikuti beberapa langkah sederhana ini supaya akun Anda tetap aman.
+                Ikuti beberapa langkah sederhana ini supaya akun kamu tetap aman.
               </p>
             </div>
 
@@ -137,8 +137,8 @@ export default function SecuritySection() {
                   <LockKeyhole size={18} />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">Gunakan password unik</p>
-                  <p className="mt-1 text-xs leading-relaxed text-gray-500">Jangan gunakan password yang sama dengan akun lain.</p>
+                  <p className="text-sm font-semibold text-gray-800">Gunakan kata sandi unik</p>
+                  <p className="mt-1 text-xs leading-relaxed text-gray-500">Jangan gunakan kata sandi yang sama dengan akun lain.</p>
                 </div>
               </div>
 
@@ -166,9 +166,9 @@ export default function SecuritySection() {
             <button
               type="submit"
               disabled={isLoading}
-              className="inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-sm text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isLoading ? "Memproses..." : "Update Password"}
+              {isLoading ? "Memproses..." : "Perbarui Kata Sandi"}
             </button>
           </div>
         </div>

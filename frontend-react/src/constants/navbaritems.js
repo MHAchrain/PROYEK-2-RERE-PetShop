@@ -7,4 +7,5 @@ export const menuItems = [
 export const accountMenuItems = [
   { label: "Atur Akun", path: "/atur-akun?tab=profil", iconKey: "user" },
   { label: "Pesanan Saya", path: "/pesanan", iconKey: "package" },
+  { label: "Riwayat Booking", path: "/grooming/history", iconKey: "tag" },
 ];

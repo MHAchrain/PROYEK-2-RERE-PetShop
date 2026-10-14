@@ -97,7 +97,7 @@ export default function AboutPage() {
               <Skeleton className="h-112 w-full rounded-3xl bg-gray-200 animate-pulse" />
             ) : (
               <div className="relative group">
-                <img src={examp} alt="Tentang ReRe Petshop" className="h-112 w-full rounded-3xl object-cover shadow-2xl" />
+                <img src={examp} alt="Tentang ReRe Petshop" className="h-112 w-full rounded-3xl object-cover shadow-lg" />
               </div>
             )}
           </div>

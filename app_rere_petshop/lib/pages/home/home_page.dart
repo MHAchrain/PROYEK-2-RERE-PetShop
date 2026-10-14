@@ -1,0 +1,90 @@
+// lib/presentation/screens/home/home_screen.dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app_rere_petshop/providers/auth_provider.dart';
+import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/providers/product_provider.dart';
+import 'package:app_rere_petshop/pages/home/widgets/home_banner.dart';
+import 'package:app_rere_petshop/pages/home/widgets/home_categories.dart';
+import 'package:app_rere_petshop/pages/home/widgets/featured_products_section.dart';
+import 'package:app_rere_petshop/pages/home/widgets/home_search_widget.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProductProvider>().fetchHomeData();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () => context.read<ProductProvider>().fetchHomeData(),
+        child: CustomScrollView(
+          slivers: [
+            _buildAppBar(),
+            const SliverToBoxAdapter(child: HomeSearchWidget()),
+            const SliverToBoxAdapter(child: HomeBanner()),
+            const SliverToBoxAdapter(child: HomeCategories()),
+            const SliverToBoxAdapter(child: FeaturedSection()),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ─── APP BAR ─────────────────────────────────────────────
+
+  Widget _buildAppBar() {
+    return SliverAppBar(
+      floating: true,
+      backgroundColor: AppColors.white,
+      elevation: 1,
+      titleSpacing: 16,
+      title: Consumer<AuthProvider>(
+        builder: (context, auth, _) {
+          if (!auth.isLoggedIn) {
+            return Image.asset(
+              'assets/images/logo-rere.png',
+              height: 40,
+              fit: BoxFit.contain,
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Welcome,', style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.1)),
+              Text(
+                auth.displayName?.trim().isNotEmpty == true ? auth.displayName! : 'Pelanggan',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary, height: 1.2),
+              ),
+            ],
+          );
+        },
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_outlined,
+              color: AppColors.textPrimary),
+          onPressed: () {},
+        ),
+      ],
+    );
+  }
+}

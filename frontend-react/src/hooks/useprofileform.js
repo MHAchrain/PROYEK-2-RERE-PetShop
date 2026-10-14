@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import toast from "../utils/toast.jsx";
 import { formatPhone } from "../utils/formatphone";
 import { updateCustomerProfile } from "../services/profileservice";
 
@@ -48,7 +48,7 @@ export const useProfileForm = ({ user, updateUser }) => {
       }
     } catch (error) {
       console.error("Error Detail:", error.response?.data);
-      toast.error(error.response?.data?.message || "Gagal update profil", { id: toastId });
+      toast.error(error.response?.data?.message || "Gagal memperbarui profil", { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -62,3 +62,5 @@ export const useProfileForm = ({ user, updateUser }) => {
     handleSubmit,
   };
 };
+
+

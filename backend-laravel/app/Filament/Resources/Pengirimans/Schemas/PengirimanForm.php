@@ -14,17 +14,14 @@ class PengirimanForm
         return $schema
             ->components([
                 Select::make('id_pesanan')
-                    ->label('Pesanan')
-                    ->options(
-                        \App\Models\Pesanan::query()
-                            ->orderBy('id_pesanan', 'desc')
-                            ->get()
-                            ->mapWithKeys(fn ($item) => [
-                                $item->id_pesanan => 'ORD-' . str_pad($item->id_pesanan, 4, '0', STR_PAD_LEFT),
-                            ])
-                            ->toArray()
-                    )
-                    ->required(),
+                        ->label('Pilih Pesanan')
+                        ->options(
+                        \App\Models\Pesanan::all()->pluck('id_pesanan', 'id_pesanan')
+                        ->mapWithKeys(fn ($id) => [$id => 'ORD-' . str_pad($id, 4, '0', STR_PAD_LEFT)])
+                        )
+                        ->searchable()
+                        ->preload() // Tambahkan ini biar datanya dimuat duluan
+                        ->required(),
 
                 Select::make('status_kirim')
                     ->options([
@@ -35,7 +32,14 @@ class PengirimanForm
                     ->default('diproses')
                     ->required(),
 
-                TextInput::make('kurir'),
+                Select::make('kurir')
+                    ->options([
+                        'menunggu_kurir' => '⏳ Menunggu Kurir',
+                        'jne' => 'JNE Ekspress',
+                        'ojol' => 'Gosend/grab',
+                        'internal' => 'Kurir Internal',
+                    ])
+                    ->required(),
 
                 TextInput::make('resi'),
 

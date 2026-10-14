@@ -1,42 +1,92 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Printer, ReceiptText, ShoppingBag, Truck } from "lucide-react";
-import toast from "react-hot-toast";
-import Skeleton from "../components/ui/skeleton";
-import { cancelOrder, getOrderDetail } from "../services/orderservice";
-import { getStorageUrl } from "../utils/appconfig";
-import logo from "../assets/logorere.png";
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  ArrowLeft,
+  CheckCircle,
+  CreditCard,
+  ExternalLink,
+  MapPin,
+  Phone,
+  Printer,
+  ReceiptText,
+  ShoppingBag,
+  Truck,
+} from 'lucide-react';
+import toast from '../utils/toast.jsx';
+import Skeleton from '../components/ui/skeleton';
+import { cancelOrder, getOrderDetail } from '../services/orderservice';
+import {
+  createPayment,
+  syncPaymentByOrderId,
+} from '../services/paymentservice';
+import { getStorageUrl } from '../utils/appconfig';
+import api from '../api/axios'; // ← IMPORT AXIOS (sesuaikan path)
+import logo from '../assets/logorere.png';
+import noImage from '../assets/no-image.png';
+import BackButton from '../components/ui/backbutton.jsx';
 
 const statusLabelMap = {
-  baru: "Pesanan Baru",
-  menunggu_verifikasi: "Menunggu Verifikasi",
-  diproses: "Sedang Diproses",
-  dikirim: "Sedang Dikirim",
-  selesai: "Pesanan Selesai",
-  dibatalkan: "Pesanan Dibatalkan",
-  batal: "Pesanan Dibatalkan",
+  baru: 'Pesanan Baru',
+  menunggu_verifikasi: 'Menunggu Verifikasi',
+  diproses: 'Sedang Diproses',
+  dikirim: 'Sedang Dikirim',
+  selesai: 'Pesanan Selesai',
+  dibatalkan: 'Pesanan Dibatalkan',
+  batal: 'Pesanan Dibatalkan',
 };
 
 const statusClassMap = {
-  baru: "bg-amber-100 text-amber-700",
-  menunggu_verifikasi: "bg-orange-100 text-orange-700",
-  diproses: "bg-sky-100 text-sky-700",
-  dikirim: "bg-indigo-100 text-indigo-700",
-  selesai: "bg-emerald-100 text-emerald-700",
-  dibatalkan: "bg-rose-100 text-rose-700",
-  batal: "bg-rose-100 text-rose-700",
+  baru: 'bg-amber-100 text-amber-700',
+  menunggu_verifikasi: 'bg-orange-100 text-orange-700',
+  diproses: 'bg-sky-100 text-sky-700',
+  dikirim: 'bg-indigo-100 text-indigo-700',
+  selesai: 'bg-emerald-100 text-emerald-700',
+  dibatalkan: 'bg-rose-100 text-rose-700',
+  batal: 'bg-rose-100 text-rose-700',
 };
 
 const paymentStatusLabelMap = {
-  pending: "Menunggu Verifikasi",
-  paid: "Sudah Dibayar",
-  failed: "Pembayaran Gagal",
+  pending: 'Menunggu Pembayaran',
+  paid: 'Sudah Dibayar',
+  failed: 'Pembayaran Gagal',
 };
 
 const paymentStatusClassMap = {
-  pending: "bg-amber-100 text-amber-700",
-  paid: "bg-emerald-100 text-emerald-700",
-  failed: "bg-rose-100 text-rose-700",
+  pending: 'bg-amber-100 text-amber-700',
+  paid: 'bg-emerald-100 text-emerald-700',
+  failed: 'bg-rose-100 text-rose-700',
+};
+
+const shippingStatusLabelMap = {
+  diproses: 'Sedang Diproses',
+  dikirim: 'Sedang Dikirim',
+  diterima: 'Sudah Diterima',
+};
+
+const shippingStatusClassMap = {
+  diproses: 'bg-amber-100 text-amber-700',
+  dikirim: 'bg-indigo-100 text-indigo-700',
+  diterima: 'bg-emerald-100 text-emerald-700',
+};
+
+const formatCourierName = (courier) => {
+  const normalizedCourier = String(courier || '')
+    .trim()
+    .toLowerCase();
+
+  if (!normalizedCourier) return '-';
+  if (normalizedCourier.includes('internal')) return 'Kurir Internal (Udin)';
+  if (normalizedCourier.includes('jne')) return 'JNE Ekspress';
+  if (
+    normalizedCourier.includes('ojol') ||
+    normalizedCourier.includes('gosend') ||
+    normalizedCourier.includes('grab')
+  ) {
+    return 'Gosend/Grab';
+  }
+  if (normalizedCourier.includes('menunggu')) return 'Menunggu Kurir';
+
+  return courier;
 };
 
 export default function OrderDetailPage() {
@@ -45,8 +95,10 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isOpeningPayment, setIsOpeningPayment] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [printedAt, setPrintedAt] = useState(() => new Date());
+  const [isConfirmingTerima, setIsConfirmingTerima] = useState(false); // ← STATE BARU
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -56,8 +108,8 @@ export default function OrderDetailPage() {
         setOrder(data);
       } catch (error) {
         console.error(error);
-        toast.error("Detail pesanan tidak ditemukan.");
-        navigate("/pesanan");
+        toast.error('Detail pesanan tidak ditemukan.');
+        navigate('/pesanan');
       } finally {
         setIsLoading(false);
       }
@@ -71,42 +123,88 @@ export default function OrderDetailPage() {
       setPrintedAt(new Date());
     };
 
-    window.addEventListener("beforeprint", syncPrintedAt);
+    window.addEventListener('beforeprint', syncPrintedAt);
 
     return () => {
-      window.removeEventListener("beforeprint", syncPrintedAt);
+      window.removeEventListener('beforeprint', syncPrintedAt);
     };
   }, []);
 
   const formattedDate = useMemo(() => {
-    if (!order?.tanggal_pesanan) return "-";
+    if (!order?.tanggal_pesanan) return '-';
 
-    return new Date(order.tanggal_pesanan).toLocaleString("id-ID", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(order.tanggal_pesanan).toLocaleString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   }, [order?.tanggal_pesanan]);
 
-  const statusLabel = statusLabelMap[order?.status_pesanan] || order?.status_pesanan || "-";
-  const statusClass = statusClassMap[order?.status_pesanan] || "bg-gray-100 text-gray-700";
+  const statusLabel =
+    statusLabelMap[order?.status_pesanan] || order?.status_pesanan || '-';
+  const statusClass =
+    statusClassMap[order?.status_pesanan] || 'bg-gray-100 text-gray-700';
   const paymentStatusLabel =
-    paymentStatusLabelMap[order?.pembayaran?.status_bayar] || order?.pembayaran?.status_bayar || "-";
+    paymentStatusLabelMap[order?.pembayaran?.status_bayar] ||
+    order?.pembayaran?.status_bayar ||
+    '-';
   const paymentStatusClass =
-    paymentStatusClassMap[order?.pembayaran?.status_bayar] || "bg-gray-100 text-gray-700";
-  const canCancel = ["baru", "menunggu_verifikasi"].includes(order?.status_pesanan);
-  const printedAtLabel = printedAt.toLocaleString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    paymentStatusClassMap[order?.pembayaran?.status_bayar] ||
+    'bg-gray-100 text-gray-700';
+  const shippingStatusLabel =
+    shippingStatusLabelMap[order?.pengiriman?.status_kirim] ||
+    order?.pengiriman?.status_kirim ||
+    '-';
+  const shippingStatusClass =
+    shippingStatusClassMap[order?.pengiriman?.status_kirim] ||
+    'bg-gray-100 text-gray-700';
+  const courierName = formatCourierName(order?.pengiriman?.kurir);
+  const canCancel = ['baru', 'menunggu_verifikasi'].includes(
+    order?.status_pesanan,
+  );
+  const printedAtLabel = printedAt.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 
   const handlePrint = () => {
     window.print();
+  };
+
+  // ✅ FUNCTION BARU: Konfirmasi pesanan sudah diterima
+  const handleTerimaPesanan = async () => {
+    if (!order?.pengiriman?.id_pengiriman) {
+      toast.error('Data pengiriman tidak ditemukan.');
+      return;
+    }
+
+    try {
+      setIsConfirmingTerima(true);
+
+      const response = await api.post(
+        `/pengiriman/${order.pengiriman.id_pengiriman}/terima`,
+      );
+
+      if (response.data?.success) {
+        // Refresh data order biar statusnya update
+        const latestOrder = await getOrderDetail(id);
+        setOrder(latestOrder);
+
+        toast.success('Pesanan berhasil dikonfirmasi diterima! 🎉');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error.response?.data?.message || 'Gagal konfirmasi penerimaan pesanan.',
+      );
+    } finally {
+      setIsConfirmingTerima(false);
+    }
   };
 
   const handleCancel = async () => {
@@ -114,14 +212,106 @@ export default function OrderDetailPage() {
 
     try {
       setIsCancelling(true);
-      await cancelOrder(order.id_pesanan);
-      setOrder((prev) => (prev ? { ...prev, status_pesanan: "batal" } : prev));
+      const response = await cancelOrder(order.id_pesanan);
+      setOrder((prev) =>
+        prev
+          ? {
+              ...prev,
+              status_pesanan: response?.data?.status_pesanan || 'batal',
+              pembayaran: prev.pembayaran
+                ? {
+                    ...prev.pembayaran,
+                    status_bayar:
+                      response?.data?.status_bayar ||
+                      prev.pembayaran.status_bayar,
+                  }
+                : prev.pembayaran,
+            }
+          : prev,
+      );
       setIsCancelModalOpen(false);
-      toast.success("Pesanan berhasil dibatalkan.");
+      toast.success('Pesanan berhasil dibatalkan.');
     } catch (error) {
-      toast.error(error.message || "Gagal membatalkan pesanan.");
+      toast.error(error.message || 'Gagal membatalkan pesanan.');
     } finally {
       setIsCancelling(false);
+    }
+  };
+
+  const refreshOrder = async () => {
+    const latestOrder = await getOrderDetail(id);
+    setOrder(latestOrder);
+    return latestOrder;
+  };
+
+  const syncPaymentState = async (result, fallbackStatus = null) => {
+    if (!order?.id_pesanan) return;
+
+    try {
+      await syncPaymentByOrderId(order.id_pesanan, {
+        payment_type: result?.payment_type,
+        transaction_status: result?.transaction_status || fallbackStatus,
+        fraud_status: result?.fraud_status,
+        store: result?.store,
+        va_numbers: result?.va_numbers,
+      });
+
+      await refreshOrder();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleOpenPaymentDetail = async () => {
+    if (!order?.id_pesanan) return;
+
+    try {
+      setIsOpeningPayment(true);
+
+      const response = await createPayment({
+        id_pesanan: order.id_pesanan,
+        metode_bayar: 'Midtrans',
+      });
+
+      const snapToken = response.snap_token;
+
+      if (!snapToken) {
+        throw new Error('Snap Token tidak ditemukan dalam response.');
+      }
+
+      if (!window.snap?.pay) {
+        throw new Error('Library pembayaran Midtrans belum termuat.');
+      }
+
+      window.snap.pay(snapToken, {
+        onSuccess: async function (result) {
+          await syncPaymentState(result, 'settlement');
+          toast.success('Pembayaran berhasil.');
+        },
+        onPending: async function (result) {
+          await syncPaymentState(result, 'pending');
+          toast.success(
+            response.is_existing
+              ? 'Detail pembayaran Midtrans berhasil dibuka.'
+              : 'Metode pembayaran berhasil dipilih.',
+          );
+        },
+        onError: async function (result) {
+          await syncPaymentState(result, 'deny');
+          toast.error('Pembayaran gagal.');
+        },
+        onClose: function () {
+          toast.error('Kamu menutup jendela pembayaran.');
+        },
+      });
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          'Gagal membuka detail pembayaran.',
+      );
+    } finally {
+      setIsOpeningPayment(false);
     }
   };
 
@@ -145,36 +335,43 @@ export default function OrderDetailPage() {
         <section className="hidden border-b border-gray-200 pb-5 print:block">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
-              <img src={logo} alt="Logo RERE PetShop" className="h-14 w-auto object-contain" />
+              <img
+                src={logo}
+                alt="Logo ReRe Petshop"
+                className="h-14 w-auto object-contain"
+              />
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/70">Invoice Resmi</p>
-                <h1 className="mt-1 text-2xl font-black text-gray-900">RERE PetShop</h1>
-                <p className="mt-1 text-sm text-gray-500">Invoice pesanan pelanggan</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary/70">
+                  Invoice Resmi
+                </p>
+                <h1 className="mt-1 text-2xl font-bold text-gray-900">
+                  ReRe Petshop
+                </h1>
+                <p className="mt-1 text-sm text-gray-500">
+                  Invoice pesanan pelanggan
+                </p>
               </div>
             </div>
 
             <div className="text-right">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Waktu Cetak</p>
-              <p className="mt-1 text-sm font-semibold text-gray-800">{printedAtLabel}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">
+                Waktu Cetak
+              </p>
+              <p className="mt-1 text-sm font-semibold text-gray-800">
+                {printedAtLabel}
+              </p>
             </div>
           </div>
         </section>
 
         <div className="flex flex-col gap-4 print:hidden sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            to="/pesanan"
-            className="inline-flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 shadow-sm transition hover:border-primary hover:text-primary"
-          >
-            <ArrowLeft size={16} />
-            Kembali ke Pesanan
-          </Link>
+          <BackButton label='Kembali ke Pesanan' to='/pesanan'/>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-sm font-bold text-gray-700 transition hover:border-primary hover:text-primary"
-            >
+              className="inline-flex items-center justify-center gap-2 rounded-2xl font-medium border border-gray-300 bg-white px-4 py-3 text-sm text-gray-700 transition hover:border-primary hover:text-primary">
               <Printer size={16} />
               Print Invoice
             </button>
@@ -183,27 +380,33 @@ export default function OrderDetailPage() {
               type="button"
               onClick={() => setIsCancelModalOpen(true)}
               disabled={!canCancel || isCancelling}
-              className={`inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm font-bold text-white transition ${
+              className={`inline-flex items-center justify-center rounded-2xl px-4 py-3 text-sm text-white transition ${
                 canCancel && !isCancelling
-                  ? "bg-primary hover:bg-primary-600"
-                  : "cursor-not-allowed bg-gray-300"
-              }`}
-            >
-              {isCancelling ? "Membatalkan..." : "Batalkan Pesanan"}
+                  ? 'bg-primary font-semibold hover:bg-primary-600'
+                  : 'cursor-not-allowed bg-gray-300'
+              }`}>
+              {isCancelling ? 'Membatalkan...' : 'Batalkan Pesanan'}
             </button>
           </div>
         </div>
 
-        <section className="overflow-hidden rounded-[30px] border border-gray-200 bg-white shadow-sm print:rounded-none print:border print:shadow-none">
+        <section className="overflow-hidden rounded-[28px] border border-gray-200 bg-white shadow-sm print:rounded-none print:border print:shadow-none">
           <div className="border-b border-gray-100 px-5 py-5 md:px-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary/70">Invoice Pesanan</p>
-                <h1 className="mt-2 text-2xl font-bold text-gray-900 md:text-3xl">#{order.id_pesanan}</h1>
-                <p className="mt-2 text-sm text-gray-500">Dibuat pada {formattedDate}</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary/70">
+                  Invoice Pesanan
+                </p>
+                <h1 className="mt-2 text-2xl font-bold text-gray-900 md:text-3xl">
+                  #{order.id_pesanan}
+                </h1>
+                <p className="mt-2 text-sm text-gray-500">
+                  Dibuat pada {formattedDate}
+                </p>
               </div>
 
-              <div className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-bold ${statusClass}`}>
+              <div
+                className={`inline-flex w-auto max-w-max shrink-0 self-start whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold ${statusClass}`}>
                 {statusLabel}
               </div>
             </div>
@@ -215,7 +418,9 @@ export default function OrderDetailPage() {
                 <ReceiptText size={14} />
                 Total Belanja
               </p>
-              <p className="text-lg font-extrabold text-gray-900">Rp {Number(order.total || 0).toLocaleString("id-ID")}</p>
+              <p className="text-lg font-extrabold text-gray-900">
+                Rp {Number(order.total || 0).toLocaleString('id-ID')}
+              </p>
             </div>
 
             <div className="rounded-2xl bg-gray-50 px-4 py-4">
@@ -223,7 +428,9 @@ export default function OrderDetailPage() {
                 <ShoppingBag size={14} />
                 Jumlah Produk
               </p>
-              <p className="text-lg font-extrabold text-gray-900">{order.details?.length || 0} produk</p>
+              <p className="text-lg font-extrabold text-gray-900">
+                {order.details?.length || 0} produk
+              </p>
             </div>
 
             <div className="rounded-2xl bg-gray-50 px-4 py-4">
@@ -231,7 +438,9 @@ export default function OrderDetailPage() {
                 <MapPin size={14} />
                 Alamat Kirim
               </p>
-              <p className="text-sm font-medium leading-relaxed text-gray-700">{order.alamat_kirim || "-"}</p>
+              <p className="text-sm font-medium leading-relaxed text-gray-700">
+                {order.alamat_kirim || '-'}
+              </p>
             </div>
 
             <div className="rounded-2xl bg-gray-50 px-4 py-4">
@@ -239,59 +448,79 @@ export default function OrderDetailPage() {
                 <Phone size={14} />
                 Nomor Telepon
               </p>
-              <p className="text-sm font-semibold text-gray-900">{order.no_telp || "-"}</p>
+              <p className="text-sm font-semibold text-gray-900">
+                {order.no_telp || '-'}
+              </p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-[30px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
+        <section className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Produk Dalam Pesanan</h2>
-              <p className="mt-1 text-sm text-gray-500">Rincian item yang masuk ke invoice ini.</p>
+              <h2 className="text-xl font-bold text-gray-900">
+                Produk Dalam Pesanan
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Rincian item yang masuk ke invoice ini.
+              </p>
             </div>
             <div className="hidden rounded-2xl bg-gray-50 px-4 py-2 text-sm font-semibold text-gray-700 sm:block">
-              {order.details?.reduce((sum, item) => sum + (Number(item.qty) || 0), 0) || 0} item
+              {order.details?.reduce(
+                (sum, item) => sum + (Number(item.qty) || 0),
+                0,
+              ) || 0}{' '}
+              item
             </div>
           </div>
 
           <div className="space-y-4">
             {order.details?.map((detail) => {
               const product = detail.produk;
+              const imageSrc =
+                product?.foto_base64 ||
+                (product?.foto ? getStorageUrl(product.foto) : noImage);
 
               return (
                 <div
                   key={detail.id_detail}
-                  className="flex flex-col gap-4 rounded-[26px] border border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffaf8_100%)] p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
+                  className="flex flex-col gap-4 rounded-[28px] border border-gray-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffaf8_100%)] p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-50 sm:h-24 sm:w-24">
-                      {product?.foto ? (
-                        <img
-                          src={getStorageUrl(product.foto)}
-                          alt={product?.nama_produk || "Produk"}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="px-2 text-center text-xs text-gray-400">Tidak ada foto</div>
-                      )}
+                    <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[28px] bg-gray-50 sm:h-24 sm:w-24">
+                      <img
+                        src={imageSrc}
+                        alt={product?.nama_produk || 'Produk'}
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = noImage;
+                        }}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
 
                     <div className="min-w-0">
                       <h3 className="text-base font-bold leading-snug text-gray-900 sm:text-lg">
-                        {product?.nama_produk || "Produk tidak tersedia"}
+                        {product?.nama_produk || 'Produk tidak tersedia'}
                       </h3>
-                      <p className="mt-1 text-sm text-gray-500">Qty: {detail.qty}</p>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Qty: {detail.qty}
+                      </p>
                       <p className="mt-2 text-sm font-medium text-gray-700">
-                        Harga satuan: Rp {Number(detail.harga_satuan || 0).toLocaleString("id-ID")}
+                        Harga satuan: Rp{' '}
+                        {Number(detail.harga_satuan || 0).toLocaleString(
+                          'id-ID',
+                        )}
                       </p>
                     </div>
                   </div>
 
                   <div className="rounded-2xl bg-gray-50 px-4 py-3 text-right">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">Subtotal</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-400">
+                      Subtotal
+                    </p>
                     <p className="mt-1 text-lg font-extrabold text-primary">
-                      Rp {Number(detail.subtotal || 0).toLocaleString("id-ID")}
+                      Rp {Number(detail.subtotal || 0).toLocaleString('id-ID')}
                     </p>
                   </div>
                 </div>
@@ -302,44 +531,111 @@ export default function OrderDetailPage() {
 
         <section className="grid gap-4 md:grid-cols-2 print:grid-cols-2">
           <div className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
-            <h2 className="mb-4 text-lg font-bold text-gray-900">Pembayaran</h2>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
+              <CreditCard size={18} />
+              Pembayaran
+            </h2>
             {order.pembayaran ? (
-              <div className="space-y-3 text-sm text-gray-700">
-                <p>Metode: <span className="font-semibold">{order.pembayaran.metode_bayar || "-"}</span></p>
+              <div className="space-y-4 text-sm text-gray-700">
+                <p>
+                  Metode:{' '}
+                  <span className="font-semibold">
+                    {order.pembayaran.metode_bayar || '-'}
+                  </span>
+                </p>
                 <div className="flex items-center gap-2">
                   <span>Status:</span>
-                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${paymentStatusClass}`}>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${paymentStatusClass}`}>
                     {paymentStatusLabel}
                   </span>
                 </div>
-                <p>Jumlah bayar: <span className="font-semibold">Rp {Number(order.pembayaran.jumlah_bayar || 0).toLocaleString("id-ID")}</span></p>
+                <p>
+                  Jumlah bayar:{' '}
+                  <span className="font-semibold">
+                    Rp{' '}
+                    {Number(order.pembayaran.jumlah_bayar || 0).toLocaleString(
+                      'id-ID',
+                    )}
+                  </span>
+                </p>
+                {order.pembayaran.status_bayar !== 'paid' && (
+                  <button
+                    type="button"
+                    onClick={handleOpenPaymentDetail}
+                    disabled={isOpeningPayment}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-600 disabled:opacity-50">
+                    <ExternalLink size={16} />
+                    {isOpeningPayment
+                      ? 'Membuka...'
+                      : 'Lihat Detail Pembayaran'}
+                  </button>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-sm text-gray-500">Data pembayaran belum tersedia.</p>
+                <p className="text-sm text-gray-500">
+                  Data pembayaran belum tersedia.
+                </p>
                 <Link
                   to={`/payment/${order.id_pesanan}`}
-                  className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600"
-                >
+                  className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-600">
                   Lanjut ke Pembayaran
                 </Link>
               </div>
             )}
           </div>
 
+          {/* ✅ CARD PENGIRIMAN (DENGAN TOMBOL BARU) */}
           <div className="rounded-[28px] border border-gray-200 bg-white p-5 shadow-sm print:rounded-none print:border print:shadow-none md:p-6">
             <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900">
               <Truck size={18} />
               Pengiriman
             </h2>
             {order.pengiriman ? (
-              <div className="space-y-3 text-sm text-gray-700">
-                <p>Kurir: <span className="font-semibold">{order.pengiriman.kurir || "-"}</span></p>
-                <p>Resi: <span className="font-semibold">{order.pengiriman.resi || "-"}</span></p>
-                <p>Status kirim: <span className="font-semibold">{order.pengiriman.status_kirim || "-"}</span></p>
+              <div className="space-y-4 text-sm text-gray-700">
+                <p>
+                  Kurir: <span className="font-semibold">{courierName}</span>
+                </p>
+                <div className="flex items-center gap-2">
+                  <span>Status:</span>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${shippingStatusClass}`}>
+                    {shippingStatusLabel}
+                  </span>
+                </div>
+                <p>
+                  Resi:{' '}
+                  <span className="font-semibold">
+                    {order.pengiriman.resi || '-'}
+                  </span>
+                </p>
+
+                {/* ✅ TOMBOL PESANAN SUDAH SAMPAI */}
+                {order.pengiriman.status_kirim === 'dikirim' && (
+                  <button
+                    type="button"
+                    onClick={handleTerimaPesanan}
+                    disabled={isConfirmingTerima}
+                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60">
+                    <CheckCircle size={16} />
+                    {isConfirmingTerima
+                      ? 'Memproses...'
+                      : 'Pesanan Sudah Sampai'}
+                  </button>
+                )}
+
+                {order.pengiriman.status_kirim === 'diterima' && (
+                  <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-600">
+                    <CheckCircle size={16} />
+                    Pesanan sudah diterima
+                  </p>
+                )}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Data pengiriman belum tersedia.</p>
+              <p className="text-sm text-gray-500">
+                Data pengiriman belum tersedia.
+              </p>
             )}
           </div>
         </section>
@@ -347,11 +643,19 @@ export default function OrderDetailPage() {
 
       {isCancelModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm print:hidden">
-          <div className="w-full max-w-md rounded-[28px] bg-white p-6 shadow-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">Konfirmasi Pembatalan</p>
-            <h2 className="mt-3 text-2xl font-bold text-gray-900">Batalkan pesanan ini?</h2>
+          <div className="w-full max-w-md rounded-[28px] bg-white p-6 shadow-lg">
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+              Konfirmasi Pembatalan
+            </p>
+            <h2 className="mt-3 text-2xl font-bold text-gray-900">
+              Batalkan pesanan ini?
+            </h2>
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
-              Pesanan <span className="font-semibold text-gray-900">#{order.id_pesanan}</span> akan dibatalkan dan stok produk akan dikembalikan.
+              Pesanan{' '}
+              <span className="font-semibold text-gray-900">
+                #{order.id_pesanan}
+              </span>{' '}
+              akan dibatalkan dan stok produk akan dikembalikan.
             </p>
 
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -359,8 +663,7 @@ export default function OrderDetailPage() {
                 type="button"
                 onClick={() => setIsCancelModalOpen(false)}
                 disabled={isCancelling}
-                className="inline-flex items-center justify-center rounded-2xl border border-gray-200 px-4 py-3 text-sm font-bold text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
+                className="inline-flex items-center justify-center rounded-2xl border font-medium border-gray-200 px-4 py-3 text-sm text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60">
                 Kembali
               </button>
 
@@ -368,9 +671,8 @@ export default function OrderDetailPage() {
                 type="button"
                 onClick={handleCancel}
                 disabled={isCancelling}
-                className="inline-flex items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-primary-300"
-              >
-                {isCancelling ? "Membatalkan..." : "Ya, batalkan pesanan"}
+                className="inline-flex items-center justify-center rounded-2xl font-semibold bg-primary px-4 py-3 text-sm text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-primary-300">
+                {isCancelling ? 'Membatalkan...' : 'Ya, batalkan pesanan'}
               </button>
             </div>
           </div>

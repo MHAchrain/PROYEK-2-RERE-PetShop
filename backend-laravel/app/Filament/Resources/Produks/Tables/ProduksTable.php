@@ -12,7 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Tables\Columns\ImageColumn; // ← tambah ini di atas
+use Filament\Tables\Columns\ImageColumn;
 
 class ProduksTable
 {
@@ -60,8 +60,11 @@ class ProduksTable
             ])
             ->columns([
                 TextColumn::make('id_produk')
-                    ->label('ID PRODUK')
-                    ->formatStateUsing(fn ($state) => 'PRO-' . str_pad($state, 4, '0', STR_PAD_LEFT))
+                    ->label('ID Produk')
+                    ->formatStateUsing(function ($state) {
+                        $last4 = substr(str_pad($state, 4, '0', STR_PAD_LEFT), -4);
+                        return 'PRO-' . $last4;
+                    })
                     ->sortable(),
 
                 TextColumn::make('id_kategori')
@@ -85,8 +88,8 @@ class ProduksTable
                     ->label('Stok')
                     ->numeric()
                     ->sortable(),
-                
-                ImageColumn::make('foto')  // ← tambahkan ini
+
+                ImageColumn::make('foto')
                     ->label('Foto')
                     ->disk('public')
                     ->height(50)
@@ -102,6 +105,8 @@ class ProduksTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('id_produk', 'asc')
+            ->paginationPageOptions([100])
             ->filters([
                 //
             ])
@@ -114,4 +119,4 @@ class ProduksTable
                 ]),
             ]);
     }
-} 
+}

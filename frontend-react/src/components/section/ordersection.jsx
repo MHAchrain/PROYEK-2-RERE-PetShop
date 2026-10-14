@@ -29,7 +29,7 @@ export default function OrderSection({ orders = [], isLoading, activeTab = "semu
   }
 
   return (
-    <div className="w-full space-y-4 animate-in fade-in duration-500 md:space-y-5">
+    <div className="w-full space-y-4 animate-in fade-in duration-500 border-none md:space-y-5">
       {orders.map((order) => (
         <OrderCard key={order.id_pesanan} order={order} />
       ))}
