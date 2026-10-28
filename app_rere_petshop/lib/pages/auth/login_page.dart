@@ -1,4 +1,12 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/auth_footer_link.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/google_sign_in_button.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/auth_header.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/auth_info_section.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/auth_primary_button.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/auth_spacing.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/auth_typography.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/auth_text_field.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -16,15 +24,23 @@ class _LoginPageState extends State<LoginPage> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _confirmPassword = TextEditingController();
   final _phone = TextEditingController();
   final _address = TextEditingController();
   final _auth = AuthService();
   bool _isRegister = false;
   bool _loading = false;
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _rememberMe = false;
+  bool _acceptedTerms = false;
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_isRegister && !_acceptedTerms) {
+      _showMessage('Setujui Syarat & Ketentuan untuk melanjutkan.');
+      return;
+    }
     setState(() => _loading = true);
     try {
       if (_isRegister) {
@@ -36,39 +52,48 @@ class _LoginPageState extends State<LoginPage> {
           address: _address.text,
         );
         if (!mounted) return;
-        setState(() {
-          _isRegister = false;
-          _password.clear();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pendaftaran berhasil. Silakan masuk.')),
-        );
+        _switchMode(false);
+        _showMessage('Pendaftaran berhasil. Silakan masuk.');
       } else {
         await _auth.login(_email.text.trim(), _password.text);
         if (mounted) await context.read<AuthProvider>().refreshProfile();
         if (mounted) Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
+      if (mounted) _showMessage(e.toString());
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
+  void _switchMode(bool register) {
+    setState(() {
+      _isRegister = register;
+      _password.clear();
+      _confirmPassword.clear();
+      _acceptedTerms = false;
+      _formKey.currentState?.reset();
+    });
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   String? _validateEmail(String? value) {
-    if (value == null || !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
+    final email = value?.trim() ?? '';
+    if (email.isEmpty) return 'Email wajib diisi';
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
       return 'Masukkan email yang valid';
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) return 'Password wajib diisi';
-    if (_isRegister && value.length < 6) return 'Password minimal 6 karakter';
+    if (value == null || value.isEmpty) return 'Kata sandi wajib diisi';
+    if (_isRegister && value.length < 6) return 'Minimal 6 karakter';
     return null;
   }
 
@@ -77,6 +102,7 @@ class _LoginPageState extends State<LoginPage> {
     _name.dispose();
     _email.dispose();
     _password.dispose();
+    _confirmPassword.dispose();
     _phone.dispose();
     _address.dispose();
     super.dispose();
@@ -84,104 +110,80 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final title = _isRegister ? 'Buat akun ReRe Petshop' : 'Masuk ke akun ReRe Petshop';
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text(_isRegister ? 'Daftar' : 'Masuk'),
-        backgroundColor: AppColors.white,
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.pets, color: AppColors.primary, size: 44),
-                    const SizedBox(height: 12),
-                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 20),
-                    if (_isRegister) ...[
-                      TextFormField(
-                        controller: _name,
-                        textCapitalization: TextCapitalization.words,
-                        decoration: const InputDecoration(labelText: 'Nama lengkap'),
-                        validator: (v) => v == null || v.trim().isEmpty ? 'Nama wajib diisi' : null,
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                    TextFormField(
-                      controller: _email,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      validator: _validateEmail,
-                    ),
-                    if (_isRegister) ...[
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _phone,
-                        keyboardType: TextInputType.phone,
-                        decoration: const InputDecoration(labelText: 'Nomor HP (opsional)'),
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _address,
-                        textCapitalization: TextCapitalization.sentences,
-                        decoration: const InputDecoration(labelText: 'Alamat (opsional)'),
-                        maxLines: 2,
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _password,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
-                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                        ),
-                      ),
-                      validator: _validatePassword,
-                    ),
-                    const SizedBox(height: 22),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _loading ? null : _submit,
-                        child: _loading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : Text(_isRegister ? 'Daftar' : 'Masuk'),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: _loading
-                          ? null
-                          : () => setState(() {
-                                _isRegister = !_isRegister;
-                                _formKey.currentState?.reset();
-                              }),
-                      child: Text(
-                        _isRegister ? 'Sudah punya akun? Masuk' : 'Belum punya akun? Daftar',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+      backgroundColor: const Color(0xFFFAFAFA),
+      body: SafeArea(
+        bottom: false,
+        child: Column(children: [
+          AuthHeader(isRegister: _isRegister),
+          Expanded(child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(AuthSpacing.x6, AuthSpacing.x6, AuthSpacing.x6, AuthSpacing.x8),
+            child: Form(key: _formKey, child: _isRegister ? _registerForm() : _loginForm()),
+          )),
+        ]),
       ),
     );
   }
+
+  Widget _loginForm() => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    const Text('Selamat Datang Kembali', style: TextStyle(fontSize: AuthTypography.screenTitle, fontWeight: FontWeight.w800, letterSpacing: -.5)),
+    const SizedBox(height: AuthSpacing.x2),
+    const Text('Silakan masuk untuk melanjutkan pesanan Anda.', style: TextStyle(color: AppColors.textSecondary, fontSize: AuthTypography.helper, fontWeight: FontWeight.w500)),
+    const SizedBox(height: AuthSpacing.x6),
+    AuthTextField(controller: _email, label: 'Email', hint: 'Masukkan email Anda', icon: Icons.mail_outline_rounded, keyboardType: TextInputType.emailAddress, validator: _validateEmail),
+    const SizedBox(height: AuthSpacing.x4),
+    AuthTextField(controller: _password, label: 'Kata Sandi', hint: 'Masukkan kata sandi Anda', icon: Icons.lock_outline_rounded, obscureText: _obscurePassword, onVisibilityPressed: () => setState(() => _obscurePassword = !_obscurePassword), validator: _validatePassword),
+    const SizedBox(height: AuthSpacing.x2),
+    Row(children: [
+      Checkbox(value: _rememberMe, visualDensity: VisualDensity.compact, activeColor: AppColors.primary, onChanged: _loading ? null : (value) => setState(() => _rememberMe = value ?? false)),
+      const Text('Ingat saya', style: TextStyle(fontSize: AuthTypography.helper, fontWeight: FontWeight.w500, color: AppColors.textSecondary)),
+      const Spacer(),
+      TextButton(onPressed: null, child: Text('Lupa Kata Sandi?', style: TextStyle(color: AppColors.primary, fontSize: AuthTypography.helper, fontWeight: FontWeight.w700))),
+    ]),
+    const SizedBox(height: AuthSpacing.x6),
+    AuthPrimaryButton(label: 'Masuk', loading: _loading, onPressed: _submit),
+    const SizedBox(height: AuthSpacing.x5),
+    const Row(children: [
+      Expanded(child: Divider(color: Color(0xFFE8EAED))),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: AuthSpacing.x3),
+        child: Text('Atau masuk dengan', style: TextStyle(color: AppColors.textSecondary, fontSize: AuthTypography.helper)),
+      ),
+      Expanded(child: Divider(color: Color(0xFFE8EAED))),
+    ]),
+    const SizedBox(height: AuthSpacing.x5),
+    GoogleSignInButton(
+      onPressed: _loading ? null : () => _showMessage('Login dengan Google belum tersedia.'),
+    ),
+    const SizedBox(height: AuthSpacing.x6),
+    AuthFooterLink(prompt: 'Belum punya akun?', action: 'Daftar', onTap: _loading ? null : () => _switchMode(true)),
+  ]);
+
+  Widget _registerForm() => Column(children: [
+    AuthInfoSection(title: 'Informasi Pribadi', icon: Icons.badge_outlined, child: Column(children: [
+      AuthTextField(controller: _name, label: 'Nama Lengkap', hint: 'Masukkan nama lengkap', icon: Icons.person_outline_rounded, textCapitalization: TextCapitalization.words, validator: (value) => value == null || value.trim().isEmpty ? 'Nama lengkap wajib diisi' : null),
+      const SizedBox(height: AuthSpacing.x4),
+      AuthTextField(controller: _phone, label: 'Nomor Handphone', hint: 'Masukkan nomor handphone', icon: Icons.phone_outlined, keyboardType: TextInputType.phone, validator: (value) => value == null || value.trim().isEmpty ? 'Nomor handphone wajib diisi' : null),
+      const SizedBox(height: AuthSpacing.x4),
+      AuthTextField(controller: _address, label: 'Alamat', hint: 'Masukkan alamat lengkap', icon: Icons.location_on_outlined, textCapitalization: TextCapitalization.sentences, maxLines: 3, validator: (value) => value == null || value.trim().isEmpty ? 'Alamat wajib diisi' : null),
+    ])),
+    const SizedBox(height: AuthSpacing.x4),
+    AuthInfoSection(title: 'Informasi Akun', icon: Icons.lock_outline_rounded, child: Column(children: [
+      AuthTextField(controller: _email, label: 'Email', hint: 'Masukkan email aktif', icon: Icons.mail_outline_rounded, keyboardType: TextInputType.emailAddress, validator: _validateEmail),
+      const SizedBox(height: AuthSpacing.x4),
+      AuthTextField(controller: _password, label: 'Kata Sandi', hint: 'Buat kata sandi', icon: Icons.lock_outline_rounded, obscureText: _obscurePassword, onVisibilityPressed: () => setState(() => _obscurePassword = !_obscurePassword), validator: _validatePassword),
+      const SizedBox(height: AuthSpacing.x4),
+      AuthTextField(controller: _confirmPassword, label: 'Konfirmasi Kata Sandi', hint: 'Ulangi kata sandi', icon: Icons.lock_outline_rounded, obscureText: _obscureConfirmPassword, onVisibilityPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword), validator: (value) => value != _password.text ? 'Kata sandi belum sama' : null),
+    ])),
+    const SizedBox(height: AuthSpacing.x3),
+    Container(
+      padding: const EdgeInsets.symmetric(horizontal: AuthSpacing.x2, vertical: AuthSpacing.x2),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(AuthSpacing.x3), border: Border.all(color: const Color(0xFFF0F0F0))),
+      child: CheckboxListTile(contentPadding: EdgeInsets.zero, controlAffinity: ListTileControlAffinity.leading, dense: true, value: _acceptedTerms, activeColor: AppColors.primary, onChanged: _loading ? null : (value) => setState(() => _acceptedTerms = value ?? false), title: const Text('Saya menyetujui Syarat & Ketentuan serta Kebijakan Privasi ReRe Petshop.', style: TextStyle(fontSize: AuthTypography.helper, fontWeight: FontWeight.w600, color: AppColors.textSecondary))),
+    ),
+    const SizedBox(height: AuthSpacing.x4),
+    AuthPrimaryButton(label: 'Daftar Sekarang', loading: _loading, onPressed: _submit),
+    const SizedBox(height: AuthSpacing.x5),
+    AuthFooterLink(prompt: 'Sudah punya akun?', action: 'Masuk', onTap: _loading ? null : () => _switchMode(false)),
+  ]);
 }
