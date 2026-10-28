@@ -23,7 +23,7 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
   bool _cartHasBeenOpened = false;
-  final ApiService _api = ApiService();
+  // final ApiService _api = ApiService();
   final AuthService _auth = AuthService();
 
   List<Widget> get _screens => [
@@ -35,7 +35,7 @@ class _MainNavigationState extends State<MainNavigation> {
   ];
 
   Future<void> _onTabTapped(int index) async {
-    if (index == 1 || index == 3 || index == 4) {
+    if (index == 1 || index == 3) {
       if (!await _auth.hasAuthToken()) {
         final loggedIn = await Navigator.push<bool>(
           context,
