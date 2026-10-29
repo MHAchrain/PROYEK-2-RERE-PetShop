@@ -33,6 +33,8 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'alamat_kirim' => 'nullable|string',
             'no_telp' => 'nullable|string|max:20',
+            'item_ids' => 'nullable|array|min:1',
+            'item_ids.*' => 'integer',
         ]);
 
         $alamatKirim = $validated['alamat_kirim'] ?? $pelanggan->alamat;
@@ -55,11 +57,12 @@ class CheckoutController extends Controller
         }
 
         try {
-            $pesanan = DB::transaction(function () use ($pelanggan, $alamatKirim, $noTelp, $keranjang) {
-                $lockedItems = KeranjangItem::with('produk')
+            $itemIds = $validated['item_ids'] ?? null;
+            $pesanan = DB::transaction(function () use ($pelanggan, $alamatKirim, $noTelp, $keranjang, $itemIds) {
+                $itemsQuery = KeranjangItem::with('produk')
                     ->where('id_keranjang', $keranjang->id_keranjang)
-                    ->lockForUpdate()
-                    ->get();
+                    ->when($itemIds, fn ($query) => $query->whereIn('id_item', $itemIds));
+                $lockedItems = $itemsQuery->lockForUpdate()->get();
 
                 if ($lockedItems->isEmpty()) {
                     throw new HttpResponseException(response()->json([
@@ -119,8 +122,10 @@ class CheckoutController extends Controller
                     ]);
                 }
 
-                KeranjangItem::where('id_keranjang', $keranjang->id_keranjang)->delete();
-                $keranjang->total = 0;
+                KeranjangItem::where('id_keranjang', $keranjang->id_keranjang)
+                    ->when($itemIds, fn ($query) => $query->whereIn('id_item', $itemIds))
+                    ->delete();
+                $keranjang->total = KeranjangItem::where('id_keranjang', $keranjang->id_keranjang)->sum('subtotal');
                 $keranjang->save();
 
                 return $pesanan;

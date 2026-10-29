@@ -4,6 +4,7 @@ import 'package:app_rere_petshop/pages/cart/widgets/cart_bottom_bar.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_product_list.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_selection_header.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_status_view.dart';
+import 'package:app_rere_petshop/pages/checkout/checkout_page.dart';
 import 'package:flutter/material.dart';
 
 class CartPage extends StatefulWidget {
@@ -53,9 +54,19 @@ class _CartPageState extends State<CartPage> {
                   isBusy: busy,
                   onCheckout: _cart.selectedIds.isEmpty
                       ? null
-                      : () => _showMessage(
-                            'Checkout akan dilanjutkan setelah halaman checkout tersedia.',
-                          ),
+                      : () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CheckoutPage(
+                                items: items
+                                    .where((item) => _cart.selectedIds.contains(
+                                        int.tryParse(item['id_item']?.toString() ?? '')))
+                                    .toList(),
+                              ),
+                            ),
+                          ).then((_) {
+                            if (mounted) _cart.load(context);
+                          }),
                 )
               : null,
         );
