@@ -81,6 +81,22 @@ class AuthService {
     }
   }
 
+  Future<void> loginWithGoogle(String googleToken) async {
+    try {
+      final response = await _dio.post('/auth/google', data: {
+        'token': googleToken,
+      });
+      final token = response.data['token']?.toString();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token autentikasi tidak ditemukan.');
+      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('auth_token', token);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<void> register({
     required String name,
     required String email,

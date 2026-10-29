@@ -1,20 +1,22 @@
 // lib/core/constants/app_constants.dart
-import 'package:flutter/foundation.dart';
 
 class AppConstants {
-  // Android emulator reaches the host machine through 10.0.2.2.
-  // Physical devices should use the deployed API or the computer's LAN address.
-  static String get baseUrl {
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return 'http://192.168.0.3:8000/api';
-    }
-    return 'http://127.0.0.1:8000/api';
-  }
+  static const String baseDomain = 'https://api.rerepetshop.biz.id';
+
+  // Base API URL
+  static String get baseUrl => '$baseDomain/api';
+
+  // Storage / Image Base URL
+  static String get storageUrl => '$baseDomain/storage';
 
   static const String appName = 'ReRe Petshop';
   static const String whatsappNumber = '6281319410250'; // 0813-1941-0250
   static const String email = 'rereps@gmail.com';
   static const String address = 'Jl. Kecubung 1 No.14, Tangerang';
+
+  static const String googleClientId =
+      '876505123972-275fabovfuu6pal978bnu7g3gb9kp50t.apps.googleusercontent.com';
+  static const String midtransClientKey = 'Mid-client-kbF8O_OJSIc1ljLp';
 
   // Endpoints
   static const String productsEndpoint = '/produk';

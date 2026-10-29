@@ -212,6 +212,54 @@ class ApiService {
     }
   }
 
+  // ─── ARPET AI CHAT ────────────────────────────────────────
+
+  Future<Map<String, dynamic>> sendChatAI(String message, {dynamic imageBytes, String? imageName}) async {
+    try {
+      dynamic data;
+      if (imageBytes != null && imageName != null) {
+        data = FormData.fromMap({
+          if (message.trim().isNotEmpty) 'message': message.trim(),
+          'image': MultipartFile.fromBytes(imageBytes, filename: imageName),
+        });
+      } else {
+        data = {'message': message.trim()};
+      }
+
+      final response = await _dio.post(
+        '/chat-ai',
+        data: data,
+        options: await _authOptions(),
+      );
+      return Map<String, dynamic>.from(response.data ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> sendChatGemini(String message, {dynamic imageBytes, String? imageName}) async {
+    try {
+      dynamic data;
+      if (imageBytes != null && imageName != null) {
+        data = FormData.fromMap({
+          if (message.trim().isNotEmpty) 'message': message.trim(),
+          'image': MultipartFile.fromBytes(imageBytes, filename: imageName),
+        });
+      } else {
+        data = {'message': message.trim()};
+      }
+
+      final response = await _dio.post(
+        '/chat-gemini',
+        data: data,
+        options: await _authOptions(),
+      );
+      return Map<String, dynamic>.from(response.data ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── ERROR HANDLER ────────────────────────────────────────
 
   String _handleError(DioException e) {
@@ -226,3 +274,4 @@ class ApiService {
     }
   }
 }
+

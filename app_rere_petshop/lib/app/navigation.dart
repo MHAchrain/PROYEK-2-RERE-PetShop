@@ -6,11 +6,10 @@ import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/pages/cart/cart_page.dart';
 import 'package:app_rere_petshop/providers/cart_provider.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
-import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:app_rere_petshop/pages/home/home_page.dart';
-import 'package:app_rere_petshop/pages/catalog/catalog_page.dart';
 import 'package:app_rere_petshop/pages/pesanan/pesanan_page.dart';
+import 'package:app_rere_petshop/pages/arpet/arpet_page.dart';
 import 'package:app_rere_petshop/pages/profil/profil_page.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -29,7 +28,7 @@ class _MainNavigationState extends State<MainNavigation> {
   List<Widget> get _screens => [
     const HomePage(),
     const PesananPage(),
-    const CatalogPage(),
+    const ArpetPage(),
     _cartHasBeenOpened ? const CartPage() : const SizedBox.shrink(),
     const ProfilPage(),
   ];

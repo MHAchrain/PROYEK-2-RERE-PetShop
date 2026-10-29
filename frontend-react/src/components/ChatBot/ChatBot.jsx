@@ -8,9 +8,13 @@ import {
   ShoppingCart,
   Sparkles,
   Bot,
+  ChevronDown,
+  Check,
+  ShieldAlert,
 } from 'lucide-react';
 import axios from '../../api/axios';
 import { useCart } from '../../context/cartcontext';
+import { useAuth } from '../../context/authcontext';
 import { getStorageUrl } from '../../utils/appconfig';
 import toast from 'react-hot-toast';
 import TypewriterText from './TypeWriterText';
@@ -25,6 +29,11 @@ export default function ChatBot() {
   const [loadingSeconds, setLoadingSeconds] = useState(0);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [addingCartId, setAddingCartId] = useState(null);
+  const { user } = useAuth();
+  const [selectedModel, setSelectedModel] = useState('local'); // 'local' | 'gemini'
+  const [showModelMenu, setShowModelMenu] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [geminiUsage, setGeminiUsage] = useState(null);
 
   // ← track typing selesai per message ID
   const [typedMessages, setTypedMessages] = useState({});
@@ -100,6 +109,15 @@ export default function ChatBot() {
       return;
     }
 
+    // Cek login untuk mode Gemini
+    if (selectedModel === 'gemini') {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setShowLoginModal(true);
+        return;
+      }
+    }
+
     const currentText = inputMessage.trim();
     const currentImg = selectedImage;
     const currentImgPreview = imagePreview;
@@ -130,7 +148,8 @@ export default function ChatBot() {
       if (currentText) formData.append('message', currentText);
       if (currentImg) formData.append('image', currentImg);
 
-      const response = await axios.post('/chat-ai', formData, {
+      const endpoint = selectedModel === 'gemini' ? '/chat-gemini' : '/chat-ai';
+      const response = await axios.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -140,6 +159,9 @@ export default function ChatBot() {
       const loadSeconds = ((endTime - startTime) / 1000).toFixed(1);
 
       if (response.data && response.data.success) {
+        if (response.data.usage) {
+          setGeminiUsage(response.data.usage);
+        }
         const botMsg = {
           id: Date.now() + 1,
           sender: 'bot',
@@ -161,10 +183,19 @@ export default function ChatBot() {
       }
     } catch (err) {
       console.error('Chat AI Error:', err);
+      let errorText = 'Maaf, terjadi sedikit kendala koneksi ke AI. Silakan coba kembali sesaat lagi ya Cat Lovers 🐾';
+      if (err.response?.status === 429) {
+        errorText = err.response?.data?.message || 'Kuota harian Arpet Gemini Anda telah mencapai batas maksimal (10/10). Silakan beralih ke mode Arpet Local!';
+      } else if (err.response?.status === 401) {
+        setShowLoginModal(true);
+        errorText = 'Silakan login terlebih dahulu untuk menggunakan Arpet Gemini.';
+      } else if (err.response?.data?.message) {
+        errorText = err.response.data.message;
+      }
       const errorMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: 'Maaf, terjadi sedikit kendala koneksi ke AI. Silakan coba kembali sesaat lagi ya Cat Lovers 🐾',
+        text: errorText,
         products: [],
         time: new Date().toLocaleTimeString([], {
           hour: '2-digit',
@@ -469,32 +500,128 @@ export default function ChatBot() {
             onChange={handleImageChange}
           />
 
-          <form className="rere-chat-input-area" onSubmit={handleSendMessage}>
-            <button
-              type="button"
-              className="rere-btn-camera"
-              onClick={() => setShowPhotoOptions(!showPhotoOptions)}
-              title="Kirim Foto Anabul (Mode AI Gemini)">
-              <Camera size={19} />
-            </button>
+          {/* Modal Popup Pilihan Model (Tema Gelap Persis Screenshot) */}
+          {showModelMenu && (
+            <div className="rere-model-picker-overlay" onClick={() => setShowModelMenu(false)}>
+              <div className="rere-model-picker-card" onClick={(e) => e.stopPropagation()}>
+                <div className="rere-model-picker-header">Model</div>
+                
+                {/* Opsi 1: Gemini */}
+                <div
+                  className={`rere-model-row ${selectedModel === 'gemini' ? 'selected' : ''}`}
+                  onClick={() => {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                      setShowModelMenu(false);
+                      setShowLoginModal(true);
+                    } else {
+                      setSelectedModel('gemini');
+                      setShowModelMenu(false);
+                    }
+                  }}>
+                  <div className="rere-model-title-group">
+                    <span className="rere-model-title">Gemini 2.5 Flash</span>
+                    <span className="rere-model-badge-quota">Wajib Login</span>
+                  </div>
+                  {selectedModel === 'gemini' && (
+                    <span className="rere-model-checkmark">&#10003;</span>
+                  )}
+                </div>
 
-            <input
-              type="text"
-              className="rere-chat-input"
-              placeholder="Tanya produk / anabul..."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              disabled={isLoading}
-            />
+                {/* Opsi 2: Local (Ollama) */}
+                <div
+                  className={`rere-model-row ${selectedModel === 'local' ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSelectedModel('local');
+                    setShowModelMenu(false);
+                  }}>
+                  <div className="rere-model-title-group">
+                    <span className="rere-model-title">Arpet Local (Ollama)</span>
+                    <span className="rere-model-badge-free">Bebas Akses</span>
+                  </div>
+                  {selectedModel === 'local' && (
+                    <span className="rere-model-checkmark">&#10003;</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
-            <button
-              type="submit"
-              className="rere-btn-send"
-              disabled={isLoading || (!inputMessage.trim() && !selectedImage)}
-              title="Kirim Pesan">
-              <Send size={16} />
-            </button>
-          </form>
+          {/* Modal Popup Silakan Login */}
+          {showLoginModal && (
+            <div className="rere-login-modal-overlay">
+              <div className="rere-login-modal-card">
+                <div className="rere-login-modal-icon">
+                  <ShieldAlert size={28} />
+                </div>
+                <h4 className="rere-login-modal-title">Silakan Login</h4>
+                <p className="rere-login-modal-desc">
+                  Mode <b>Gemini Flash</b> memerlukan login akun untuk membatasi kuota gratis (maks. 10x per hari). Kamu tetap bisa memakai <b>Arpet Local</b> secara bebas tanpa login!
+                </p>
+                <div className="rere-login-modal-actions">
+                  <button
+                    type="button"
+                    className="rere-btn-login-cancel"
+                    onClick={() => {
+                      setShowLoginModal(false);
+                      setSelectedModel('local');
+                    }}>
+                    Pakai Local
+                  </button>
+                  <a href="/auth" className="rere-btn-login-confirm">
+                    Login Sekarang
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Wrapper Bawah: Bar Model Selector Dropdown + Form Chat */}
+          <div className="rere-chat-bottom-wrapper">
+            <div className="rere-model-selector-bar">
+              <button
+                type="button"
+                className="rere-model-dropdown-trigger"
+                onClick={() => setShowModelMenu(!showModelMenu)}>
+                <span className="rere-model-current-name">
+                  {selectedModel === 'gemini' ? 'Gemini 2.5 Flash' : 'Arpet Local (Ollama)'}
+                </span>
+                <span className="rere-model-current-sub">
+                  {selectedModel === 'gemini'
+                    ? (geminiUsage ? `Sisa: ${geminiUsage.remaining}/10` : 'Wajib Login (10x/hari)')
+                    : 'Bebas Kuota'}
+                </span>
+                <ChevronDown size={14} className="rere-model-chevron" />
+              </button>
+            </div>
+
+            <form className="rere-chat-input-area" onSubmit={handleSendMessage}>
+              <button
+                type="button"
+                className="rere-btn-camera"
+                onClick={() => setShowPhotoOptions(!showPhotoOptions)}
+                title="Kirim Foto Anabul">
+                <Camera size={19} />
+              </button>
+
+              <input
+                type="text"
+                className="rere-chat-input"
+                placeholder="Tanya produk / anabul..."
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                disabled={isLoading}
+              />
+
+              <button
+                type="submit"
+                className="rere-btn-send"
+                disabled={isLoading || (!inputMessage.trim() && !selectedImage)}
+                title="Kirim Pesan">
+                <Send size={16} />
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </>

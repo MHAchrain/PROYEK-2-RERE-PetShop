@@ -1,4 +1,9 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_footer_link.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/google_sign_in_button.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_header.dart';
@@ -9,8 +14,6 @@ import 'package:app_rere_petshop/pages/auth/widgets/auth_typography.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_text_field.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -28,12 +31,41 @@ class _LoginPageState extends State<LoginPage> {
   final _phone = TextEditingController();
   final _address = TextEditingController();
   final _auth = AuthService();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: kIsWeb ? AppConstants.googleClientId : null,
+    serverClientId: kIsWeb ? null : AppConstants.googleClientId,
+    scopes: ['email', 'profile'],
+  );
   bool _isRegister = false;
   bool _loading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _rememberMe = false;
   bool _acceptedTerms = false;
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _loading = true);
+    try {
+      final account = await _googleSignIn.signIn();
+      if (account == null) {
+        // User membatalkan dialog login
+        return;
+      }
+      final auth = await account.authentication;
+      final token = auth.accessToken ?? auth.idToken;
+      if (token == null || token.isEmpty) {
+        throw Exception('Gagal mendapatkan token Google.');
+      }
+
+      await _auth.loginWithGoogle(token);
+      if (mounted) await context.read<AuthProvider>().refreshProfile();
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) _showMessage('Login Google gagal: ${e.toString()}');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -153,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
     ]),
     const SizedBox(height: AuthSpacing.x5),
     GoogleSignInButton(
-      onPressed: _loading ? null : () => _showMessage('Login dengan Google belum tersedia.'),
+      onPressed: _loading ? null : _handleGoogleSignIn,
     ),
     const SizedBox(height: AuthSpacing.x6),
     AuthFooterLink(prompt: 'Belum punya akun?', action: 'Daftar', onTap: _loading ? null : () => _switchMode(true)),

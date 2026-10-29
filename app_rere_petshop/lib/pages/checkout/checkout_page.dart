@@ -65,6 +65,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         MaterialPageRoute(
           builder: (_) => SnapPaymentPage(
             url: payment['url']!,
+            snapToken: payment['token'],
             orderId: orderId,
           ),
         ),

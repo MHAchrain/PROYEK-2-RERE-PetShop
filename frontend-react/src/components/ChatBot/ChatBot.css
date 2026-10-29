@@ -614,3 +614,333 @@
     right: 16px;
   }
 }
+
+/* Model Selector Dropdown & Pills */
+.rere-chat-model-selector {
+  background: rgba(0, 0, 0, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rere-model-select-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #fff;
+  font-size: 11.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rere-model-select-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.rere-model-menu {
+  position: absolute;
+  top: 96px;
+  left: 12px;
+  right: 12px;
+  background: #1e1e1e;
+  border: 1px solid #333333;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rere-model-menu-title {
+  color: #9ca3af;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px 6px;
+  border-bottom: 1px solid #2d2d2d;
+  margin-bottom: 4px;
+}
+
+.rere-model-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: #e5e7eb;
+  transition: background 0.15s;
+}
+
+.rere-model-option:hover {
+  background: #2a2a2a;
+}
+
+.rere-model-option.active {
+  background: #333333;
+}
+
+.rere-model-option-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.rere-model-option-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rere-model-tag {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #374151;
+  color: #9ca3af;
+}
+
+.rere-model-tag.free {
+  background: #064e3b;
+  color: #6ee7b7;
+}
+
+.rere-model-tag.quota {
+  background: #78350f;
+  color: #fde68a;
+}
+
+.rere-model-option-desc {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+/* === TAMPILAN MODEL DROPDOWN PERSIS SCREENSHOT === */
+.rere-chat-bottom-wrapper {
+  background-color: #ffffff;
+  border-top: 1px solid #f1f3f5;
+  display: flex;
+  flex-direction: column;
+}
+
+.rere-model-selector-bar {
+  padding: 6px 14px 2px;
+  display: flex;
+  align-items: center;
+}
+
+.rere-model-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.rere-model-dropdown-trigger:hover {
+  background: #f1f3f5;
+  border-color: #d1d5db;
+}
+
+.rere-model-current-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.rere-model-current-sub {
+  font-size: 10.5px;
+  color: #6b7280;
+  background: #e5e7eb;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.rere-model-chevron {
+  color: #6b7280;
+}
+
+/* Modal Popup Card (Desain Gelap Persis Screenshot) */
+.rere-model-picker-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 10500;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 10px 65px;
+  animation: rere-fade-in 0.15s ease-out;
+}
+
+.rere-model-picker-card {
+  width: 100%;
+  background: #1e1e1e;
+  border: 1px solid #2d2d2d;
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: inherit;
+}
+
+.rere-model-picker-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888888;
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.rere-model-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rere-model-row:hover {
+  background: #2a2a2a;
+}
+
+.rere-model-row.selected {
+  background: #282828;
+}
+
+.rere-model-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rere-model-title {
+  color: #eeeeee;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rere-model-badge-quota {
+  font-size: 10px;
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.rere-model-badge-free {
+  font-size: 10px;
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.rere-model-checkmark {
+  color: #eeeeee;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Modal Popup Silakan Login */
+.rere-login-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 11000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.rere-login-modal-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px 18px;
+  width: 100%;
+  max-width: 290px;
+  text-align: center;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+}
+
+.rere-login-modal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+}
+
+.rere-login-modal-title {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.rere-login-modal-desc {
+  margin: 0 0 16px;
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+.rere-login-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rere-btn-login-cancel {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #374151;
+}
+
+.rere-btn-login-confirm {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--color-primary, #850909);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

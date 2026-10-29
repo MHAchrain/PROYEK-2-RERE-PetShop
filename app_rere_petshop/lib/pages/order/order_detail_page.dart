@@ -56,7 +56,11 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
       final payment = await _api.createPayment(widget.orderId);
       if (!mounted) return;
       await Navigator.push<void>(context, MaterialPageRoute(
-        builder: (_) => SnapPaymentPage(url: payment['url']!, orderId: widget.orderId),
+        builder: (_) => SnapPaymentPage(
+          url: payment['url']!,
+          snapToken: payment['token'],
+          orderId: widget.orderId,
+        ),
       ));
       await _load();
     } catch (error) {

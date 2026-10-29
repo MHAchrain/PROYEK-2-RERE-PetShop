@@ -1,4 +1,5 @@
 // lib/data/models/product_model.dart
+import 'package:app_rere_petshop/constants/app_constants.dart';
 
 class Product {
   final int id;
@@ -35,9 +36,8 @@ class Product {
       name: json['nama_produk'] ?? '',
       price: double.tryParse(json['harga']?.toString() ?? '0') ?? 0,
       description: json['deskripsi'],
-      // ⚠️ PERHATIKAN: ini pakai API, BUKAN storage langsung!
       image: fotoPath != null
-          ? 'http://127.0.0.1:8000/api/image/$fotoPath'
+          ? '${AppConstants.baseUrl}/image/$fotoPath'
           : null,
       stock: json['stok'],
       category: json['kategori']?['nama_kategori'],

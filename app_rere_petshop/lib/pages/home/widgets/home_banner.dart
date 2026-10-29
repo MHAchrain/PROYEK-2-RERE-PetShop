@@ -40,7 +40,7 @@ class _HomeBannerState extends State<HomeBanner> {
       children: [
         CarouselSlider(
           options: CarouselOptions(
-            height: 200,
+            height: 205,
             viewportFraction: 0.92,
             enlargeCenterPage: true,
             autoPlay: true,
@@ -72,9 +72,9 @@ class _HomeBannerState extends State<HomeBanner> {
     );
   }
 
-    Widget _bannerItem(Map<String, String> banner) {
+  Widget _bannerItem(Map<String, String> banner) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF4A4A4A), Color(0xFF2A2A2A)],
@@ -96,14 +96,15 @@ class _HomeBannerState extends State<HomeBanner> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.white54),
                     borderRadius: BorderRadius.circular(20),
@@ -112,27 +113,29 @@ class _HomeBannerState extends State<HomeBanner> {
                     banner['tag']!,
                     style: const TextStyle(
                       color: Colors.white70,
-                      fontSize: 11,
-                      letterSpacing: 1,
+                      fontSize: 10.5,
+                      letterSpacing: 0.8,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  banner['title']!,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    height: 1.3,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
+                  banner['title']!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    height: 1.25,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
                   banner['subtitle']!,
                   style: const TextStyle(
                     color: Colors.white70,
-                    fontSize: 12,
+                    fontSize: 11.5,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

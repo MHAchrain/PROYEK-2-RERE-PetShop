@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\PelangganController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\TrackingController;
 use App\Http\Controllers\Api\RecommendationController;
+use App\Http\Controllers\Api\GeminiController;
 use App\Http\Controllers\ImageController;
 
 /*
@@ -121,6 +122,13 @@ Route::middleware('auth:sanctum')->group(function () {
     */
 
     Route::get('/me', [AuthController::class, 'me']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | ARPET GEMINI (PROTECTED + DAILY LIMIT)
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/chat-gemini', [GeminiController::class, 'chatGemini']);
 
     /*
     |--------------------------------------------------------------------------
