@@ -33,6 +33,7 @@ flutter:
   assets:
     - assets/images/logo-rere.png
     - assets/images/catbat-grooming.jpg
+    - assets/images/about-story.png
     - assets/images/
   fonts:
     - family: Plus Jakarta Sans
