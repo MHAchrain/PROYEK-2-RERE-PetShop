@@ -23,7 +23,7 @@ class PesananController extends Controller
             ], 404);
         }
 
-        $pesanan = Pesanan::with('details.produk')
+        $pesanan = Pesanan::with(['details.produk', 'pembayaran', 'pengiriman'])
             ->where('id_pelanggan', $pelanggan->id_pelanggan)
             ->latest('id_pesanan')
             ->get();

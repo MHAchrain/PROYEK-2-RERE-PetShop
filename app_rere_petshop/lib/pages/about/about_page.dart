@@ -1,6 +1,7 @@
 // lib/presentation/screens/about/about_screen.dart
 import 'package:flutter/material.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/about/widgets/about_branches.dart';
 import 'package:app_rere_petshop/pages/about/widgets/about_hero.dart';
 import 'package:app_rere_petshop/pages/about/widgets/about_story.dart';
 import 'package:app_rere_petshop/pages/about/widgets/about_stats.dart';
@@ -15,30 +16,8 @@ class AboutPage extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.white,
-        elevation: 1,
-        automaticallyImplyLeading: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'TENTANG RERE PETSHOP',
-              style: TextStyle(
-                fontSize: 10,
-                color: AppColors.primary,
-                letterSpacing: 1,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const Text(
-              'Cerita Kami',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ],
-        ),
+        elevation: 0,
+        title: const Text('Tentang ReRe Petshop'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -52,6 +31,8 @@ class AboutPage extends StatelessWidget {
 
             // Stats
             const AboutStats(),
+
+            const AboutBranches(),
 
             // Values
             const AboutValues(),

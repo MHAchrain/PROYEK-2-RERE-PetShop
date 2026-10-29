@@ -43,6 +43,27 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> updateCustomerProfile({
+    String? name,
+    String? phone,
+    String? address,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/pelanggan/update',
+        data: {
+          if (name != null) 'nama': name,
+          if (phone != null) 'no_hp': phone,
+          if (address != null) 'alamat': address,
+        },
+        options: await authOptions(),
+      );
+      return Map<String, dynamic>.from(response.data['data'] ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<void> login(String email, String password) async {
     try {
       final response = await _dio.post('/login', data: {

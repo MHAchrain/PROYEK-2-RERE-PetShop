@@ -84,6 +84,70 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> createOrder({
+    required List<int> itemIds,
+    required String address,
+    required String phone,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/checkout',
+        data: {
+          'item_ids': itemIds,
+          'alamat_kirim': address,
+          'no_telp': phone,
+        },
+        options: await _authOptions(),
+      );
+      return Map<String, dynamic>.from(response.data['data'] ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, String>> createPayment(int orderId) async {
+    try {
+      final response = await _dio.post(
+        '/pembayaran',
+        data: {'id_pesanan': orderId, 'metode_bayar': 'Midtrans'},
+        options: await _authOptions(),
+      );
+      final data = Map<String, dynamic>.from(response.data);
+      final token = data['snap_token']?.toString();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token pembayaran tidak ditemukan.');
+      }
+      final url = data['redirect_url']?.toString();
+      if (url == null || url.isEmpty) {
+        throw Exception('URL pembayaran tidak ditemukan.');
+      }
+      return {'token': token, 'url': url};
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getOrders() async {
+    try {
+      final response = await _dio.get('/pesanan', options: await _authOptions());
+      return (response.data['data'] as List? ?? const [])
+          .whereType<Map>()
+          .map((order) => Map<String, dynamic>.from(order))
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getOrder(int orderId) async {
+    try {
+      final response = await _dio.get('/pesanan/$orderId', options: await _authOptions());
+      return Map<String, dynamic>.from(response.data['data'] ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── PRODUCTS ─────────────────────────────────────────────
 
   Future<List<Product>> getProducts({int? categoryId, int page = 1}) async {

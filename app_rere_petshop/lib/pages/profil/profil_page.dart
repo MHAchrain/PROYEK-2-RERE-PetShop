@@ -1,6 +1,10 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/pages/auth/login_page.dart';
+import 'package:app_rere_petshop/pages/about/about_page.dart';
 import 'package:app_rere_petshop/pages/pesanan/pesanan_page.dart';
+import 'package:app_rere_petshop/pages/profil/alamat_pengiriman_page.dart';
+import 'package:app_rere_petshop/pages/profil/data_pribadi_page.dart';
+import 'package:app_rere_petshop/pages/profil/pusat_bantuan_page.dart';
 import 'package:app_rere_petshop/pages/profil/widgets/profile_header.dart';
 import 'package:app_rere_petshop/pages/profil/widgets/profile_menu_section.dart';
 import 'package:app_rere_petshop/pages/profil/widgets/profile_menu_tile.dart';
@@ -31,7 +35,6 @@ class _ProfilPageState extends State<ProfilPage> {
   String get _email => (_user['email'] ?? _customer['email'])?.toString() ?? '';
   String get _phone =>
       (_customer['no_hp'] ?? _customer['telepon'])?.toString() ?? '';
-  String get _address => (_customer['alamat'])?.toString() ?? '';
 
   @override
   void initState() {
@@ -122,12 +125,12 @@ class _ProfilPageState extends State<ProfilPage> {
                         ProfileMenuTile(
                           icon: Icons.person_outline,
                           title: 'Data Pribadi',
-                          onTap: _loggedIn ? _showProfileInfo : _openLogin,
+                          onTap: _loggedIn ? _openPersonalData : _openLogin,
                         ),
                         ProfileMenuTile(
                           icon: Icons.location_on_outlined,
                           title: 'Alamat Pengiriman',
-                          onTap: _loggedIn ? _showAddress : _openLogin,
+                          onTap: _loggedIn ? _openShippingAddress : _openLogin,
                         ),
                         ProfileMenuTile(
                           icon: Icons.receipt_long_outlined,
@@ -143,13 +146,13 @@ class _ProfilPageState extends State<ProfilPage> {
                         ProfileMenuTile(
                           icon: Icons.help_outline,
                           title: 'Pusat Bantuan',
-                          onTap: _showHelp,
+                          onTap: _openHelp,
                         ),
                         ProfileMenuTile(
                           icon: Icons.info_outline,
                           title: 'Tentang ReRe Petshop',
                           showDivider: false,
-                          onTap: _showAbout,
+                          onTap: _openAbout,
                         ),
                       ],
                     ),
@@ -192,89 +195,38 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
-  void _showProfileInfo() {
-    _showDetails(
-      'Data Pribadi',
-      [
-        _DetailRow('Nama', _name),
-        _DetailRow('Email', _email),
-        _DetailRow('Nomor telepon', _phone),
-      ],
+  Future<void> _openPersonalData() async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const DataPribadiPage()),
+    );
+    if (saved == true) await _refreshAccountData();
+  }
+
+  Future<void> _openShippingAddress() async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const AlamatPengirimanPage()),
+    );
+    if (saved == true) await _refreshAccountData();
+  }
+
+  Future<void> _refreshAccountData() async {
+    await _loadProfile();
+    if (mounted) await context.read<AuthProvider>().refreshProfile();
+  }
+
+  void _openHelp() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const PusatBantuanPage()),
     );
   }
 
-  void _showAddress() {
-    _showDetails('Alamat Pengiriman', [_DetailRow('Alamat', _address)]);
-  }
-
-  void _showDetails(String title, List<_DetailRow> details) {
-    showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      backgroundColor: AppColors.white,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              ...details.map(
-                (detail) => Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(detail.label,
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.textSecondary)),
-                      const SizedBox(height: 4),
-                      Text(
-                        detail.value.isEmpty ? 'Belum diisi' : detail.value,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showHelp() {
-    _showDialog(
-      'Pusat Bantuan',
-      'Butuh bantuan? Hubungi tim ReRe Petshop melalui kanal layanan pelanggan yang tersedia.',
-    );
-  }
-
-  void _showAbout() {
-    _showDialog(
-      'Tentang ReRe Petshop',
-      'ReRe Petshop menyediakan kebutuhan hewan kesayangan dan layanan untuk merawat mereka.',
-    );
-  }
-
-  void _showDialog(String title, String message) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tutup'),
-          ),
-        ],
-      ),
+  void _openAbout() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AboutPage()),
     );
   }
 
@@ -308,11 +260,4 @@ class _ProfilPageState extends State<ProfilPage> {
       _customer = {};
     });
   }
-}
-
-class _DetailRow {
-  const _DetailRow(this.label, this.value);
-
-  final String label;
-  final String value;
 }

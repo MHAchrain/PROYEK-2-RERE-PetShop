@@ -22,6 +22,12 @@ class PembayaranController extends Controller
     Config::$is3ds = config('midtrans.is3ds', true);
 }
 
+    protected function snapRedirectUrl(string $token): string
+    {
+        $host = Config::$isProduction ? 'app.midtrans.com' : 'app.sandbox.midtrans.com';
+        return "https://{$host}/snap/v2/vtweb/{$token}";
+    }
+
    protected function resolvePelanggan(Request $request): ?Pelanggan
 {
     $user = $request->user();
@@ -124,6 +130,7 @@ class PembayaranController extends Controller
             return response()->json([
                 'success' => true,
                 'snap_token' => $existingPayment->snap_token,
+                'redirect_url' => $this->snapRedirectUrl($existingPayment->snap_token),
                 'ref_gateway' => $existingPayment->ref_gateway,
                 'is_existing' => true,
             ]);
@@ -157,7 +164,8 @@ class PembayaranController extends Controller
         ];
 
         try {
-            $snapToken = Snap::getSnapToken($params);
+            $snapTransaction = Snap::createTransaction($params);
+            $snapToken = $snapTransaction->token;
 
             // Simpan atau update data pembayaran
             Pembayaran::updateOrCreate(
@@ -178,6 +186,7 @@ class PembayaranController extends Controller
             return response()->json([
                 'success'    => true,
                 'snap_token' => $snapToken,
+                'redirect_url' => $snapTransaction->redirect_url,
                 'ref_gateway' => $transactionDetails['order_id'],
                 'is_existing' => false,
             ]);
