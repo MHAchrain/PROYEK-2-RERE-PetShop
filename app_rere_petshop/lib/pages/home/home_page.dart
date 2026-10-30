@@ -8,6 +8,7 @@ import 'package:app_rere_petshop/pages/home/widgets/home_banner.dart';
 import 'package:app_rere_petshop/pages/home/widgets/home_categories.dart';
 import 'package:app_rere_petshop/pages/home/widgets/featured_products_section.dart';
 import 'package:app_rere_petshop/pages/home/widgets/home_search_widget.dart';
+import 'package:app_rere_petshop/pages/notification/notification_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -82,7 +83,12 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: const Icon(Icons.notifications_outlined,
               color: AppColors.textPrimary),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationPage()),
+            );
+          },
         ),
       ],
     );

@@ -1,7 +1,8 @@
 // lib/presentation/screens/splash/splash_screen.dart
 import 'package:flutter/material.dart';
-import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_rere_petshop/app/navigation.dart';
+import 'package:app_rere_petshop/pages/onboarding/onboarding_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -21,27 +22,36 @@ class _SplashPageState extends State<SplashPage>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1000),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    _scaleAnimation = Tween<double>(begin: 0.90, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainNavigation()),
-        );
-      }
-    });
+    _checkNavigationFlow();
+  }
+
+  Future<void> _checkNavigationFlow() async {
+    await Future.delayed(const Duration(milliseconds: 2000));
+    final prefs = await SharedPreferences.getInstance();
+    final bool hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            hasSeenOnboarding ? const MainNavigation() : const OnboardingPage(),
+      ),
+    );
   }
 
   @override
@@ -53,63 +63,62 @@ class _SplashPageState extends State<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'ReRe',
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
-                      ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Logo Tengah Proporsional
+            Center(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Image.asset(
+                    'assets/images/logo-rere.png',
+                    width: 95,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.pets, size: 52, color: Color(0xFF850909)),
+                        SizedBox(height: 8),
+                        Text(
+                          'ReRe Petshop',
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF850909),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
-                  'ReRe Petshop',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Untuk Anabul Kesayangan Kamu 🐾',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 60),
-                const SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: CircularProgressIndicator(
-                    color: Colors.white54,
-                    strokeWidth: 2,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+
+            // Teks "PT. Kicau Mania" Hitam Opacity 50% di Bawah
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 28),
+                  child: Text(
+                    'PT. Kicau Mania',
+                    style: TextStyle(
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: 13,
+                      color: Colors.black.withOpacity(0.50),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
