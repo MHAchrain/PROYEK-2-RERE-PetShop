@@ -8,24 +8,22 @@ class GroomingServicesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final services = [
       {
-        'icon': Icons.shower,
-        'title': 'Mandi & Shampoo',
-        'desc': 'Mandi dengan shampoo berkualitas premium',
+        'title': 'Grooming Basic',
+        'desc': 'Mandi dan perawatan dasar untuk hewan peliharaan Anda.',
+        'duration': '60 menit',
+        'price': 'Rp150.000',
       },
       {
-        'icon': Icons.cut,
-        'title': 'Potong Kuku',
-        'desc': 'Pemotongan kuku yang aman dan higienis',
+        'title': 'Grooming Medium',
+        'desc': 'Mandi, perawatan, dan pemotongan bulu untuk hewan peliharaan Anda.',
+        'duration': '60 menit',
+        'price': 'Rp250.000',
       },
       {
-        'icon': Icons.brush,
-        'title': 'Cukur Bulu',
-        'desc': 'Styling bulu sesuai keinginan Anda',
-      },
-      {
-        'icon': Icons.spa,
-        'title': 'Perawatan Kulit',
-        'desc': 'Vitamin dan perawatan kulit tambahan',
+        'title': 'Grooming Premium',
+        'desc': 'Perawatan lengkap termasuk mandi, pemotongan bulu, dan perawatan tambahan untuk hewan peliharaan Anda.',
+        'duration': '90 menit',
+        'price': 'Rp350.000',
       },
     ];
 
@@ -37,7 +35,7 @@ class GroomingServicesSection extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              'Layanan Kami',
+              'Layanan grooming',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -49,17 +47,17 @@ class GroomingServicesSection extends StatelessWidget {
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: MediaQuery.sizeOf(context).width >= 600 ? 2 : 1,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 1.1,
+              mainAxisExtent: 235,
             ),
             itemCount: services.length,
             itemBuilder: (context, i) {
               final service = services[i];
               return Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -72,40 +70,49 @@ class GroomingServicesSection extends StatelessWidget {
                   ],
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        service['icon'] as IconData,
-                        color: AppColors.primary,
-                        size: 32,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                     Text(
                       service['title'] as String,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppColors.textPrimary,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 10),
                     Text(
                       service['desc'] as String,
-                      style: TextStyle(
-                        fontSize: 11,
+                      style: const TextStyle(
+                        fontSize: 13,
                         color: AppColors.textSecondary,
+                        height: 1.45,
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        const Icon(Icons.schedule, size: 16, color: AppColors.primary),
+                        const SizedBox(width: 6),
+                        Text('Durasi sekitar ${service['duration']}'),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    const Row(
+                      children: [
+                        Icon(Icons.pets, size: 16, color: AppColors.primary),
+                        SizedBox(width: 6),
+                        Text('Satu hewan untuk satu slot'),
+                      ],
+                    ),
+                    const Divider(height: 18),
+                    Text(
+                      service['price'] as String,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),

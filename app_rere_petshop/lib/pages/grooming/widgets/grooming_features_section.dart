@@ -6,11 +6,19 @@ class GroomingFeaturesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final features = [
-      {'icon': Icons.verified_user, 'text': 'Tenaga Berpengalaman'},
-      {'icon': Icons.favorite, 'text': 'Produk Ramah Hewan'},
-      {'icon': Icons.home, 'text': 'Home Service Tersedia'},
-      {'icon': Icons.star, 'text': '100% Aman & Higienis'},
+    final steps = [
+      {
+        'title': 'Pilih layanan',
+        'text': 'Tentukan paket grooming yang sesuai untuk anabul.',
+      },
+      {
+        'title': 'Isi data hewan',
+        'text': 'Berikan informasi dasar agar salon siap menerima hewanmu.',
+      },
+      {
+        'title': 'Pilih jadwal dan bayar',
+        'text': 'Pilih slot yang tersedia. Booking dikonfirmasi setelah pembayaran berhasil.',
+      },
     ];
 
     return Container(
@@ -27,7 +35,7 @@ class GroomingFeaturesSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Mengapa Memilih Kami?',
+            'Cara booking grooming',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -35,26 +43,47 @@ class GroomingFeaturesSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          ...features.map((feature) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  children: [
-                    Icon(
-                      feature['icon'] as IconData,
-                      color: AppColors.primary,
-                      size: 20,
+          ...steps.asMap().entries.map((entry) {
+            final index = entry.key;
+            final step = entry.value;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    child: Text('${index + 1}',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        )),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(step['title']!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            )),
+                        const SizedBox(height: 4),
+                        Text(step['text']!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              height: 1.45,
+                              color: AppColors.textSecondary,
+                            )),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      feature['text'] as String,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );

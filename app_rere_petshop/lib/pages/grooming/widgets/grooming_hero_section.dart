@@ -6,45 +6,87 @@ class GroomingHeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      child: Column(
+    return SizedBox(
+      width: double.infinity,
+      height: 360,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
+          Image.asset(
+            'assets/images/grooming-hero.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: AppColors.primaryDark,
+              child: const Icon(Icons.pets, color: Colors.white54, size: 72),
             ),
-            child: const Text(
-              'LAYANAN GROOMING',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Color(0x33000000),
+                  Color(0xE6000000),
+                ],
+                stops: [0.25, 0.58, 1],
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Berikan Perawatan Terbaik\nuntuk Anabul Anda',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Layanan grooming profesional kami dirancang untuk memastikan hewan peliharaan Anda tetap bersih, sehat, dan tampil menggemaskan. Kami menggunakan produk ramah hewan dan ditangani oleh tenaga berpengalaman.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-              height: 1.6,
+          Positioned(
+            left: 20,
+            right: 20,
+            bottom: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.pets, color: Colors.white, size: 19),
+                      SizedBox(width: 8),
+                      Text(
+                        'ReRe Salon & Spa',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Perawatan Terbaik untuk Hewan Kesayangan',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 27,
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Temukan layanan grooming yang sesuai untuk kebutuhan anabul.',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

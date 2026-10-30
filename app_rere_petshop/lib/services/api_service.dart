@@ -212,6 +212,94 @@ class ApiService {
     }
   }
 
+  // ─── GROOMING ─────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> getGroomingServices() async {
+    try {
+      final response = await _dio.get('/grooming/services');
+      final items = response.data is Map ? response.data['data'] : null;
+      return (items as List? ?? const [])
+          .whereType<Map>()
+          .map((service) => Map<String, dynamic>.from(service))
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getGroomingSlots(String date) async {
+    try {
+      final response = await _dio.get(
+        '/grooming/slots',
+        queryParameters: {'date': date},
+      );
+      final items = response.data is Map ? response.data['data'] : null;
+      return (items as List? ?? const [])
+          .whereType<Map>()
+          .map((slot) => Map<String, dynamic>.from(slot))
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> createGroomingBooking(
+    Map<String, dynamic> bookingData,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '/grooming/bookings',
+        data: bookingData,
+        options: await _authOptions(),
+      );
+      final result = Map<String, dynamic>.from(response.data['data'] ?? {});
+      result['snap_token'] = response.data['snap_token'];
+      return result;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> syncGroomingPayment(int bookingId, String paymentStatus) async {
+    try {
+      await _dio.post(
+        '/grooming/bookings/$bookingId/sync-payment',
+        data: {'payment_status': paymentStatus},
+        options: await _authOptions(),
+      );
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<Map<String, dynamic>> getGroomingBooking(int bookingId) async {
+    try {
+      final response = await _dio.get(
+        '/grooming/bookings/$bookingId',
+        options: await _authOptions(),
+      );
+      return Map<String, dynamic>.from(response.data['data'] ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<String> getGroomingPaymentToken(int bookingId) async {
+    try {
+      final response = await _dio.get(
+        '/grooming/bookings/$bookingId/payment-token',
+        options: await _authOptions(),
+      );
+      final token = response.data['snap_token']?.toString();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token pembayaran tidak ditemukan.');
+      }
+      return token;
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── ARPET AI CHAT ────────────────────────────────────────
 
   Future<Map<String, dynamic>> sendChatAI(String message, {dynamic imageBytes, String? imageName}) async {

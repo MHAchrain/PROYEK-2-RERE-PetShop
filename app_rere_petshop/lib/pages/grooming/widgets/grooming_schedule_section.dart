@@ -38,7 +38,7 @@ class GroomingScheduleSection extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               const Text(
-                'Jam Operasional',
+                'Metode kunjungan',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -47,39 +47,37 @@ class GroomingScheduleSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Senin - Sabtu',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-              Text(
-                '09:00 - 18:00 WIB',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
+          const SizedBox(height: 14),
+          const Text(
+            'Booking online saat ini tersedia untuk kunjungan langsung ke toko. Bawa anabul pada jadwal grooming yang sudah dipilih.',
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              height: 1.5,
+            ),
           ),
-          const SizedBox(height: 8),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Minggu',
-                style: TextStyle(color: AppColors.textSecondary),
-              ),
-              Text(
-                'Tutup',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.directions_car, color: AppColors.textSecondary),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Antar-jemput direncanakan. Detail jadwal dan biaya akan tersedia setelah layanannya siap.',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      height: 1.45,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
