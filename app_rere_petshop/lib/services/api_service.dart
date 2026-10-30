@@ -12,8 +12,8 @@ class ApiService {
   ApiService() {
     _dio = Dio(BaseOptions(
       baseUrl: AppConstants.baseUrl,
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      connectTimeout: const Duration(seconds: 20),
+      receiveTimeout: const Duration(seconds: 60),
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -45,7 +45,8 @@ class ApiService {
 
   Future<bool> toggleWishlist(int productId) async {
     try {
-      final response = await _dio.post('/favorites', data: {'produk_id': productId}, options: await _authOptions());
+      final response = await _dio.post('/favorites',
+          data: {'produk_id': productId}, options: await _authOptions());
       return response.data['is_favorite'] == true;
     } on DioException catch (e) {
       throw _handleError(e);
@@ -129,7 +130,8 @@ class ApiService {
 
   Future<List<Map<String, dynamic>>> getOrders() async {
     try {
-      final response = await _dio.get('/pesanan', options: await _authOptions());
+      final response =
+          await _dio.get('/pesanan', options: await _authOptions());
       return (response.data['data'] as List? ?? const [])
           .whereType<Map>()
           .map((order) => Map<String, dynamic>.from(order))
@@ -141,7 +143,8 @@ class ApiService {
 
   Future<Map<String, dynamic>> getOrder(int orderId) async {
     try {
-      final response = await _dio.get('/pesanan/$orderId', options: await _authOptions());
+      final response =
+          await _dio.get('/pesanan/$orderId', options: await _authOptions());
       return Map<String, dynamic>.from(response.data['data'] ?? {});
     } on DioException catch (e) {
       throw _handleError(e);
@@ -318,7 +321,8 @@ class ApiService {
 
   // ─── ARPET AI CHAT ────────────────────────────────────────
 
-  Future<Map<String, dynamic>> sendChatAI(String message, {dynamic imageBytes, String? imageName}) async {
+  Future<Map<String, dynamic>> sendChatAI(String message,
+      {dynamic imageBytes, String? imageName}) async {
     try {
       dynamic data;
       if (imageBytes != null && imageName != null) {
@@ -341,7 +345,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> sendChatGemini(String message, {dynamic imageBytes, String? imageName}) async {
+  Future<Map<String, dynamic>> sendChatGemini(String message,
+      {dynamic imageBytes, String? imageName}) async {
     try {
       dynamic data;
       if (imageBytes != null && imageName != null) {
@@ -378,4 +383,3 @@ class ApiService {
     }
   }
 }
-

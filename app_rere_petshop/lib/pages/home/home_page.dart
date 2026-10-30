@@ -1,3 +1,4 @@
+import 'package:app_rere_petshop/pages/notification/notification_page.dart';
 // lib/presentation/screens/home/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -82,7 +83,12 @@ class _HomePageState extends State<HomePage> {
         IconButton(
           icon: const Icon(Icons.notifications_outlined,
               color: AppColors.textPrimary),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const NotificationPage()),
+            );
+          },
         ),
       ],
     );

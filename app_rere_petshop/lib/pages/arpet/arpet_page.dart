@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/constants/app_constants.dart';
@@ -16,12 +18,14 @@ class ArpetPage extends StatefulWidget {
 class _ChatMessage {
   final bool isUser;
   final String text;
+  final Uint8List? imageBytes;
   final List<dynamic> products;
   final DateTime time;
 
   _ChatMessage({
     required this.isUser,
     required this.text,
+    this.imageBytes,
     this.products = const [],
     DateTime? time,
   }) : time = time ?? DateTime.now();
@@ -44,6 +48,9 @@ class _ArpetPageState extends State<ArpetPage> {
   String _selectedModel = 'local'; // 'local' | 'gemini'
   final AuthService _authService = AuthService();
   Map<String, dynamic>? _geminiUsage;
+  Uint8List? _selectedImageBytes;
+  String? _selectedImageName;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void dispose() {
@@ -61,6 +68,126 @@ class _ArpetPageState extends State<ArpetPage> {
           curve: Curves.easeOut,
         );
       }
+    });
+  }
+
+    Future<void> _onCameraPressed() async {
+    final isLoggedIn = await _authService.hasAuthToken();
+    if (!isLoggedIn) {
+      _showLoginDialog();
+      return;
+    }
+
+    if (_selectedModel != 'gemini') {
+      _showSwitchToGeminiDialog();
+      return;
+    }
+
+    _showImageSourceDialog();
+  }
+
+  void _showSwitchToGeminiDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.camera_alt_rounded, color: Color(0xFFE65100)),
+            SizedBox(width: 8),
+            Text('Beralih ke Gemini?', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Analisis foto anabul menggunakan fitur Gemini Vision AI. Mau beralih ke mode Arpet Gemini untuk mengirim foto?',
+          style: TextStyle(fontSize: 13, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _selectedModel = 'gemini');
+              _showImageSourceDialog();
+            },
+            child: const Text('Ya, Beralih & Pilih Foto'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
+                title: const Text('Pilih dari Galeri', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
+                title: const Text('Ambil dari Kamera', style: TextStyle(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? file = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        setState(() {
+          _selectedImageBytes = bytes;
+          _selectedImageName = file.name;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengambil gambar: $e')),
+        );
+      }
+    }
+  }
+
+  void _removeSelectedImage() {
+    setState(() {
+      _selectedImageBytes = null;
+      _selectedImageName = null;
     });
   }
 
@@ -217,20 +344,51 @@ class _ArpetPageState extends State<ArpetPage> {
   }
   Future<void> _sendMessage([String? quickText]) async {
     final text = quickText ?? _textController.text.trim();
-    if (text.isEmpty || _isLoading) return;
+    final imgBytes = _selectedImageBytes;
+    final imgName = _selectedImageName;
+
+    if ((text.isEmpty && imgBytes == null) || _isLoading) return;
+
+    if (_selectedModel == 'gemini') {
+      final isLoggedIn = await _authService.hasAuthToken();
+      if (!isLoggedIn) {
+        _showLoginDialog();
+        return;
+      }
+    }
 
     if (quickText == null) {
       _textController.clear();
     }
+    _removeSelectedImage();
 
     setState(() {
-      _messages.add(_ChatMessage(isUser: true, text: text));
+      _messages.add(_ChatMessage(isUser: true, text: text, imageBytes: imgBytes));
       _isLoading = true;
     });
     _scrollToBottom();
 
     try {
-      final response = await _api.sendChatAI(text);
+      Map<String, dynamic> response;
+      if (_selectedModel == 'gemini') {
+        response = await _api.sendChatGemini(
+          text,
+          imageBytes: imgBytes,
+          imageName: imgName,
+        );
+        if (response['usage'] != null) {
+          setState(() {
+            _geminiUsage = Map<String, dynamic>.from(response['usage']);
+          });
+        }
+      } else {
+        response = await _api.sendChatAI(
+          text,
+          imageBytes: imgBytes,
+          imageName: imgName,
+        );
+      }
+
       final aiMessage = response['ai_message']?.toString() ??
           response['message']?.toString() ??
           'Berikut rekomendasi untuk anabul Anda:';
@@ -248,11 +406,20 @@ class _ArpetPageState extends State<ArpetPage> {
       }
     } catch (e) {
       if (mounted) {
+        String errorMsg = e.toString();
+        if (errorMsg.contains('429')) {
+          errorMsg = 'Kuota harian Arpet Gemini Anda telah habis (15/15 hari ini). Silakan gunakan Arpet Local ya!';
+        } else if (errorMsg.contains('401')) {
+          _showLoginDialog();
+          errorMsg = 'Silakan login terlebih dahulu untuk menggunakan Arpet Gemini.';
+        } else {
+          errorMsg = '🐾 Maaf, ARPET sedang mengalami kendala jaringan. Silakan coba sesaat lagi.';
+        }
+
         setState(() {
           _messages.add(_ChatMessage(
             isUser: false,
-            text:
-                '🐾 Maaf, ARPET sedang kesulitan terhubung ke server AI Ollama. Pastikan AI service aktif lalu coba lagi ya.',
+            text: errorMsg,
           ));
         });
         _scrollToBottom();
@@ -701,54 +868,93 @@ class _ArpetPageState extends State<ArpetPage> {
   }
 
   Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
-        border: Border(
-          top: BorderSide(color: Color(0xFFE5E7EB)),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F6F8),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color(0xFFE4E7EB)),
-              ),
-              child: TextField(
-                controller: _textController,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-                decoration: const InputDecoration(
-                  hintText: 'Tanya ARPET tentang kebutuhan anabul...',
-                  hintStyle: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.grey,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (_selectedImageBytes != null)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: const Color(0xFFFFF3E0),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.memory(
+                    _selectedImageBytes!,
+                    width: 44,
+                    height: 44,
+                    fit: BoxFit.cover,
                   ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Foto anabul siap dianalisis dengan Gemini',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFE65100)),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                  onPressed: _removeSelectedImage,
+                ),
+              ],
+            ),
+          ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(10, 8, 12, 12),
+          decoration: const BoxDecoration(
+            color: AppColors.white,
+            border: Border(
+              top: BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt_rounded, color: AppColors.primary, size: 24),
+                onPressed: _isLoading ? null : _onCameraPressed,
+                tooltip: 'Foto Anabul',
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F6F8),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: const Color(0xFFE4E7EB)),
+                  ),
+                  child: TextField(
+                    controller: _textController,
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) => _sendMessage(),
+                    decoration: const InputDecoration(
+                      hintText: 'Tanya ARPET tentang kebutuhan anabul...',
+                      hintStyle: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.grey,
+                      ),
+                      border: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                  onPressed: _isLoading ? null : () => _sendMessage(),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Container(
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-              onPressed: _isLoading ? null : () => _sendMessage(),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

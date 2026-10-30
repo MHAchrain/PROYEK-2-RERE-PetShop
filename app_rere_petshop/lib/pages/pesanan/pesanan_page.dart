@@ -50,8 +50,8 @@ class _PesananPageState extends State<PesananPage> {
       ]);
       if (mounted) {
         setState(() {
-          _orders = results[0] as List<Map<String, dynamic>>;
-          _bookings = results[1] as List<Map<String, dynamic>>;
+          _orders = results[0];
+          _bookings = results[1];
         });
       }
     } catch (error) {
@@ -109,7 +109,9 @@ class _PesananPageState extends State<PesananPage> {
 
   bool _orderMatches(Map<String, dynamic> order, String query) {
     if ((order['kode_pesanan']?.toString().toLowerCase().contains(query) ?? false) ||
-        (order['id_pesanan']?.toString().toLowerCase().contains(query) ?? false)) return true;
+        (order['id_pesanan']?.toString().toLowerCase().contains(query) ?? false)) {
+      return true;
+    }
     final details = order['details'] as List? ?? const [];
     return details.whereType<Map>().any((detail) {
       final product = detail['produk'] as Map? ?? const {};

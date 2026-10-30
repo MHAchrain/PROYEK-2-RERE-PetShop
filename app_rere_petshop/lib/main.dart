@@ -6,8 +6,7 @@ import 'package:app_rere_petshop/theme/app_theme.dart';
 import 'package:app_rere_petshop/providers/product_provider.dart';
 import 'package:app_rere_petshop/providers/cart_provider.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
-// import 'package:app_rere_petshop/pages/splash/splash_page.dart';
-import 'package:app_rere_petshop/app/navigation.dart';  
+import 'package:app_rere_petshop/pages/splash/splash_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +40,7 @@ class MyApp extends StatelessWidget {
         title: 'ReRe Petshop',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const MainNavigation(),
+        home: const SplashPage(),
       ),
     );
   }
