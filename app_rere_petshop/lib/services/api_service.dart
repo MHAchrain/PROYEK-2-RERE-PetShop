@@ -243,6 +243,22 @@ class ApiService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getGroomingBookings() async {
+    try {
+      final response = await _dio.get(
+        '/grooming/history',
+        options: await _authOptions(),
+      );
+      final items = response.data is Map ? response.data['data'] : null;
+      return (items as List? ?? const [])
+          .whereType<Map>()
+          .map((booking) => Map<String, dynamic>.from(booking))
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<Map<String, dynamic>> createGroomingBooking(
     Map<String, dynamic> bookingData,
   ) async {

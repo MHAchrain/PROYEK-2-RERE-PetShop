@@ -11,7 +11,10 @@ class BookingServiceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final duration = service['duration_minutes'] ?? service['durationMinutes'] ?? 0;
+    final duration = GroomingBookingFormatters.number(
+      service['duration_minutes'] ?? service['durationMinutes'],
+    );
+    final description = '${service['description'] ?? ''}'.trim();
     final price = GroomingBookingFormatters.number(service['price']);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,18 +38,23 @@ class BookingServiceSection extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                '${service['description'] ?? ''}',
-                style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.45),
-              ),
-              const SizedBox(height: 12),
+              if (description.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.45),
+                ),
+              ],
+              if (description.isNotEmpty || duration > 0)
+                const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.schedule, size: 16, color: AppColors.primary),
-                  const SizedBox(width: 6),
-                  Text('Durasi sekitar $duration menit', style: _metaStyle),
-                  const Spacer(),
+                  if (duration > 0) ...[
+                    const Icon(Icons.schedule, size: 16, color: AppColors.primary),
+                    const SizedBox(width: 6),
+                    Text('Durasi sekitar $duration menit', style: _metaStyle),
+                  ],
+                  if (duration > 0) const Spacer(),
                   const Icon(Icons.pets, size: 16, color: AppColors.primary),
                   const SizedBox(width: 6),
                   const Text('1 hewan per slot', style: _metaStyle),
