@@ -2,18 +2,14 @@
 
 class AppConstants {
   // // API produksi
-  // static const String baseDomain = 'https://api.rerepetshop.biz.id';
-
-  // // Base API URL
-  // static String get baseUrl => '$baseDomain/api';
-
-  // // Storage / Image Base URL
-  // static String get storageUrl => '$baseDomain/storage';
+  static const String baseDomain = 'https://api.rerepetshop.biz.id';
+  static String get baseUrl => '$baseDomain/api';
+  static String get storageUrl => '$baseDomain/storage';
 
   // API Laravel lokal
-  static const String localBaseDomain = 'http://127.0.0.1:8000';
-  static String get baseUrl => '$localBaseDomain/api';
-  static String get storageUrl => '$localBaseDomain/storage';
+  //static const String localBaseDomain = 'http://127.0.0.1:8000';
+  //static String get baseUrl => '$localBaseDomain/api';
+  //static String get storageUrl => '$localBaseDomain/storage';
 
   static const String appName = 'ReRe Petshop';
   static const String whatsappNumber = '6281319410250'; // 0813-1941-0250

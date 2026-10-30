@@ -77,7 +77,7 @@ class _ArpetPageState extends State<ArpetPage> {
           ],
         ),
         content: const Text(
-          'Mode Arpet Gemini memerlukan login untuk membatasi kuota harian (maks. 10x/hari).\n\nAnda tetap bisa menggunakan mode Arpet Local secara bebas tanpa login!',
+          'Mode Arpet Gemini memerlukan login untuk membatasi kuota harian (maks. 15x/hari).\n\nAnda tetap bisa menggunakan mode Arpet Local secara bebas tanpa login!',
           style: TextStyle(fontSize: 13, height: 1.4),
         ),
         actions: [
@@ -192,7 +192,7 @@ class _ArpetPageState extends State<ArpetPage> {
                     ],
                   ),
                   subtitle: const Text(
-                    'Google Gemini Cloud via Laravel (Maksimal 10x/hari)',
+                    'Google Gemini Cloud via Laravel (Maksimal 15x/hari)',
                     style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                   trailing: _selectedModel == 'gemini'
