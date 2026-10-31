@@ -33,6 +33,7 @@ export default function ChatBot() {
   const [selectedModel, setSelectedModel] = useState('local'); // 'local' | 'gemini'
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSwitchModelModal, setShowSwitchModelModal] = useState(false);
   const [geminiUsage, setGeminiUsage] = useState(null);
 
   // ← track typing selesai per message ID
@@ -88,6 +89,21 @@ export default function ChatBot() {
         toast.error('File harus berupa gambar');
         return;
       }
+
+      // Analisis gambar menggunakan Gemini Vision & wajib login
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setShowPhotoOptions(false);
+        setShowLoginModal(true);
+        return;
+      }
+
+      // Jika user sedang di mode Local, otomatis alihkan ke Gemini Flash
+      if (selectedModel !== 'gemini') {
+        setSelectedModel('gemini');
+        toast.info('Beralih ke mode Gemini Flash untuk analisis foto anabul 🐾');
+      }
+
       setSelectedImage(file);
       setImagePreview(URL.createObjectURL(file));
       setShowPhotoOptions(false);
@@ -185,7 +201,7 @@ export default function ChatBot() {
       console.error('Chat AI Error:', err);
       let errorText = 'Maaf, terjadi sedikit kendala koneksi ke AI. Silakan coba kembali sesaat lagi ya Cat Lovers 🐾';
       if (err.response?.status === 429) {
-        errorText = err.response?.data?.message || 'Kuota harian Arpet Gemini Anda telah mencapai batas maksimal (10/10). Silakan beralih ke mode Arpet Local!';
+        errorText = err.response?.data?.message || 'Kuota harian Arpet Gemini Anda telah mencapai batas maksimal (15/15). Silakan beralih ke mode Arpet Local!';
       } else if (err.response?.status === 401) {
         setShowLoginModal(true);
         errorText = 'Silakan login terlebih dahulu untuk menggunakan Arpet Gemini.';
@@ -520,7 +536,7 @@ export default function ChatBot() {
                     }
                   }}>
                   <div className="rere-model-title-group">
-                    <span className="rere-model-title">Gemini 2.5 Flash</span>
+                    <span className="rere-model-title">Gemini Flash</span>
                     <span className="rere-model-badge-quota">Wajib Login</span>
                   </div>
                   {selectedModel === 'gemini' && (
@@ -547,7 +563,41 @@ export default function ChatBot() {
             </div>
           )}
 
-          {/* Modal Popup Silakan Login */}
+                    {/* Modal Konfirmasi Pindah ke Gemini untuk Foto */}
+          {showSwitchModelModal && (
+            <div className="rere-login-modal-overlay">
+              <div className="rere-login-modal-card">
+                <div className="rere-login-modal-icon" style={{ background: '#FFF3E0', color: '#E65100' }}>
+                  <Camera size={26} />
+                </div>
+                <h4 className="rere-login-modal-title">Beralih ke Gemini Flash?</h4>
+                <p className="rere-login-modal-desc">
+                  Fitur analisis foto anabul menggunakan <b>Gemini Vision AI</b>. Mau beralih ke mode <b>Gemini Flash</b> untuk mengirim foto?
+                </p>
+                <div className="rere-login-modal-actions">
+                  <button
+                    type="button"
+                    className="rere-btn-login-cancel"
+                    onClick={() => setShowSwitchModelModal(false)}>
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    className="rere-btn-login-confirm"
+                    style={{ background: '#781c1c' }}
+                    onClick={() => {
+                      setSelectedModel('gemini');
+                      setShowSwitchModelModal(false);
+                      setShowPhotoOptions(true);
+                    }}>
+                    Ya, Beralih & Pilih Foto
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+{/* Modal Popup Silakan Login */}
           {showLoginModal && (
             <div className="rere-login-modal-overlay">
               <div className="rere-login-modal-card">
@@ -556,7 +606,7 @@ export default function ChatBot() {
                 </div>
                 <h4 className="rere-login-modal-title">Silakan Login</h4>
                 <p className="rere-login-modal-desc">
-                  Mode <b>Gemini Flash</b> memerlukan login akun untuk membatasi kuota gratis (maks. 10x per hari). Kamu tetap bisa memakai <b>Arpet Local</b> secara bebas tanpa login!
+                  Mode <b>Gemini Flash</b> memerlukan login akun untuk membatasi kuota gratis (maks. 15x per hari). Kamu tetap bisa memakai <b>Arpet Local</b> secara bebas tanpa login!
                 </p>
                 <div className="rere-login-modal-actions">
                   <button
@@ -584,11 +634,11 @@ export default function ChatBot() {
                 className="rere-model-dropdown-trigger"
                 onClick={() => setShowModelMenu(!showModelMenu)}>
                 <span className="rere-model-current-name">
-                  {selectedModel === 'gemini' ? 'Gemini 2.5 Flash' : 'Arpet Local (Ollama)'}
+                  {selectedModel === 'gemini' ? 'Gemini Flash' : 'Arpet Local (Ollama)'}
                 </span>
                 <span className="rere-model-current-sub">
                   {selectedModel === 'gemini'
-                    ? (geminiUsage ? `Sisa: ${geminiUsage.remaining}/10` : 'Wajib Login (10x/hari)')
+                    ? (geminiUsage ? `Sisa: ${geminiUsage.remaining}/15` : 'Wajib Login (15x/hari)')
                     : 'Bebas Kuota'}
                 </span>
                 <ChevronDown size={14} className="rere-model-chevron" />
@@ -599,7 +649,18 @@ export default function ChatBot() {
               <button
                 type="button"
                 className="rere-btn-camera"
-                onClick={() => setShowPhotoOptions(!showPhotoOptions)}
+                onClick={() => {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                  setShowLoginModal(true);
+                  return;
+                }
+                if (selectedModel !== 'gemini') {
+                  setShowSwitchModelModal(true);
+                  return;
+                }
+                setShowPhotoOptions(!showPhotoOptions);
+              }}
                 title="Kirim Foto Anabul">
                 <Camera size={19} />
               </button>

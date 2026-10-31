@@ -6,7 +6,12 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'], // Mengizinkan semua domain (termasuk Vercel)
+    'allowed_origins' => ['https://rerepetshop.biz.id',
+                        'https://www.rerepetshop.biz.id',
+                        'https://rere-petshop-frontend.vercel.app',
+                        'http://localhost:59597',
+                        'http://localhost:5173', // jaga-jaga kalau testing lokal
+                        ], // Mengizinkan semua domain (termasuk Vercel)
 
     'allowed_origins_patterns' => [],
 
@@ -16,6 +21,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];

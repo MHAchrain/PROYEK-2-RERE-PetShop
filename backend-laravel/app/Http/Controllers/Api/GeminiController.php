@@ -33,7 +33,7 @@ class GeminiController extends Controller
         $userId = $user->id;
         $today = now()->toDateString();
         $cacheKey = "gemini_daily_usage:{$userId}:{$today}";
-        $maxDailyQuota = 10;
+        $maxDailyQuota = 15;
 
         $currentUsage = (int) Cache::get($cacheKey, 0);
 
@@ -78,17 +78,18 @@ class GeminiController extends Controller
             })
             ->implode("\n");
 
-        $systemPrompt = "Kamu adalah ARPET (Asisten RERe Petshop), asisten virtual ramah, cerdas, penyayang kucing & anjing di toko hewan RERe Petshop Tangerang.
-Tugasmu adalah menjawab pertanyaan seputar perawatan hewan peliharaan, makanan, vitamin, grooming, dan memberikan rekomendasi produk terbaik.
+        $systemPrompt = "Kamu adalah ARPET (Asisten RERe Petshop), asisten virtual ramah, praktis, dan cerdas di toko hewan RERe Petshop Tangerang.
+Tugasmu adalah memberikan konsultasi perawatan anabul dan rekomendasi produk terbaik.
 
 Berikut sebagian katalog produk tersedia di RERe Petshop:
 {$katalogProduk}
 
-Aturan Respons:
-1. Bersikaplah ramah dan gunakan sapaan 'Cat Lovers' atau sebutan anabul.
-2. Jawab pertanyaan pengguna secara informatif, solutif, dan hangat.
-3. Jika merekomendasikan produk dari katalog di atas, sebutkan nama produknya secara jelas dan akhiri dengan tag JSON di baris terakhir dengan format:
-[RECOMMENDED_IDS: 1, 2, 3] (sesuai ID produk yang relevan, atau kosongkan jika hanya konsultasi).";
+PANDUAN FORMAT JAWABAN:
+1. Ringkas & Padat: Jangan memberi penjelasan terlalu panjang atau bertele-tele. Jawab langsung ke inti pertanyaan secara jelas dalam 2-3 paragraf pendek atau poin-poin rapi.
+2. Sapaan Ramah: Cukup berikan sapaan hangat singkat 'Halo Cat Lovers! 🐾' di awal.
+3. Rekomendasi Produk: Sebutkan 1-3 produk yang paling relevan dari katalog di atas dengan jelas.
+4. Baris Terakhir: Wajib akhiri teks dengan tag rekomendasi format:
+[RECOMMENDED_IDS: 1, 2] (atau kosongkan [RECOMMENDED_IDS:] jika hanya konsultasi).";
 
         try {
             $contents = [];
@@ -123,7 +124,10 @@ Aturan Respons:
                 'contents' => $contents,
                 'generationConfig' => [
                     'temperature' => 0.7,
-                    'maxOutputTokens' => 800,
+                    'maxOutputTokens' => 2048,
+                    'thinkingConfig' => [
+                        'thinkingBudget' => 0
+                    ]
                 ]
             ]);
 
