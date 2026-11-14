@@ -127,14 +127,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     builder: (context, constraints) {
                       final availableHeight = constraints.maxHeight;
                       // Ukuran gambar fleksibel mengikuti tinggi layar (30% - 40% tinggi layar)
-                      final imageHeight = (availableHeight * 0.38).clamp(160.0, 260.0);
+                      final imageHeight =
+                          (availableHeight * 0.38).clamp(160.0, 260.0);
                       final isCompactScreen = availableHeight < 550;
 
                       return SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: availableHeight),
+                          constraints:
+                              BoxConstraints(minHeight: availableHeight),
                           child: IntrinsicHeight(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -144,14 +146,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                 // Responsive Image Box
                                 Container(
                                   width: double.infinity,
-                                  constraints: const BoxConstraints(maxWidth: 290),
+                                  constraints:
+                                      const BoxConstraints(maxWidth: 290),
                                   height: imageHeight,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFCECEC).withOpacity(0.5),
+                                    color: const Color(0xFFFCECEC)
+                                        .withOpacity(0.5),
                                     borderRadius: BorderRadius.circular(28),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color(0xFF850909).withOpacity(0.06),
+                                        color: const Color(0xFF850909)
+                                            .withOpacity(0.06),
                                         blurRadius: 18,
                                         offset: const Offset(0, 6),
                                       ),
@@ -171,7 +176,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                             height: 100,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: const Color(0xFFFE7262).withOpacity(0.2),
+                                              color: const Color(0xFFFE7262)
+                                                  .withOpacity(0.2),
                                             ),
                                           ),
                                         ),
@@ -183,7 +189,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                             height: 90,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: const Color(0xFFFFDAD5).withOpacity(0.35),
+                                              color: const Color(0xFFFFDAD5)
+                                                  .withOpacity(0.35),
                                             ),
                                           ),
                                         ),
@@ -191,10 +198,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                         CachedNetworkImage(
                                           imageUrl: item.imageUrl,
                                           fit: BoxFit.cover,
-                                          placeholder: (context, url) => Shimmer.fromColors(
+                                          placeholder: (context, url) =>
+                                              Shimmer.fromColors(
                                             baseColor: const Color(0xFFF0EDEC),
                                             highlightColor: Colors.white,
-                                            child: Container(color: Colors.white),
+                                            child:
+                                                Container(color: Colors.white),
                                           ),
                                           errorWidget: (context, url, error) {
                                             if (item.localFallback != null) {
@@ -207,7 +216,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                                               child: Icon(
                                                 Icons.pets_rounded,
                                                 size: 54,
-                                                color: const Color(0xFF850909).withOpacity(0.4),
+                                                color: const Color(0xFF850909)
+                                                    .withOpacity(0.4),
                                               ),
                                             );
                                           },

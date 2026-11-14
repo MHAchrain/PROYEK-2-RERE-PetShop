@@ -4,6 +4,7 @@ import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/providers/product_provider.dart';
 import 'package:app_rere_petshop/components/product_card.dart';
 import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
+import 'package:app_rere_petshop/pages/grooming/grooming_page.dart';
 
 class CatalogPage extends StatefulWidget {
   final String? initialCategory;
@@ -43,14 +44,23 @@ class _CatalogPageState extends State<CatalogPage> {
     if (_selectedCategory == 'Semua') {
       provider.fetchProductsByCategory(null);
     } else {
-      final Map<String, int> categoryMap = {
-        'Equipment': 4,
-        'Toys': 3,
-        'Medicine': 2,
-        'Food': 1,
-        'Grooming': 5,
-      };
-      final categoryId = categoryMap[_selectedCategory];
+      // Cari ID berdasarkan nama kategori dari provider jika sudah dimuat
+      int? categoryId;
+      final match = provider.categories.where(
+        (c) => c.name.toLowerCase() == _selectedCategory.toLowerCase(),
+      );
+      if (match.isNotEmpty) {
+        categoryId = match.first.id;
+      } else {
+        final Map<String, int> fallbackMap = {
+          'Food': 1,
+          'Medicine': 2,
+          'Toys': 3,
+          'Equipment': 4,
+          'Grooming': 5,
+        };
+        categoryId = fallbackMap[_selectedCategory];
+      }
       provider.fetchProductsByCategory(categoryId);
     }
   }
@@ -113,6 +123,13 @@ class _CatalogPageState extends State<CatalogPage> {
           final isSelected = cat == _selectedCategory;
           return GestureDetector(
             onTap: () {
+              if (cat == 'Grooming') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GroomingPage()),
+                );
+                return;
+              }
               setState(() => _selectedCategory = cat);
               _loadProducts();
             },
@@ -148,6 +165,72 @@ class _CatalogPageState extends State<CatalogPage> {
         }
 
         if (provider.products.isEmpty) {
+          if (_selectedCategory == 'Grooming') {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.content_cut_rounded,
+                        size: 48,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Layanan Grooming',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Grooming merupakan layanan jasa perawatan dan booking perawatan anabul kesayangan kamu.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const GroomingPage(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.calendar_month_outlined),
+                      label: const Text('Buka Halaman Grooming'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

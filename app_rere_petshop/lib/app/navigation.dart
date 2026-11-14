@@ -2,11 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
-import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/pages/cart/cart_page.dart';
 import 'package:app_rere_petshop/providers/cart_provider.dart';
-import 'package:app_rere_petshop/providers/auth_provider.dart';
-import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:app_rere_petshop/pages/home/home_page.dart';
 import 'package:app_rere_petshop/pages/pesanan/pesanan_page.dart';
 import 'package:app_rere_petshop/pages/arpet/arpet_page.dart';
@@ -21,40 +18,20 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
-  bool _cartHasBeenOpened = false;
-  final AuthService _auth = AuthService();
 
   List<Widget> get _screens => [
     const HomePage(),
     const PesananPage(),
     const ArpetPage(),
-    _cartHasBeenOpened ? const CartPage() : const SizedBox.shrink(),
+    const CartPage(),
     const ProfilPage(),
   ];
 
-  Future<void> _onTabTapped(int index) async {
-    if (index == 1 || index == 3) {
-      if (!await _auth.hasAuthToken()) {
-        if (!mounted) return;
-        final loggedIn = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
-        if (!mounted || loggedIn != true) return;
-      }
-      if (mounted) {
-        await Future.wait([
-          context.read<AuthProvider>().refreshProfile(),
-          context.read<CartProvider>().refreshCount(),
-        ]);
-      }
-    }
-    if (mounted) {
-      setState(() {
-        if (index == 3) _cartHasBeenOpened = true;
-        _currentIndex = index;
-      });
-    }
+  void _onTabTapped(int index) {
+    if (_currentIndex == index) return;
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
   @override

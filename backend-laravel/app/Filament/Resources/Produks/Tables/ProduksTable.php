@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class ProduksTable
 {
@@ -69,11 +70,12 @@ class ProduksTable
                     ->sortable(),
 
                 // ✅ KATEGORI (SAMA KAYAK TABEL KATEGORI)
-                TextColumn::make('id_kategori')
+                TextColumn::make('kategori.nama_kategori')
                     ->label('Kategori')
                     ->formatStateUsing(function ($state, $record) {
+                        if (!$record->kategori) return '-';
                         return 'CAT-' . str_pad($record->kategori->id_kategori, 4, '0', STR_PAD_LEFT)
-                            . ' - ' . $record->kategori->nama_kategori;
+                            . ' - ' . $state;
                     })
                     ->sortable(),
 
@@ -109,8 +111,12 @@ class ProduksTable
             ])
             ->defaultSort('id_produk', 'asc')
             ->paginationPageOptions([100])
+            ->defaultPaginationPageOption(100)
             ->filters([
-                //
+                SelectFilter::make('id_kategori')
+                    ->label('Kategori')
+                    ->relationship('kategori', 'nama_kategori')
+                    ->preload(),
             ])
             ->recordActions([
                 EditAction::make(),

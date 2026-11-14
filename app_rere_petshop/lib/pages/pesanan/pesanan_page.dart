@@ -1,9 +1,11 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/pages/groombook/booking_detail_page.dart';
 import 'package:app_rere_petshop/pages/order/order_detail_page.dart';
 import 'package:app_rere_petshop/pages/pesanan/widgets/grooming_history_card.dart';
 import 'package:app_rere_petshop/pages/pesanan/widgets/order_history_card.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
+import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class PesananPage extends StatefulWidget {
@@ -15,10 +17,12 @@ class PesananPage extends StatefulWidget {
 
 class _PesananPageState extends State<PesananPage> {
   final _api = ApiService();
+  final _auth = AuthService();
   final _searchController = TextEditingController();
   List<Map<String, dynamic>> _orders = [];
   List<Map<String, dynamic>> _bookings = [];
   bool _loading = true;
+  bool _isNotLoggedIn = false;
   String? _error;
   String _selectedType = 'semua';
   DateTimeRange? _dateRange;
@@ -42,20 +46,76 @@ class _PesananPageState extends State<PesananPage> {
   }
 
   Future<void> _load() async {
-    if (mounted) setState(() { _loading = true; _error = null; });
+    if (mounted) {
+      setState(() {
+        _loading = true;
+        _error = null;
+        _isNotLoggedIn = false;
+      });
+    }
+
     try {
+      if (!await _auth.hasAuthToken()) {
+        if (mounted) {
+          setState(() {
+            _loading = false;
+            _isNotLoggedIn = true;
+          });
+        }
+        return;
+      }
+
+      String? fetchError;
+      dynamic lastException;
+
       final results = await Future.wait([
-        _api.getOrders(),
-        _api.getGroomingBookings(),
+        _api.getOrders().catchError((e) {
+          debugPrint('Error getOrders: $e');
+          fetchError = e.toString();
+          lastException = e;
+          return <Map<String, dynamic>>[];
+        }),
+        _api.getGroomingBookings().catchError((e) {
+          debugPrint('Error getGroomingBookings: $e');
+          fetchError ??= e.toString();
+          lastException ??= e;
+          return <Map<String, dynamic>>[];
+        }),
       ]);
+
       if (mounted) {
-        setState(() {
-          _orders = results[0];
-          _bookings = results[1];
-        });
+        final ordersResult = results[0];
+        final bookingsResult = results[1];
+
+        if (ordersResult.isEmpty && bookingsResult.isEmpty && fetchError != null) {
+          final errStr = fetchError!.toLowerCase();
+          if (errStr.contains('unauthenticated') || errStr.contains('401')) {
+            setState(() {
+              _isNotLoggedIn = true;
+            });
+          } else {
+            setState(() {
+              _error = fetchError;
+            });
+          }
+        } else {
+          setState(() {
+            _orders = ordersResult;
+            _bookings = bookingsResult;
+          });
+        }
       }
     } catch (error) {
-      if (mounted) setState(() => _error = error.toString());
+      final errStr = error.toString().toLowerCase();
+      if (errStr.contains('unauthenticated') || errStr.contains('401')) {
+        if (mounted) {
+          setState(() {
+            _isNotLoggedIn = true;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _error = error.toString());
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -210,11 +270,77 @@ class _PesananPageState extends State<PesananPage> {
       );
 
   Widget _buildList(List<_HistoryEntry> entries) {
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
+    if (_isNotLoggedIn) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.lock_outline_rounded, size: 48, color: AppColors.grey),
+              const SizedBox(height: 12),
+              const Text(
+                'Masuk untuk melihat riwayat pesanan & booking kamu.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final loggedIn = await Navigator.push<bool>(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                  );
+                  if (loggedIn == true) {
+                    _load();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+                child: const Text('Masuk Sekarang'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     if (_error != null) {
-      return Center(child: Padding(padding: const EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(_error!, textAlign: TextAlign.center), const SizedBox(height: 12), ElevatedButton(onPressed: _load, child: const Text('Coba Lagi')),
-      ])));
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline_rounded, size: 44, color: Colors.redAccent),
+              const SizedBox(height: 12),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textPrimary),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _load,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
     if (entries.isEmpty) {
       return RefreshIndicator(onRefresh: _load, child: ListView(children: const [

@@ -1,4 +1,5 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/pages/cart/cart_controller.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_bottom_bar.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_product_list.dart';
@@ -76,6 +77,29 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildBody(List<Map<String, dynamic>> items, bool busy) {
     if (_cart.isLoading) return const CartStatusView.loading();
+    if (_cart.isNotLoggedIn) {
+      return CartStatusView.error(
+        'Masuk untuk melihat isi keranjang belanja kamu.',
+        onRetry: () => _cart.load(context),
+        actionButton: ElevatedButton(
+          onPressed: () async {
+            final loggedIn = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+            );
+            if (loggedIn == true && mounted) {
+              _cart.load(context);
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+          child: const Text('Masuk Sekarang'),
+        ),
+      );
+    }
     if (_cart.error != null) {
       return CartStatusView.error(
         _cart.error!,

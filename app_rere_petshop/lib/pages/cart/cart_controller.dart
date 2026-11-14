@@ -10,6 +10,7 @@ class CartController extends ChangeNotifier {
 
   bool isLoading = true;
   bool isDeleting = false;
+  bool isNotLoggedIn = false;
   String? error;
   Map<String, dynamic> cart = {};
   final Set<int> selectedItemIds = {};
@@ -39,23 +40,16 @@ class CartController extends ChangeNotifier {
   Future<void> load(BuildContext context) async {
     isLoading = true;
     error = null;
+    isNotLoggedIn = false;
     _notify();
 
     try {
       if (!await _auth.hasAuthToken()) {
-        if (!context.mounted) return;
-        final loggedIn = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
-        if (loggedIn != true) {
-          error = 'Masuk untuk melihat keranjang.';
-          return;
-        }
+        isNotLoggedIn = true;
+        return;
       }
 
       final result = await _api.getCart();
-      if (!context.mounted) return;
       cart = result;
       final availableIds = items.map(_itemId).whereType<int>().toSet();
       selectedItemIds.removeWhere((id) => !availableIds.contains(id));
@@ -64,7 +58,12 @@ class CartController extends ChangeNotifier {
         _selectionInitialized = true;
       }
     } catch (exception) {
-      error = exception.toString();
+      final errStr = exception.toString().toLowerCase();
+      if (errStr.contains('unauthenticated') || errStr.contains('401')) {
+        isNotLoggedIn = true;
+      } else {
+        error = exception.toString();
+      }
     } finally {
       isLoading = false;
       _notify();
