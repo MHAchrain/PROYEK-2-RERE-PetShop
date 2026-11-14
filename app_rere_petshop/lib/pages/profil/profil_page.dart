@@ -1,3 +1,4 @@
+import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/pages/about/about_page.dart';
@@ -11,6 +12,7 @@ import 'package:app_rere_petshop/pages/profil/widgets/profile_menu_tile.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 class ProfilPage extends StatefulWidget {
@@ -89,8 +91,8 @@ class _ProfilPageState extends State<ProfilPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF8F7),
       body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.primary),
+          ? const PetLoadingIndicator(
+              message: 'Memuat profil kamu...',
             )
           : SafeArea(
               bottom: false,
@@ -250,6 +252,10 @@ class _ProfilPageState extends State<ProfilPage> {
       ),
     );
     if (confirmed != true) return;
+
+    try {
+      await GoogleSignIn().signOut();
+    } catch (_) {}
 
     await _auth.logout();
     if (!mounted) return;

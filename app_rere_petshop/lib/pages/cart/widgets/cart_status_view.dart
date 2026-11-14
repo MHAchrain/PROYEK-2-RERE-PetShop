@@ -1,4 +1,5 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:flutter/material.dart';
 
 class CartStatusView extends StatelessWidget {
@@ -28,8 +29,8 @@ class CartStatusView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return const PetLoadingIndicator(
+        message: 'Menyiapkan keranjang anabul...',
       );
     }
 

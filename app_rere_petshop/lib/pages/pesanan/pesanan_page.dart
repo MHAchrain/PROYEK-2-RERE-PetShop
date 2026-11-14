@@ -6,6 +6,7 @@ import 'package:app_rere_petshop/pages/pesanan/widgets/grooming_history_card.dar
 import 'package:app_rere_petshop/pages/pesanan/widgets/order_history_card.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
+import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:flutter/material.dart';
 
 class PesananPage extends StatefulWidget {
@@ -271,8 +272,8 @@ class _PesananPageState extends State<PesananPage> {
 
   Widget _buildList(List<_HistoryEntry> entries) {
     if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return const PetLoadingIndicator(
+        message: 'Mengambil riwayat pesanan...',
       );
     }
     if (_isNotLoggedIn) {
