@@ -34,13 +34,13 @@ class CartStatusView extends StatelessWidget {
       );
     }
 
-    if (onRetry == null && actionButton == null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+    final content = Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onRetry == null && actionButton == null) ...[
               const Icon(Icons.shopping_cart_outlined, size: 56, color: AppColors.grey),
               const SizedBox(height: 12),
               Text(
@@ -48,42 +48,44 @@ class CartStatusView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.textSecondary),
               ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.info_outline_rounded, size: 48, color: AppColors.grey),
-            const SizedBox(height: 12),
-            Text(
-              message ?? '',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 16),
-            if (actionButton != null)
-              actionButton!
-            else if (onRetry != null)
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Coba Lagi'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
+            ] else ...[
+              const Icon(Icons.info_outline_rounded, size: 48, color: AppColors.grey),
+              const SizedBox(height: 12),
+              Text(
+                message ?? '',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
+              const SizedBox(height: 16),
+              if (actionButton != null)
+                actionButton!
+              else if (onRetry != null)
+                ElevatedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Coba Lagi'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+            ],
           ],
         ),
       ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: content,
+          ),
+        );
+      },
     );
   }
 }

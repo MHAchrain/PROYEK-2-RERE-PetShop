@@ -7,16 +7,18 @@ import 'package:app_rere_petshop/pages/pesanan/widgets/order_history_card.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
+import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PesananPage extends StatefulWidget {
   const PesananPage({super.key});
 
   @override
-  State<PesananPage> createState() => _PesananPageState();
+  State<PesananPage> createState() => PesananPageState();
 }
 
-class _PesananPageState extends State<PesananPage> {
+class PesananPageState extends State<PesananPage> {
   final _api = ApiService();
   final _auth = AuthService();
   final _searchController = TextEditingController();
@@ -27,6 +29,7 @@ class _PesananPageState extends State<PesananPage> {
   String? _error;
   String _selectedType = 'semua';
   DateTimeRange? _dateRange;
+  bool? _lastLoggedIn;
 
   static const _types = <String, String>{
     'semua': 'Semua',
@@ -38,6 +41,22 @@ class _PesananPageState extends State<PesananPage> {
   void initState() {
     super.initState();
     _load();
+  }
+
+  void refresh() {
+    if (mounted) {
+      _load();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isLoggedIn = context.watch<AuthProvider>().isLoggedIn;
+    if (_lastLoggedIn != null && _lastLoggedIn != isLoggedIn && isLoggedIn) {
+      _load();
+    }
+    _lastLoggedIn = isLoggedIn;
   }
 
   @override
@@ -277,68 +296,90 @@ class _PesananPageState extends State<PesananPage> {
       );
     }
     if (_isNotLoggedIn) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.lock_outline_rounded, size: 48, color: AppColors.grey),
-              const SizedBox(height: 12),
-              const Text(
-                'Masuk untuk melihat riwayat pesanan & booking kamu.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async {
-                  final loggedIn = await Navigator.push<bool>(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                  );
-                  if (loggedIn == true) {
-                    _load();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.lock_outline_rounded, size: 48, color: AppColors.grey),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'Masuk untuk melihat riwayat pesanan & booking kamu.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final loggedIn = await Navigator.push<bool>(
+                            context,
+                            MaterialPageRoute(builder: (_) => const LoginPage()),
+                          );
+                          if (loggedIn == true) {
+                            _load();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        ),
+                        child: const Text('Masuk Sekarang'),
+                      ),
+                    ],
+                  ),
                 ),
-                child: const Text('Masuk Sekarang'),
               ),
-            ],
+            ),
           ),
         ),
       );
     }
     if (_error != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline_rounded, size: 44, color: Colors.redAccent),
-              const SizedBox(height: 12),
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.textPrimary),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _load,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Coba Lagi'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.error_outline_rounded, size: 44, color: Colors.redAccent),
+                      const SizedBox(height: 12),
+                      Text(
+                        _error!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppColors.textPrimary),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: _load,
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Coba Lagi'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       );

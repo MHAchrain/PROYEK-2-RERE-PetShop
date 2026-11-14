@@ -18,20 +18,38 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
+  final _pesananKey = GlobalKey<PesananPageState>();
+  final _cartKey = GlobalKey<CartPageState>();
 
-  List<Widget> get _screens => [
+  late final List<Widget> _screens = [
     const HomePage(),
-    const PesananPage(),
+    PesananPage(key: _pesananKey),
     const ArpetPage(),
-    const CartPage(),
+    CartPage(key: _cartKey),
     const ProfilPage(),
   ];
 
   void _onTabTapped(int index) {
-    if (_currentIndex == index) return;
+    if (_currentIndex == index) {
+      if (index == 1) {
+        _pesananKey.currentState?.refresh();
+      } else if (index == 3) {
+        _cartKey.currentState?.refresh();
+        context.read<CartProvider>().refreshCount();
+      }
+      return;
+    }
+
     setState(() {
       _currentIndex = index;
     });
+
+    if (index == 1) {
+      _pesananKey.currentState?.refresh();
+    } else if (index == 3) {
+      _cartKey.currentState?.refresh();
+      context.read<CartProvider>().refreshCount();
+    }
   }
 
   @override
