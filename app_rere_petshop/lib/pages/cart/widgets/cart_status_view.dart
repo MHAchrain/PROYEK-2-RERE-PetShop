@@ -1,48 +1,91 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:flutter/material.dart';
 
 class CartStatusView extends StatelessWidget {
   const CartStatusView.loading({super.key})
       : isLoading = true,
         message = null,
-        onRetry = null;
+        onRetry = null,
+        actionButton = null;
 
   const CartStatusView.message(this.message, {super.key})
       : isLoading = false,
-        onRetry = null;
+        onRetry = null,
+        actionButton = null;
 
-  const CartStatusView.error(this.message, {required this.onRetry, super.key})
-      : isLoading = false;
+  const CartStatusView.error(
+    this.message, {
+    required this.onRetry,
+    this.actionButton,
+    super.key,
+  }) : isLoading = false;
 
   final bool isLoading;
   final String? message;
   final VoidCallback? onRetry;
+  final Widget? actionButton;
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.primary),
+      return const PetLoadingIndicator(
+        message: 'Menyiapkan keranjang anabul...',
       );
     }
 
-    return Center(
+    final content = Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: onRetry == null
-            ? Text(message ?? '', textAlign: TextAlign.center)
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(message ?? '', textAlign: TextAlign.center),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: onRetry,
-                    child: const Text('Coba Lagi'),
-                  ),
-                ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onRetry == null && actionButton == null) ...[
+              const Icon(Icons.shopping_cart_outlined, size: 56, color: AppColors.grey),
+              const SizedBox(height: 12),
+              Text(
+                message ?? 'Keranjang belanja kamu kosong.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w500, color: AppColors.textSecondary),
               ),
+            ] else ...[
+              const Icon(Icons.info_outline_rounded, size: 48, color: AppColors.grey),
+              const SizedBox(height: 12),
+              Text(
+                message ?? '',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              if (actionButton != null)
+                actionButton!
+              else if (onRetry != null)
+                ElevatedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('Coba Lagi'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  ),
+                ),
+            ],
+          ],
+        ),
       ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: content,
+          ),
+        );
+      },
     );
   }
 }

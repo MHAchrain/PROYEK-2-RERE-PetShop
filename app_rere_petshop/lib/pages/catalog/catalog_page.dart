@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/providers/product_provider.dart';
+import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:app_rere_petshop/components/product_card.dart';
 import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
 
@@ -23,7 +24,6 @@ class _CatalogPageState extends State<CatalogPage> {
     'Toys',
     'Medicine',
     'Food',
-    'Grooming',
   ];
 
   @override
@@ -43,14 +43,22 @@ class _CatalogPageState extends State<CatalogPage> {
     if (_selectedCategory == 'Semua') {
       provider.fetchProductsByCategory(null);
     } else {
-      final Map<String, int> categoryMap = {
-        'Equipment': 4,
-        'Toys': 3,
-        'Medicine': 2,
-        'Food': 1,
-        'Grooming': 5,
-      };
-      final categoryId = categoryMap[_selectedCategory];
+      // Cari ID berdasarkan nama kategori dari provider jika sudah dimuat
+      int? categoryId;
+      final match = provider.categories.where(
+        (c) => c.name.toLowerCase() == _selectedCategory.toLowerCase(),
+      );
+      if (match.isNotEmpty) {
+        categoryId = match.first.id;
+      } else {
+        final Map<String, int> fallbackMap = {
+          'Food': 1,
+          'Medicine': 2,
+          'Toys': 3,
+          'Equipment': 4,
+        };
+        categoryId = fallbackMap[_selectedCategory];
+      }
       provider.fetchProductsByCategory(categoryId);
     }
   }
@@ -142,8 +150,8 @@ class _CatalogPageState extends State<CatalogPage> {
     return Consumer<ProductProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+          return const PetLoadingIndicator(
+            message: 'Mencari produk anabul...',
           );
         }
 

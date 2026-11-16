@@ -1,26 +1,46 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/pages/cart/cart_controller.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_bottom_bar.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_product_list.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_selection_header.dart';
 import 'package:app_rere_petshop/pages/cart/widgets/cart_status_view.dart';
 import 'package:app_rere_petshop/pages/checkout/checkout_page.dart';
+import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
 
   @override
-  State<CartPage> createState() => _CartPageState();
+  State<CartPage> createState() => CartPageState();
 }
 
-class _CartPageState extends State<CartPage> {
+class CartPageState extends State<CartPage> {
   final _cart = CartController();
+  bool? _lastLoggedIn;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _cart.load(context));
+  }
+
+  void refresh() {
+    if (mounted) {
+      _cart.load(context);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isLoggedIn = context.watch<AuthProvider>().isLoggedIn;
+    if (_lastLoggedIn != null && _lastLoggedIn != isLoggedIn && isLoggedIn) {
+      _cart.load(context);
+    }
+    _lastLoggedIn = isLoggedIn;
   }
 
   @override
@@ -76,6 +96,37 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildBody(List<Map<String, dynamic>> items, bool busy) {
     if (_cart.isLoading) return const CartStatusView.loading();
+
+    return RefreshIndicator(
+      onRefresh: () => _cart.load(context),
+      child: _buildScrollableContent(items, busy),
+    );
+  }
+
+  Widget _buildScrollableContent(List<Map<String, dynamic>> items, bool busy) {
+    if (_cart.isNotLoggedIn) {
+      return CartStatusView.error(
+        'Masuk untuk melihat isi keranjang belanja kamu.',
+        onRetry: () => _cart.load(context),
+        actionButton: ElevatedButton(
+          onPressed: () async {
+            final loggedIn = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+            );
+            if (loggedIn == true && mounted) {
+              _cart.load(context);
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+          child: const Text('Masuk Sekarang'),
+        ),
+      );
+    }
     if (_cart.error != null) {
       return CartStatusView.error(
         _cart.error!,

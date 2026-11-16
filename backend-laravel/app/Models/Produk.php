@@ -21,8 +21,9 @@ class Produk extends Model
         'foto',
     ];
 
-    // Otomatis sertakan field foto_base64 di response JSON API
-    protected $appends = ['foto_base64'];
+    // Nonaktifkan append base64 global agar API & Filament super enteng dan tidak timeout
+    // Method accessor getFotoBase64Attribute() di bawah tetap tersedia jika dipanggil spesifik
+    // protected $appends = ['foto_base64'];
 
     public function getFotoBase64Attribute()
     {

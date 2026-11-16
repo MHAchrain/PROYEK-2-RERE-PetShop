@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class OrderHistoryCard extends StatelessWidget {
@@ -17,9 +19,8 @@ class OrderHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final details = (order['details'] as List? ?? const [])
-        .whereType<Map>()
-        .toList();
+    final details =
+        (order['details'] as List? ?? const []).whereType<Map>().toList();
     final payment = order['pembayaran'] as Map?;
     final shipping = order['pengiriman'] as Map?;
     final rawStatus = order['status_pesanan']?.toString() ?? 'baru';
@@ -49,7 +50,8 @@ class OrderHistoryCard extends StatelessWidget {
             child: Text(title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
           ),
           const SizedBox(width: 8),
           _statusBadge(status),
@@ -72,23 +74,32 @@ class OrderHistoryCard extends StatelessWidget {
             child: Row(children: [
               _productImage(firstProduct),
               const SizedBox(width: 10),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(
-                  firstProduct['nama_produk']?.toString() ?? 'Produk',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                ),
-                if (details.length > 1)
-                  Text('+${details.length - 1} produk lainnya',
-                      style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-                Text('Total ($totalQuantity item)',
-                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-              ])),
+              Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                    Text(
+                      firstProduct['nama_produk']?.toString() ?? 'Produk',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                    if (details.length > 1)
+                      Text('+${details.length - 1} produk lainnya',
+                          style: const TextStyle(
+                              fontSize: 10, color: AppColors.textSecondary)),
+                    Text('Total ($totalQuantity item)',
+                        style: const TextStyle(
+                            fontSize: 10, color: AppColors.textSecondary)),
+                  ])),
               const SizedBox(width: 8),
               Text(
                 _rupiah(num.tryParse(order['total']?.toString() ?? '') ?? 0),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary),
               ),
             ]),
           ),
@@ -100,12 +111,14 @@ class OrderHistoryCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onTrack,
                 icon: const Icon(Icons.local_shipping_outlined, size: 16),
-                label: const Text('Lacak Pengiriman', maxLines: 1, overflow: TextOverflow.ellipsis),
+                label: const Text('Lacak Pengiriman',
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.greyLight),
                   minimumSize: const Size(0, 42),
-                  textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                  textStyle: const TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -119,7 +132,8 @@ class OrderHistoryCard extends StatelessWidget {
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.white,
                 shape: const StadiumBorder(),
-                textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                textStyle:
+                    const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
               ),
               child: const Text('Detail Pesanan'),
             ),
@@ -135,13 +149,20 @@ class OrderHistoryCard extends StatelessWidget {
       'dikirim' => ('Dikirim', AppColors.primary, const Color(0xFFFCECEC)),
       'selesai' => ('Selesai', AppColors.success, const Color(0xFFE9F8EF)),
       'batal' => ('Dibatalkan', AppColors.textSecondary, AppColors.greyBg),
-      'baru' => ('Menunggu Bayar', Colors.orange.shade800, const Color(0xFFFFF4E5)),
+      'baru' => (
+          'Menunggu Bayar',
+          Colors.orange.shade800,
+          const Color(0xFFFFF4E5)
+        ),
       _ => (_humanize(status), AppColors.textSecondary, AppColors.greyBg),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(99)),
-      child: Text(label, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w700)),
+      decoration: BoxDecoration(
+          color: background, borderRadius: BorderRadius.circular(99)),
+      child: Text(label,
+          style: TextStyle(
+              color: color, fontSize: 9, fontWeight: FontWeight.w700)),
     );
   }
 
@@ -161,10 +182,12 @@ class OrderHistoryCard extends StatelessWidget {
   }
 
   Widget _productImage(Map product) {
+    // 1. Cek jika masih ada data base64
     final raw = product['foto_base64']?.toString();
     if (raw != null && raw.isNotEmpty) {
       try {
-        final encoded = raw.contains(',') ? raw.substring(raw.indexOf(',') + 1) : raw;
+        final encoded =
+            raw.contains(',') ? raw.substring(raw.indexOf(',') + 1) : raw;
         return ClipRRect(
           borderRadius: BorderRadius.circular(9),
           child: Image.memory(
@@ -175,36 +198,85 @@ class OrderHistoryCard extends StatelessWidget {
             errorBuilder: (_, __, ___) => _imagePlaceholder(),
           ),
         );
-      } catch (_) {
-        return _imagePlaceholder();
-      }
+      } catch (_) {}
     }
+
+    // 2. Tampilkan dari URL foto produk
+    final foto = product['foto']?.toString();
+    if (foto != null && foto.isNotEmpty) {
+      String cleanFoto = foto;
+      if (cleanFoto.startsWith('produk/')) {
+        cleanFoto = cleanFoto.substring(7);
+      }
+
+      final imageUrl =
+          cleanFoto.startsWith('http://') || cleanFoto.startsWith('https://')
+              ? cleanFoto
+              : '${AppConstants.baseUrl}/image/$cleanFoto';
+
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(9),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: 54,
+          height: 54,
+          fit: BoxFit.cover,
+          placeholder: (_, __) => _imagePlaceholder(),
+          errorWidget: (_, __, ___) => _imagePlaceholder(),
+        ),
+      );
+    }
+
     return _imagePlaceholder();
   }
 
   Widget _imagePlaceholder() => Container(
         width: 54,
         height: 54,
-        decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(9)),
+        decoration: BoxDecoration(
+            color: AppColors.white, borderRadius: BorderRadius.circular(9)),
         child: const Icon(Icons.pets_outlined, color: AppColors.primary),
       );
 
   String _courierName(String? courier) {
-    if (courier == null || courier.isEmpty || courier == 'menunggu_kurir') return 'Menunggu kurir';
-    return courier.replaceAll('_', ' ').split(' ').map((word) =>
-        word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}').join(' ');
+    if (courier == null || courier.isEmpty || courier == 'menunggu_kurir')
+      return 'Menunggu kurir';
+    return courier
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((word) => word.isEmpty
+            ? word
+            : '${word[0].toUpperCase()}${word.substring(1)}')
+        .join(' ');
   }
 
   String _formatDate(String? value) {
     if (value == null) return 'tanggal tidak tersedia';
     final date = DateTime.tryParse(value)?.toLocal();
     if (date == null) return value;
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 
-  String _humanize(String value) => value.replaceAll('_', ' ').split(' ').map((word) =>
-      word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}').join(' ');
+  String _humanize(String value) => value
+      .replaceAll('_', ' ')
+      .split(' ')
+      .map((word) =>
+          word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}')
+      .join(' ');
 
   String _presentationStatus(String value) => value;
 

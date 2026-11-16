@@ -613,7 +613,7 @@ class _ArpetPageState extends State<ArpetPage> {
         alignment: Alignment.centerRight,
         child: Container(
           margin: const EdgeInsets.only(bottom: 12, left: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: AppColors.primary,
             borderRadius: const BorderRadius.only(
@@ -630,13 +630,36 @@ class _ArpetPageState extends State<ArpetPage> {
               ),
             ],
           ),
-          child: Text(
-            message.text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              height: 1.45,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (message.imageBytes != null) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 220,
+                      maxHeight: 220,
+                    ),
+                    child: Image.memory(
+                      message.imageBytes!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                if (message.text.isNotEmpty) const SizedBox(height: 8),
+              ],
+              if (message.text.isNotEmpty)
+                Text(
+                  message.text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.45,
+                  ),
+                ),
+            ],
           ),
         ),
       );

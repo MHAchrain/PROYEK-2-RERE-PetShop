@@ -46,6 +46,9 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => _loading = true);
     try {
+      // Selalu sign out sesi sebelumnya agar pop-up dialog pilih akun Google selalu muncul
+      await _googleSignIn.signOut();
+
       final account = await _googleSignIn.signIn();
       if (account == null) {
         // User membatalkan dialog login
