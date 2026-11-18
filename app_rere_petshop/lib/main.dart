@@ -6,6 +6,7 @@ import 'package:app_rere_petshop/theme/app_theme.dart';
 import 'package:app_rere_petshop/providers/product_provider.dart';
 import 'package:app_rere_petshop/providers/cart_provider.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
+import 'package:app_rere_petshop/providers/wishlist_provider.dart';
 import 'package:app_rere_petshop/pages/splash/splash_page.dart';
 
 Future<void> main() async {
@@ -35,6 +36,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()..refreshCount()),
         ChangeNotifierProvider(create: (_) => AuthProvider()..refreshProfile()),
+        ChangeNotifierProvider(
+          lazy: false,
+          create: (_) => WishlistProvider()..load(),
+        ),
       ],
       child: MaterialApp(
         title: 'ReRe Petshop',
