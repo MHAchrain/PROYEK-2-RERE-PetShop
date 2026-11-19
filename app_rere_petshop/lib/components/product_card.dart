@@ -5,6 +5,7 @@ import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:app_rere_petshop/providers/cart_provider.dart';
+import 'package:app_rere_petshop/providers/wishlist_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,8 +24,11 @@ class ProductCard extends StatefulWidget {
 class _ProductCardState extends State<ProductCard> {
   final ApiService _api = ApiService();
   final AuthService _auth = AuthService();
-  bool _busy = false;
-  bool _isFavorite = false;
+
+  // Status loading dipisah supaya klik icon love tidak membuat
+  // tombol "Beli" ikut berputar.
+  bool _cartBusy = false;
+  bool _wishlistBusy = false;
 
   Future<bool> _ensureLogin() async {
     if (await _auth.hasAuthToken()) return true;
@@ -46,53 +50,63 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Future<void> _addToCart() async {
-    if (!widget.product.isInStock) return;
-    setState(() => _busy = true);
+    if (!widget.product.isInStock || _cartBusy) return;
+    setState(() => _cartBusy = true);
     try {
       if (!await _ensureLogin()) return;
       await _api.addToCart(widget.product.id);
       if (!mounted) return;
       await context.read<CartProvider>().refreshCount();
+      if (!mounted) return;
       Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage()));
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) setState(() => _cartBusy = false);
     }
   }
 
   Future<void> _toggleWishlist() async {
-    setState(() => _busy = true);
+    if (_wishlistBusy) return;
+    setState(() => _wishlistBusy = true);
     try {
       if (!await _ensureLogin()) return;
-      final isFavorite = await _api.toggleWishlist(widget.product.id);
       if (!mounted) return;
-      setState(() => _isFavorite = isFavorite);
+      final isFavorite =
+          await context.read<WishlistProvider>().toggle(widget.product);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isFavorite ? 'Produk ditambahkan ke wishlist' : 'Produk dihapus dari wishlist')),
+        SnackBar(
+          content: Text(
+            isFavorite
+                ? 'Produk ditambahkan ke wishlist'
+                : 'Produk dihapus dari wishlist',
+          ),
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) setState(() => _wishlistBusy = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final product = widget.product;
+    final isFavorite = context.watch<WishlistProvider>().isFavorite(product.id);
     return Material(
       color: AppColors.white,
       borderRadius: BorderRadius.circular(20),
       elevation: 1.5,
-      shadowColor: Colors.black.withOpacity(.08),
+      shadowColor: Colors.black.withValues(alpha: .08),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: widget.onTap,
-        splashColor: AppColors.primary.withOpacity(0.12),
-        highlightColor: AppColors.primary.withOpacity(0.06),
+        splashColor: AppColors.primary.withValues(alpha: 0.12),
+        highlightColor: AppColors.primary.withValues(alpha: 0.06),
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -106,11 +120,13 @@ class _ProductCardState extends State<ProductCard> {
                   top: 8,
                   right: 8,
                   child: Material(
-                    color: Colors.white.withOpacity(.95),
+                    color: Colors.white.withValues(alpha: .95),
                     shape: const CircleBorder(),
                     elevation: 3,
                     child: IconButton(
-                      tooltip: 'Tambah ke wishlist',
+                      tooltip: isFavorite
+                          ? 'Hapus dari wishlist'
+                          : 'Tambah ke wishlist',
                       visualDensity: VisualDensity.compact,
                       style: IconButton.styleFrom(
                         backgroundColor: Colors.transparent,
@@ -119,16 +135,32 @@ class _ProductCardState extends State<ProductCard> {
                         padding: EdgeInsets.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      onPressed: _busy ? null : _toggleWishlist,
-                      icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: _isFavorite ? AppColors.primary : AppColors.textSecondary, size: 20),
+                      onPressed: _wishlistBusy ? null : _toggleWishlist,
+                      icon: _wishlistBusy
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.primary.withValues(alpha: 0.7),
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: isFavorite
+                                  ? AppColors.primary
+                                  : AppColors.textSecondary,
+                              size: 20,
+                            ),
                     ),
                   ),
                 ),
                 if (!product.isInStock)
                   Positioned.fill(
                     child: Container(
-                      decoration: BoxDecoration(color: Colors.black.withOpacity(.48), borderRadius: BorderRadius.circular(16)),
+                      decoration: BoxDecoration(color: Colors.black.withValues(alpha: .48), borderRadius: BorderRadius.circular(16)),
                       child: const Center(child: Text('Stok Habis', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
                     ),
                   ),
@@ -144,8 +176,9 @@ class _ProductCardState extends State<ProductCard> {
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
-                onPressed: _busy || !product.isInStock ? null : _addToCart,
-                icon: _busy
+                onPressed:
+                    _cartBusy || !product.isInStock ? null : _addToCart,
+                icon: _cartBusy
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.add, size: 20),
                 label: const Text('Beli'),

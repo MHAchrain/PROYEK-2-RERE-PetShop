@@ -6,10 +6,12 @@ import 'package:app_rere_petshop/pages/pesanan/pesanan_page.dart';
 import 'package:app_rere_petshop/pages/profil/alamat_pengiriman_page.dart';
 import 'package:app_rere_petshop/pages/profil/data_pribadi_page.dart';
 import 'package:app_rere_petshop/pages/profil/pusat_bantuan_page.dart';
+import 'package:app_rere_petshop/pages/profil/wishlist_page.dart';
 import 'package:app_rere_petshop/pages/profil/widgets/profile_header.dart';
 import 'package:app_rere_petshop/pages/profil/widgets/profile_menu_section.dart';
 import 'package:app_rere_petshop/pages/profil/widgets/profile_menu_tile.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
+import 'package:app_rere_petshop/providers/wishlist_provider.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -135,6 +137,11 @@ class _ProfilPageState extends State<ProfilPage> {
                           onTap: _loggedIn ? _openShippingAddress : _openLogin,
                         ),
                         ProfileMenuTile(
+                          icon: Icons.favorite_border,
+                          title: 'Wishlist',
+                          onTap: _openWishlist,
+                        ),
+                        ProfileMenuTile(
                           icon: Icons.receipt_long_outlined,
                           title: 'Pesanan Saya',
                           showDivider: false,
@@ -187,7 +194,11 @@ class _ProfilPageState extends State<ProfilPage> {
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
     );
-    if (result == true) await _loadProfile();
+    if (result == true) {
+      await _loadProfile();
+      if (!mounted) return;
+      await context.read<WishlistProvider>().load(force: true);
+    }
   }
 
   void _openOrders() {
@@ -195,6 +206,15 @@ class _ProfilPageState extends State<ProfilPage> {
       context,
       MaterialPageRoute(builder: (_) => const PesananPage()),
     );
+  }
+
+  Future<void> _openWishlist() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const WishlistPage()),
+    );
+    if (!mounted) return;
+    await context.read<WishlistProvider>().load(force: true);
   }
 
   Future<void> _openPersonalData() async {
@@ -259,6 +279,7 @@ class _ProfilPageState extends State<ProfilPage> {
 
     await _auth.logout();
     if (!mounted) return;
+    context.read<WishlistProvider>().reset();
     await context.read<AuthProvider>().refreshProfile();
     setState(() {
       _loggedIn = false;

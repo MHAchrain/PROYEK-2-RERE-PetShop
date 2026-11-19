@@ -13,20 +13,16 @@ class _HomeBannerState extends State<HomeBanner> {
   int _currentBanner = 0;
   final List<Map<String, String>> _banners = [
     {
-      'title': 'Semua Kebutuhan Hewan\nPeliharaan Ada di Sini!',
-      'subtitle':
-          'Temukan makanan, aksesoris, dan layanan terbaik untuk anabul.',
-      'tag': 'PROMO PILIHAN',
+      'tag': 'PROMO SPESIAL',
+      'asset': 'assets/images/banner-promo-merchandise.png',
     },
     {
-      'title': 'Flash Sale!\nDiskon Hingga 50%',
-      'subtitle': 'Dapatkan produk pilihan dengan harga spesial hari ini.',
-      'tag': 'FLASH SALE',
+      'tag': 'DISKON 30%',
+      'asset': 'assets/images/banner-diskon-30.png',
     },
     {
-      'title': 'Grooming\nTersedia di ReRe!',
-      'subtitle': 'Layanan grooming profesional untuk anabul kesayangan kamu.',
-      'tag': 'LAYANAN',
+      'tag': 'GROOMING',
+      'asset': 'assets/images/banner-promo-grooming.png',
     },
   ];
 
@@ -38,16 +34,24 @@ class _HomeBannerState extends State<HomeBanner> {
   Widget _buildBanner() {
     return Column(
       children: [
-        CarouselSlider(
-          options: CarouselOptions(
-            height: 205,
-            viewportFraction: 0.92,
-            enlargeCenterPage: true,
-            autoPlay: true,
-            autoPlayInterval: const Duration(seconds: 4),
-            onPageChanged: (index, _) => setState(() => _currentBanner = index),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: CarouselSlider(
+              options: CarouselOptions(
+                // Semua banner sekarang berupa gambar 1664x640 (rasio 2.6:1),
+                // jadi aspectRatio disamakan supaya tidak terpotong.
+                aspectRatio: 2.6,
+                viewportFraction: 0.92,
+                enlargeCenterPage: true,
+                autoPlay: true,
+                autoPlayInterval: const Duration(seconds: 4),
+                onPageChanged: (index, _) =>
+                    setState(() => _currentBanner = index),
+              ),
+              items: _banners.map((banner) => _bannerItem(banner)).toList(),
+            ),
           ),
-          items: _banners.map((banner) => _bannerItem(banner)).toList(),
         ),
         const SizedBox(height: 10),
         // Dots indicator
@@ -73,6 +77,38 @@ class _HomeBannerState extends State<HomeBanner> {
   }
 
   Widget _bannerItem(Map<String, String> banner) {
+    // Banner berbasis gambar (mis. promo grooming)
+    final asset = banner['asset'];
+    if (asset != null && asset.isNotEmpty) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Semantics(
+                label: banner['tag'] ?? 'Banner promo',
+                image: true,
+                child: Image.asset(
+                  asset,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: AppColors.greyLight,
+                    child: const Center(
+                      child: Icon(Icons.image_not_supported_outlined,
+                          size: 40, color: AppColors.grey),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
@@ -92,55 +128,73 @@ class _HomeBannerState extends State<HomeBanner> {
             child: Icon(
               Icons.pets,
               size: 150,
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white54),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    banner['tag']!,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 10.5,
-                      letterSpacing: 0.8,
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // FittedBox(scaleDown) membuat teks mengecil otomatis
+                  // kalau layar sempit / font sistem diperbesar,
+                  // jadi tidak ada RenderFlex overflow.
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        width: constraints.maxWidth,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 9, vertical: 3),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white54),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                banner['tag']!,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10.5,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              banner['title']!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                height: 1.25,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              banner['subtitle']!,
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11.5,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  banner['title']!,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    height: 1.25,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  banner['subtitle']!,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11.5,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
         ],

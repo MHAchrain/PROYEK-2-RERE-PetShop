@@ -34,19 +34,26 @@ class ProductProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
+    // Produk dan kategori dipanggil terpisah supaya kalau salah satu gagal,
+    // data yang berhasil tetap tampil (sebelumnya pakai Future.wait:
+    // satu gagal = semua kosong).
     try {
-      final results = await Future.wait([
-        _apiService.getProducts(),
-        _apiService.getCategories(),
-      ]);
-      _featuredProducts = (results[0] as List<Product>).take(8).toList();
-      _categories = results[1] as List<Category>;
+      final products = await _apiService.getProducts();
+      _featuredProducts = products.take(8).toList();
     } catch (e) {
+      _featuredProducts = [];
       _error = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
+
+    try {
+      _categories = await _apiService.getCategories();
+    } catch (_) {
+      // Kategori hanya untuk filter, tidak perlu menggagalkan home.
+      _categories = [];
+    }
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<void> fetchProductsByCategory(int? categoryId) async {

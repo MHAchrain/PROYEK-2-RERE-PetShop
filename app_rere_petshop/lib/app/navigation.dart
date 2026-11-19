@@ -1,9 +1,7 @@
 // lib/app/navigation.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
-import 'package:app_rere_petshop/pages/cart/cart_page.dart';
-import 'package:app_rere_petshop/providers/cart_provider.dart';
+import 'package:app_rere_petshop/pages/catalog/catalog_page.dart';
 import 'package:app_rere_petshop/pages/home/home_page.dart';
 import 'package:app_rere_petshop/pages/pesanan/pesanan_page.dart';
 import 'package:app_rere_petshop/pages/arpet/arpet_page.dart';
@@ -19,23 +17,19 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _currentIndex = 0;
   final _pesananKey = GlobalKey<PesananPageState>();
-  final _cartKey = GlobalKey<CartPageState>();
 
   late final List<Widget> _screens = [
     const HomePage(),
-    PesananPage(key: _pesananKey),
+    const CatalogPage(showBackButton: false),
     const ArpetPage(),
-    CartPage(key: _cartKey),
+    PesananPage(key: _pesananKey),
     const ProfilPage(),
   ];
 
   void _onTabTapped(int index) {
     if (_currentIndex == index) {
-      if (index == 1) {
+      if (index == 3) {
         _pesananKey.currentState?.refresh();
-      } else if (index == 3) {
-        _cartKey.currentState?.refresh();
-        context.read<CartProvider>().refreshCount();
       }
       return;
     }
@@ -44,11 +38,8 @@ class _MainNavigationState extends State<MainNavigation> {
       _currentIndex = index;
     });
 
-    if (index == 1) {
+    if (index == 3) {
       _pesananKey.currentState?.refresh();
-    } else if (index == 3) {
-      _cartKey.currentState?.refresh();
-      context.read<CartProvider>().refreshCount();
     }
   }
 
@@ -77,10 +68,13 @@ class _MainNavigationState extends State<MainNavigation> {
         child: Row(
           children: [
             _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Beranda'),
-            _buildNavItem(1, Icons.assignment_outlined, Icons.assignment_rounded, 'Pesanan'),
+            _buildNavItem(1, Icons.grid_view_outlined, Icons.grid_view_rounded,
+                'Katalog'),
             _buildArpetNavItem(2),
-            _buildCartNavItem(3),
-            _buildNavItem(4, Icons.person_outline_rounded, Icons.person_rounded, 'Profil'),
+            _buildNavItem(3, Icons.assignment_outlined,
+                Icons.assignment_rounded, 'Pesanan'),
+            _buildNavItem(4, Icons.person_outline_rounded,
+                Icons.person_rounded, 'Profil'),
           ],
         ),
       ),
@@ -187,77 +181,5 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
     );
   }
-
-  Widget _buildCartNavItem(int index) {
-    final isSelected = _currentIndex == index;
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _onTabTapped(index),
-          borderRadius: BorderRadius.circular(16),
-          splashColor: AppColors.primary.withValues(alpha: 0.12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary.withValues(alpha: 0.10) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Consumer<CartProvider>(
-                    builder: (context, cart, _) => Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Icon(
-                          isSelected ? Icons.shopping_cart_rounded : Icons.shopping_cart_outlined,
-                          size: 24,
-                          color: isSelected ? AppColors.primary : AppColors.grey,
-                        ),
-                        if (cart.itemCount > 0)
-                          Positioned(
-                            right: -8,
-                            top: -4,
-                            child: Container(
-                              padding: const EdgeInsets.all(3),
-                              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                              decoration: const BoxDecoration(
-                                color: AppColors.primary,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                cart.itemCount > 99 ? '99+' : '${cart.itemCount}',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  'Keranjang',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected ? AppColors.primary : AppColors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
+

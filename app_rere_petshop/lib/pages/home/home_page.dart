@@ -2,6 +2,7 @@ import 'package:app_rere_petshop/pages/notification/notification_page.dart';
 // lib/presentation/screens/home/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:app_rere_petshop/components/cart_icon_button.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/providers/product_provider.dart';
@@ -91,6 +92,7 @@ class _HomePageState extends State<HomePage> {
             );
           },
         ),
+        const CartIconButton(),
       ],
     );
   }

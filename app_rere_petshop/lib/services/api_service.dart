@@ -216,6 +216,27 @@ class ApiService {
     }
   }
 
+  // ─── WISHLIST / FAVORITES ─────────────────────────────────
+
+  Future<List<Product>> getFavorites() async {
+    try {
+      final response =
+          await _dio.get('/favorites', options: await _authOptions());
+      final items = response.data is Map ? response.data['data'] : null;
+      return (items as List? ?? const [])
+          .whereType<Map>()
+          .map((favorite) {
+            final produk = favorite['produk'];
+            if (produk is! Map) return null;
+            return Product.fromJson(Map<String, dynamic>.from(produk));
+          })
+          .whereType<Product>()
+          .toList();
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── GROOMING ─────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getGroomingServices() async {
@@ -376,11 +397,36 @@ class ApiService {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
         return 'Koneksi timeout. Periksa internet kamu.';
       case DioExceptionType.connectionError:
         return 'Tidak bisa terhubung ke server.';
+      case DioExceptionType.badCertificate:
+        return 'Sertifikat server tidak valid.';
+      case DioExceptionType.cancel:
+        return 'Permintaan dibatalkan.';
+      case DioExceptionType.badResponse:
+        return _messageFromResponse(e);
       default:
-        return e.response?.data?['message']?.toString() ?? 'Terjadi kesalahan.';
+        return _messageFromResponse(e);
     }
+  }
+
+  /// Response server belum tentu JSON (mis. halaman error Cloudflare 502/530),
+  /// jadi jangan langsung akses `data['message']` tanpa cek tipe.
+  String _messageFromResponse(DioException e) {
+    final data = e.response?.data;
+    final status = e.response?.statusCode;
+
+    if (data is Map && data['message'] != null) {
+      return data['message'].toString();
+    }
+
+    if (status == null) return 'Terjadi kesalahan.';
+
+    if (status >= 500) {
+      return 'Server sedang tidak tersedia (HTTP $status). Coba lagi nanti.';
+    }
+    return 'Terjadi kesalahan (HTTP $status).';
   }
 }
