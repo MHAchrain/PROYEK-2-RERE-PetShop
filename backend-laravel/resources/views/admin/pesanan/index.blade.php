@@ -55,6 +55,38 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($pesanans as $p)
+                        @php
+                            $orderPayload = [
+                                'id_pesanan' => $p->id_pesanan,
+                                'kode_pesanan' => $p->kode_pesanan,
+                                'tanggal' => $p->tanggal_pesanan ?? ($p->created_at ? $p->created_at->format('d M Y, H:i') : '-'),
+                                'status_pesanan' => $p->status_pesanan,
+                                'total_formatted' => 'Rp ' . number_format($p->total, 0, ',', '.'),
+                                'alamat_kirim' => $p->alamat_kirim ?? 'Alamat tidak dicantumkan.',
+                                'pelanggan' => [
+                                    'nama' => $p->pelanggan->nama ?? 'Customer',
+                                    'no_hp' => $p->no_telp ?? $p->pelanggan->no_hp ?? '-',
+                                    'email' => $p->pelanggan->email ?? '-',
+                                ],
+                                'pembayaran' => [
+                                    'metode_bayar' => strtoupper($p->pembayaran->metode_bayar ?? 'Online / Gateway'),
+                                    'status_bayar' => $p->pembayaran->status_bayar ?? 'pending',
+                                ],
+                                'pengiriman' => [
+                                    'kurir' => $p->pengiriman->kurir ?? 'Internal',
+                                    'resi' => $p->pengiriman->resi ?? '',
+                                ],
+                                'items' => $p->details->map(function ($d) {
+                                    return [
+                                        'nama_produk' => $d->produk->nama_produk ?? 'Produk Dihapus',
+                                        'foto' => $d->produk && $d->produk->foto ? asset('storage/' . $d->produk->foto) : null,
+                                        'jumlah' => (int) ($d->qty ?? $d->jumlah ?? 1),
+                                        'harga_satuan' => 'Rp ' . number_format($d->harga_satuan, 0, ',', '.'),
+                                        'subtotal' => 'Rp ' . number_format($d->subtotal, 0, ',', '.'),
+                                    ];
+                                }),
+                            ];
+                        @endphp
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="py-3.5 px-6 font-mono font-bold text-slate-900">
                                 {{ $p->kode_pesanan }}
@@ -99,8 +131,8 @@
                                 </span>
                             </td>
                             <td class="py-3.5 px-6 text-right">
-                                <!-- Tombol Pop-up Detail Cepat -->
-                                <button type="button" onclick="showDetailModal('{{ $p->id_pesanan }}')" class="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm shadow-brand-600/20 transition inline-flex items-center gap-1.5">
+                                <!-- Tombol Pop-up Detail Cepat (Direct JSON Load - 100% Instant No Network Lag) -->
+                                <button type="button" onclick="openOrderModalDirect({{ json_encode($orderPayload) }})" class="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm shadow-brand-600/20 transition inline-flex items-center gap-1.5">
                                     <i class="fa-solid fa-eye text-[11px]"></i>
                                     <span>Detail</span>
                                 </button>
@@ -241,76 +273,63 @@
 <script>
     let currentPesananId = null;
 
-    function showDetailModal(idPesanan) {
-        currentPesananId = idPesanan;
+    function openOrderModalDirect(data) {
+        currentPesananId = data.id_pesanan;
         const modal = document.getElementById('detailPesananModal');
         modal.classList.remove('hidden');
 
-        document.getElementById('modalKodePesanan').innerText = 'Memuat data #' + idPesanan + '...';
-        document.getElementById('modalItemsContainer').innerHTML = '<div class="p-4 text-center text-slate-400">Mengambil data dari server...</div>';
+        document.getElementById('modalKodePesanan').innerText = data.kode_pesanan;
+        document.getElementById('modalTanggalPesanan').innerText = 'Dipesan pada: ' + data.tanggal;
+        document.getElementById('modalNamaPelanggan').innerText = data.pelanggan.nama;
+        document.getElementById('modalTelpPelanggan').innerText = 'Telp: ' + data.pelanggan.no_hp;
+        document.getElementById('modalAlamatKirim').innerText = data.alamat_kirim || 'Alamat tidak dicantumkan.';
+        document.getElementById('modalMetodeBayar').innerText = 'Metode: ' + data.pembayaran.metode_bayar;
+        document.getElementById('modalTotalFormatted').innerText = data.total_formatted;
 
-        fetch(`/admin/pesanan/${idPesanan}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('modalKodePesanan').innerText = data.kode_pesanan;
-            document.getElementById('modalTanggalPesanan').innerText = 'Dipesan pada: ' + data.tanggal;
-            document.getElementById('modalNamaPelanggan').innerText = data.pelanggan.nama;
-            document.getElementById('modalTelpPelanggan').innerText = 'Telp: ' + data.no_telp;
-            document.getElementById('modalEmailPelanggan').innerText = 'Email: ' + data.pelanggan.email;
-            document.getElementById('modalAlamatKirim').innerText = data.alamat_kirim || 'Alamat tidak dicantumkan.';
-            document.getElementById('modalMetodeBayar').innerText = 'Metode: ' + data.pembayaran.metode_bayar;
-            document.getElementById('modalTotalFormatted').innerText = data.total_formatted;
+        // Form action & values
+        document.getElementById('modalUpdateForm').action = `/admin/pesanan/${data.id_pesanan}/status`;
+        document.getElementById('modalSelectStatus').value = data.status_pesanan;
+        
+        // Status Bayar (pending / paid / cancel)
+        const rawBayar = (data.pembayaran.status_bayar || 'pending').toLowerCase();
+        if (rawBayar === 'dibayar' || rawBayar === 'paid') {
+            document.getElementById('modalSelectBayar').value = 'paid';
+        } else if (rawBayar === 'cancel' || rawBayar === 'cancelled' || rawBayar === 'batal') {
+            document.getElementById('modalSelectBayar').value = 'cancel';
+        } else {
+            document.getElementById('modalSelectBayar').value = 'pending';
+        }
 
-            // Form action & values
-            document.getElementById('modalUpdateForm').action = `/admin/pesanan/${data.id_pesanan}/status`;
-            document.getElementById('modalSelectStatus').value = data.status_pesanan;
-            
-            // Status Bayar (pending / paid / cancel)
-            const rawBayar = (data.pembayaran.status_bayar || 'pending').toLowerCase();
-            if (rawBayar === 'dibayar' || rawBayar === 'paid') {
-                document.getElementById('modalSelectBayar').value = 'paid';
-            } else if (rawBayar === 'cancel' || rawBayar === 'cancelled' || rawBayar === 'batal') {
-                document.getElementById('modalSelectBayar').value = 'cancel';
-            } else {
-                document.getElementById('modalSelectBayar').value = 'pending';
-            }
+        document.getElementById('modalSelectKurir').value = data.pengiriman.kurir || 'Internal';
+        document.getElementById('modalInputResi').value = data.pengiriman.resi || '';
 
-            document.getElementById('modalSelectKurir').value = data.pengiriman.kurir || 'Internal';
-            document.getElementById('modalInputResi').value = data.pengiriman.resi || '';
-
-            // Render Items
-            let itemsHtml = '';
+        // Render Items
+        let itemsHtml = '';
+        if (data.items && data.items.length > 0) {
             data.items.forEach(item => {
                 const fotoHtml = item.foto 
-                    ? `<img src="${item.foto}" class="w-10 h-10 object-cover rounded-lg border border-slate-200">`
-                    : `<div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300"><i class="fa-regular fa-image"></i></div>`;
+                    ? `<img src="${item.foto}" class="w-9 h-9 object-cover rounded-lg border border-slate-200">`
+                    : `<div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-300 text-xs"><i class="fa-regular fa-image"></i></div>`;
 
                 itemsHtml += `
-                    <div class="p-3 flex items-center justify-between hover:bg-slate-50 transition">
-                        <div class="flex items-center gap-3">
+                    <div class="p-2.5 flex items-center justify-between hover:bg-slate-50 transition text-xs">
+                        <div class="flex items-center gap-2.5">
                             ${fotoHtml}
                             <div>
                                 <p class="font-bold text-slate-900">${item.nama_produk}</p>
                                 <span class="text-slate-400 text-[11px]">${item.jumlah} pcs &times; ${item.harga_satuan}</span>
                             </div>
                         </div>
-                        <span class="font-extrabold text-slate-900">${item.subtotal}</span>
+                        <span class="font-bold text-slate-900">${item.subtotal}</span>
                     </div>
                 `;
             });
+        } else {
+            itemsHtml = '<div class="p-3 text-center text-slate-400 text-xs">Tidak ada item rincian produk.</div>';
+        }
 
-            document.getElementById('modalItemsContainer').innerHTML = itemsHtml || '<div class="p-4 text-center text-slate-400">Tidak ada item.</div>';
-            toggleKurirInputs();
-        })
-        .catch(err => {
-            document.getElementById('modalKodePesanan').innerText = 'Gagal memuat';
-            document.getElementById('modalItemsContainer').innerHTML = '<div class="p-4 text-center text-red-500">Terjadi kesalahan koneksi server.</div>';
-        });
+        document.getElementById('modalItemsContainer').innerHTML = itemsHtml;
+        toggleKurirInputs();
     }
 
     // Tombol Generate Resi Otomatis
