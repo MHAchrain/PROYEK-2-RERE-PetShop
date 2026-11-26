@@ -68,10 +68,11 @@ class PesananController extends Controller
                 'status_kirim' => $pesanan->pengiriman->status_kirim ?? 'pending',
             ],
             'items' => $pesanan->details->map(function ($d) {
+                $qty = (int) ($d->qty ?? $d->jumlah ?? 1);
                 return [
                     'nama_produk' => $d->produk->nama_produk ?? 'Produk Dihapus',
                     'foto' => $d->produk && $d->produk->foto ? asset('storage/' . $d->produk->foto) : null,
-                    'jumlah' => (int) $d->jumlah,
+                    'jumlah' => $qty,
                     'harga_satuan' => 'Rp ' . number_format($d->harga_satuan, 0, ',', '.'),
                     'subtotal' => 'Rp ' . number_format($d->subtotal, 0, ',', '.'),
                 ];

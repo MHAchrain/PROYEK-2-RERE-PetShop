@@ -127,12 +127,15 @@
         </div>
     </div>
 
-    <!-- BARIS 3: PESANAN PERLU PERHATIAN -->
+    <!-- BARIS 3: PESANAN SIAP KIRIM (SUDAH BAYAR) -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-200 flex items-center justify-between">
             <div>
-                <h3 class="text-base font-bold text-slate-900">Pesanan Masuk & Menunggu Diproses</h3>
-                <p class="text-xs text-slate-400">Daftar transaksi terbaru yang membutuhkan respon admin</p>
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-boxes-packing text-brand-600"></i>
+                    <span>Pesanan Siap Kirim (Sudah Bayar)</span>
+                </h3>
+                <p class="text-xs text-slate-400">Daftar transaksi yang sudah terverifikasi bayar dan siap dikemas/dikirim</p>
             </div>
             <a href="{{ route('admin.pesanan.index') }}" class="text-xs font-bold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
                 <span>Kelola Semua Pesanan</span>
@@ -147,12 +150,13 @@
                         <th class="py-3 px-6">Pelanggan</th>
                         <th class="py-3 px-6">Waktu Pesan</th>
                         <th class="py-3 px-6">Total Tagihan</th>
-                        <th class="py-3 px-6">Status</th>
+                        <th class="py-3 px-6">Status Bayar</th>
+                        <th class="py-3 px-6">Status Pesanan</th>
                         <th class="py-3 px-6 text-right">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse($pesananMenunggu as $pesanan)
+                    @forelse($pesananSiapKirim as $pesanan)
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="py-3.5 px-6 font-mono font-bold text-slate-800">
                                 {{ $pesanan->kode_pesanan }}
@@ -166,6 +170,11 @@
                             </td>
                             <td class="py-3.5 px-6 font-bold text-slate-900">
                                 Rp {{ number_format($pesanan->total, 0, ',', '.') }}
+                            </td>
+                            <td class="py-3.5 px-6">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    {{ strtoupper($pesanan->pembayaran->status_bayar ?? 'PAID') }}
+                                </span>
                             </td>
                             <td class="py-3.5 px-6">
                                 @php
@@ -183,15 +192,15 @@
                                 </span>
                             </td>
                             <td class="py-3.5 px-6 text-right">
-                                <a href="{{ route('admin.pesanan.show', $pesanan->id_pesanan) }}" class="text-xs font-bold text-brand-600 hover:bg-brand-50 px-3 py-1.5 rounded-lg border border-brand-200 transition">
-                                    Detail
+                                <a href="{{ route('admin.pesanan.index') }}" class="text-xs font-bold text-brand-600 hover:bg-brand-50 px-3 py-1.5 rounded-lg border border-brand-200 transition">
+                                    Proses Kirim
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-8 text-slate-400 text-sm">
-                                Tidak ada antrean pesanan yang memerlukan tindakan.
+                            <td colspan="7" class="text-center py-8 text-slate-400 text-sm">
+                                Tidak ada antrean pesanan yang menunggu dikirim saat ini.
                             </td>
                         </tr>
                     @endforelse
@@ -235,7 +244,11 @@
                 y: {
                     beginAtZero: true,
                     ticks: {
+                        stepSize: 50000, // Interval per 50.000 (50k, 100k, 150k, dst)
                         callback: function(value) {
+                            if (value >= 1000000) {
+                                return 'Rp ' + (value / 1000000).toLocaleString('id-ID') + ' jt';
+                            }
                             return 'Rp ' + (value / 1000).toLocaleString('id-ID') + 'k';
                         },
                         font: { size: 11, family: 'Plus Jakarta Sans' },

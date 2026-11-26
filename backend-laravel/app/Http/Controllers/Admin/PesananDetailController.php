@@ -45,7 +45,7 @@ class PesananDetailController extends Controller
                     'Kode Pesanan' => $d->pesanan ? $d->pesanan->kode_pesanan : '-',
                     'Pelanggan' => $d->pesanan->pelanggan->nama ?? '-',
                     'Produk' => $d->produk->nama_produk ?? '-',
-                    'Jumlah (Qty)' => (int) $d->jumlah,
+                    'Jumlah (Qty)' => (int) ($d->qty ?? $d->jumlah ?? 1),
                     'Harga Satuan (Rp)' => (float) $d->harga_satuan,
                     'Subtotal (Rp)' => (float) $d->subtotal,
                 ]);

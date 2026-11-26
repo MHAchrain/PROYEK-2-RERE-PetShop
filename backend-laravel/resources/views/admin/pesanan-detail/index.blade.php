@@ -56,7 +56,7 @@
                                 {{ $d->produk->nama_produk ?? 'Produk Dihapus' }}
                             </td>
                             <td class="py-3.5 px-6 font-bold text-slate-800">
-                                {{ $d->jumlah }} pcs
+                                {{ $d->qty ?? $d->jumlah ?? 1 }} pcs
                             </td>
                             <td class="py-3.5 px-6 font-medium text-slate-600">
                                 Rp {{ number_format($d->harga_satuan, 0, ',', '.') }}
