@@ -14,6 +14,7 @@ class AuthService {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Client-Platform': 'mobile',
       },
     ));
   }
@@ -65,11 +66,27 @@ class AuthService {
     }
   }
 
-  Future<void> login(String email, String password) async {
+  Future<Map<String, dynamic>> getCaptcha() async {
+    try {
+      final response = await _dio.get('/captcha');
+      return Map<String, dynamic>.from(response.data ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> login(
+    String email,
+    String password, {
+    String? captchaKey,
+    String? captchaCode,
+  }) async {
     try {
       final response = await _dio.post('/login', data: {
         'email': email,
         'password': password,
+        if (captchaKey != null) 'captcha_key': captchaKey,
+        if (captchaCode != null) 'captcha_code': captchaCode,
       });
       final token = response.data['token']?.toString();
       if (token == null || token.isEmpty) {
