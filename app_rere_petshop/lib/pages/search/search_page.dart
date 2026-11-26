@@ -92,6 +92,10 @@ class _SearchPageState extends State<SearchPage> {
       result.sort((a, b) => a.price.compareTo(b.price));
     } else if (_filter.sortOrder == SearchSortOrder.priceHighToLow) {
       result.sort((a, b) => b.price.compareTo(a.price));
+    } else if (_filter.sortOrder == SearchSortOrder.stockHighToLow) {
+      result.sort((a, b) => (b.stock ?? 0).compareTo(a.stock ?? 0));
+    } else if (_filter.sortOrder == SearchSortOrder.stockLowToHigh) {
+      result.sort((a, b) => (a.stock ?? 0).compareTo(b.stock ?? 0));
     }
     return result;
   }

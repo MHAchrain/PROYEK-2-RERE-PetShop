@@ -1,4 +1,10 @@
-enum SearchSortOrder { relevance, priceLowToHigh, priceHighToLow }
+enum SearchSortOrder {
+  relevance,
+  priceLowToHigh,
+  priceHighToLow,
+  stockHighToLow,
+  stockLowToHigh,
+}
 
 class SearchFilter {
   const SearchFilter({

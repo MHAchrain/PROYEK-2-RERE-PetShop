@@ -71,6 +71,22 @@ class GroomingController extends Controller
         return back()->with('success', 'Paket layanan grooming berhasil diperbarui!');
     }
 
+    public function toggleServiceStatus(GroomingService $service)
+    {
+        $service->update([
+            'is_active' => !$service->is_active,
+        ]);
+
+        $statusText = $service->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return back()->with('success', "Paket {$service->name} berhasil {$statusText}!");
+    }
+
+    public function destroyService(GroomingService $service)
+    {
+        $service->delete();
+        return back()->with('success', "Paket layanan {$service->name} berhasil dihapus!");
+    }
+
     public function updateBookingStatus(Request $request, GroomingBooking $booking)
     {
         $validated = $request->validate([

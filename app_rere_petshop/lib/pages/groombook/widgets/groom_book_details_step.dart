@@ -75,6 +75,22 @@ class GroomBookDetailsStep extends StatelessWidget {
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),
               )
+            else if (services.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: const Center(
+                  child: Text(
+                    'Belum ada paket grooming aktif saat ini.',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                ),
+              )
             else
               ...services.map(
                 (service) => GroomingServiceCard(

@@ -149,6 +149,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/grooming/export', [GroomingController::class, 'exportBookings'])->name('grooming.export');
         Route::post('/grooming/service', [GroomingController::class, 'storeService'])->name('grooming.service.store');
         Route::put('/grooming/service/{service}', [GroomingController::class, 'updateService'])->name('grooming.service.update');
+        Route::patch('/grooming/service/{service}/toggle', [GroomingController::class, 'toggleServiceStatus'])->name('grooming.service.toggle');
+        Route::delete('/grooming/service/{service}', [GroomingController::class, 'destroyService'])->name('grooming.service.destroy');
         Route::patch('/grooming/booking/{booking}/status', [GroomingController::class, 'updateBookingStatus'])->name('grooming.booking.status');
 
         // Modul Pelanggan

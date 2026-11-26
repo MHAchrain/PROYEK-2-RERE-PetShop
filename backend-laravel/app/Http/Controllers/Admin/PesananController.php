@@ -96,24 +96,26 @@ class PesananController extends Controller
             $statusBayar = $request->status_bayar;
             $pembayaran = Pembayaran::firstOrNew(['id_pesanan' => $pesanan->id_pesanan]);
             $pembayaran->status_bayar = $statusBayar;
-            if ($statusBayar === 'paid' && empty($pembayaran->waktu_bayar)) {
-                $pembayaran->waktu_bayar = now();
+            if ($statusBayar === 'paid') {
+                if (empty($pembayaran->waktu_bayar)) {
+                    $pembayaran->waktu_bayar = now();
+                }
+                // Jika paid diupdate manual lewat admin, beri label metode yang keren
+                $pembayaran->metode_bayar = 'Midtrans Sandbox (Admin)';
             }
             if (empty($pembayaran->jumlah_bayar)) {
                 $pembayaran->jumlah_bayar = $pesanan->total;
             }
-            if (empty($pembayaran->metode_bayar)) {
-                $pembayaran->metode_bayar = 'Midtrans Manual Admin';
-            }
             $pembayaran->save();
         }
 
-        // 2. Jika status diubah menjadi 'dikirim', otomatis kelola pengiriman
+        // 2. Jika status diubah menjadi 'dikirim', pastikan record pengiriman ada
         if ($validated['status_pesanan'] === 'dikirim') {
-            $kurir = $request->input('kurir', 'Internal');
-            $resi = $request->input('resi');
+            $existing = Pengiriman::where('id_pesanan', $pesanan->id_pesanan)->first();
+            $kurir = $request->input('kurir', $existing?->kurir ?? 'Internal');
+            $resi = $request->input('resi', $existing?->resi);
             
-            // Generate resi otomatis jika admin tidak mengisinya
+            // Generate resi otomatis jika belum ada sama sekali
             if (empty($resi)) {
                 $randomDigits = mt_rand(100000, 999999);
                 $resi = match ($kurir) {
@@ -129,12 +131,12 @@ class PesananController extends Controller
                     'kurir' => $kurir,
                     'resi' => $resi,
                     'status_kirim' => 'dikirim',
-                    'tanggal_kirim' => now(),
+                    'tanggal_kirim' => $existing?->tanggal_kirim ?? now(),
                 ]
             );
         }
 
-        return back()->with('success', 'Status pesanan, pembayaran & pengiriman berhasil diperbarui!');
+        return back()->with('success', 'Status pesanan dan pembayaran berhasil diperbarui!');
     }
 
     public function updatePengiriman(Request $request, Pesanan $pesanan)

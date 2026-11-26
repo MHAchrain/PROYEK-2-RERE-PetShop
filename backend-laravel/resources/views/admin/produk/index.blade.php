@@ -27,7 +27,16 @@
                 @endforeach
             </select>
 
-            @if(request('search') || request('id_kategori'))
+            <!-- Sort Stok & Harga -->
+            <select name="sort" onchange="this.form.submit()" class="py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-600">
+                <option value="">Urutkan: Standar</option>
+                <option value="stok_desc" {{ request('sort') == 'stok_desc' ? 'selected' : '' }}>Stok: Terbanyak &rarr; Sedikit</option>
+                <option value="stok_asc" {{ request('sort') == 'stok_asc' ? 'selected' : '' }}>Stok: Paling Sedikit &rarr; Banyak</option>
+                <option value="harga_desc" {{ request('sort') == 'harga_desc' ? 'selected' : '' }}>Harga: Tertinggi &rarr; Termurah</option>
+                <option value="harga_asc" {{ request('sort') == 'harga_asc' ? 'selected' : '' }}>Harga: Termurah &rarr; Tertinggi</option>
+            </select>
+
+            @if(request('search') || request('id_kategori') || request('sort'))
                 <a href="{{ route('admin.produk.index') }}" class="text-xs text-slate-500 hover:text-brand-600 font-semibold px-2">Reset</a>
             @endif
         </form>
@@ -63,8 +72,18 @@
                         <th class="py-3 px-6 w-16">Foto</th>
                         <th class="py-3 px-6">Nama Produk</th>
                         <th class="py-3 px-6">Kategori</th>
-                        <th class="py-3 px-6">Harga</th>
-                        <th class="py-3 px-6">Stok</th>
+                        <th class="py-3 px-6">
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => request('sort') == 'harga_desc' ? 'harga_asc' : 'harga_desc']) }}" class="inline-flex items-center gap-1 hover:text-brand-600 transition">
+                                <span>Harga</span>
+                                <i class="fa-solid fa-sort text-[10px] text-slate-400"></i>
+                            </a>
+                        </th>
+                        <th class="py-3 px-6">
+                            <a href="{{ request()->fullUrlWithQuery(['sort' => request('sort') == 'stok_desc' ? 'stok_asc' : 'stok_desc']) }}" class="inline-flex items-center gap-1 hover:text-brand-600 transition">
+                                <span>Stok</span>
+                                <i class="fa-solid fa-sort text-[10px] text-slate-400"></i>
+                            </a>
+                        </th>
                         <th class="py-3 px-6 text-right w-32">Aksi</th>
                     </tr>
                 </thead>

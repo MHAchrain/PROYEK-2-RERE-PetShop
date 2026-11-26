@@ -28,7 +28,20 @@ class ProdukController extends Controller
             $query->where('id_kategori', $request->id_kategori);
         }
 
-        $produks = $query->latest('id_produk')->paginate(12)->withQueryString();
+        // Fitur Sorting (Stok & Harga)
+        if ($request->filled('sort')) {
+            match ($request->sort) {
+                'stok_desc' => $query->orderBy('stok', 'desc'),
+                'stok_asc' => $query->orderBy('stok', 'asc'),
+                'harga_desc' => $query->orderBy('harga', 'desc'),
+                'harga_asc' => $query->orderBy('harga', 'asc'),
+                default => $query->latest('id_produk')
+            };
+        } else {
+            $query->latest('id_produk');
+        }
+
+        $produks = $query->paginate(12)->withQueryString();
         $kategoris = Kategori::orderBy('nama_kategori')->get();
 
         return view('admin.produk.index', compact('produks', 'kategoris'));

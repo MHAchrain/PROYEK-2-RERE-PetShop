@@ -102,15 +102,24 @@
                                 Rp {{ number_format($p->total, 0, ',', '.') }}
                             </td>
                             <td class="py-3.5 px-6 text-xs">
-                                <span class="font-semibold block text-slate-700">{{ strtoupper($p->pembayaran->metode_bayar ?? 'Midtrans') }}</span>
                                 @php
+                                    $rawMetode = $p->pembayaran->metode_bayar ?? '';
                                     $bayarStatus = strtolower($p->pembayaran->status_bayar ?? 'pending');
+                                    
+                                    // Logika tampilan metode: jika paid oleh admin/sandbox maka "SANDBOX", jika belum bayar maka "Menunggu Pemilihan Metode"
+                                    if ($bayarStatus === 'paid' || $bayarStatus === 'dibayar') {
+                                        $displayMetode = !empty($rawMetode) && !str_contains(strtolower($rawMetode), 'menunggu') ? strtoupper($rawMetode) : 'MIDTRANS SANDBOX';
+                                    } else {
+                                        $displayMetode = !empty($rawMetode) ? strtoupper($rawMetode) : 'Menunggu Pemilihan Metode';
+                                    }
+
                                     $bayarColor = match($bayarStatus) {
                                         'paid', 'dibayar' => 'text-emerald-600 bg-emerald-50 border-emerald-200',
                                         'cancel', 'cancelled', 'dibatalkan' => 'text-red-600 bg-red-50 border-red-200',
                                         default => 'text-amber-600 bg-amber-50 border-amber-200'
                                     };
                                 @endphp
+                                <span class="font-semibold block text-slate-700 text-[11px]">{{ $displayMetode }}</span>
                                 <span class="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] font-bold border {{ $bayarColor }}">
                                     {{ strtoupper($bayarStatus) }}
                                 </span>
@@ -213,7 +222,7 @@
                 <div class="grid grid-cols-2 gap-2.5">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Pesanan</label>
-                        <select name="status_pesanan" id="modalSelectStatus" onchange="toggleKurirInputs()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">
+                        <select name="status_pesanan" id="modalSelectStatus" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">
                             <option value="baru">Baru</option>
                             <option value="menunggu_verifikasi">Menunggu Verifikasi</option>
                             <option value="diproses">Diproses</option>
@@ -230,27 +239,6 @@
                             <option value="paid">DIBAYAR / PAID</option>
                             <option value="cancel">CANCEL</option>
                         </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-200/60" id="kurirSection">
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kurir (3 Pilihan)</label>
-                        <select name="kurir" id="modalSelectKurir" onchange="autoUpdateResiPrefix()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">
-                            <option value="Internal">Internal (Toko ReRe)</option>
-                            <option value="JNE">JNE</option>
-                            <option value="Ojol">Ojol</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase">Resi</label>
-                            <button type="button" onclick="generateResiOtomatis()" class="text-brand-600 hover:text-brand-800 font-bold text-[10px]">
-                                Generate
-                            </button>
-                        </div>
-                        <input type="text" name="resi" id="modalInputResi" placeholder="Nomor resi..." class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono bg-white">
                     </div>
                 </div>
 
@@ -300,8 +288,6 @@
             document.getElementById('modalSelectBayar').value = 'pending';
         }
 
-        document.getElementById('modalSelectKurir').value = data.pengiriman.kurir || 'Internal';
-        document.getElementById('modalInputResi').value = data.pengiriman.resi || '';
 
         // Render Items
         let itemsHtml = '';
@@ -329,48 +315,6 @@
         }
 
         document.getElementById('modalItemsContainer').innerHTML = itemsHtml;
-        toggleKurirInputs();
-    }
-
-    // Tombol Generate Resi Otomatis
-    function generateResiOtomatis() {
-        const kurir = document.getElementById('modalSelectKurir').value;
-        const now = new Date();
-        const dateStr = now.getFullYear().toString().substr(-2) + 
-                        String(now.getMonth() + 1).padStart(2, '0') + 
-                        String(now.getDate()).padStart(2, '0');
-        const rand = Math.floor(100000 + Math.random() * 900000);
-
-        let generatedResi = '';
-        if (kurir === 'JNE') {
-            generatedResi = 'JNE' + dateStr + rand;
-        } else if (kurir === 'Ojol') {
-            generatedResi = 'OJOL-' + dateStr + '-' + rand;
-        } else {
-            generatedResi = 'RERE-INT-' + dateStr + '-' + (currentPesananId || rand);
-        }
-
-        document.getElementById('modalInputResi').value = generatedResi;
-    }
-
-    function autoUpdateResiPrefix() {
-        if (!document.getElementById('modalInputResi').value) {
-            generateResiOtomatis();
-        }
-    }
-
-    function toggleKurirInputs() {
-        const status = document.getElementById('modalSelectStatus').value;
-        const kurirSection = document.getElementById('kurirSection');
-
-        if (status === 'dikirim' || status === 'selesai') {
-            kurirSection.style.opacity = '1';
-            if (!document.getElementById('modalInputResi').value) {
-                generateResiOtomatis();
-            }
-        } else {
-            kurirSection.style.opacity = '0.6';
-        }
     }
 
     function closeDetailModal() {
