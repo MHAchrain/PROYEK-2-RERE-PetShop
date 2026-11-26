@@ -225,7 +225,7 @@
                     <td>
                         <span class="badge-paid">LUNAS</span>
                         <div class="text-muted" style="margin-top: 2px;">
-                            {{ $p->pembayaran->metode_bayar ?? 'Midtrans / Online' }}
+                            {{ $p->pembayaran && $p->pembayaran->metode_bayar === 'Midtrans Sandbox (Admin)' ? 'MANUAL' : ($p->pembayaran->metode_bayar ?? 'Midtrans / Online') }}
                         </div>
                     </td>
                     <td class="text-right font-bold" style="color: #0f172a;">

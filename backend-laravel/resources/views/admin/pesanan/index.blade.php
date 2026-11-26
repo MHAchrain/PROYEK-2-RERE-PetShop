@@ -69,7 +69,7 @@
                                     'email' => $p->pelanggan->email ?? '-',
                                 ],
                                 'pembayaran' => [
-                                    'metode_bayar' => strtoupper($p->pembayaran->metode_bayar ?? 'Online / Gateway'),
+                                    'metode_bayar' => ($p->pembayaran && $p->pembayaran->metode_bayar === 'Midtrans Sandbox (Admin)') ? 'MANUAL' : strtoupper($p->pembayaran->metode_bayar ?? 'Online / Gateway'),
                                     'status_bayar' => $p->pembayaran->status_bayar ?? 'pending',
                                 ],
                                 'pengiriman' => [
@@ -106,9 +106,11 @@
                                     $rawMetode = $p->pembayaran->metode_bayar ?? '';
                                     $bayarStatus = strtolower($p->pembayaran->status_bayar ?? 'pending');
                                     
-                                    // Logika tampilan metode: jika paid oleh admin/sandbox maka "SANDBOX", jika belum bayar maka "Menunggu Pemilihan Metode"
+                                    // Logika tampilan metode: jika paid oleh admin/manual maka "MANUAL", jika belum bayar maka "Menunggu Pemilihan Metode"
                                     if ($bayarStatus === 'paid' || $bayarStatus === 'dibayar') {
-                                        $displayMetode = !empty($rawMetode) && !str_contains(strtolower($rawMetode), 'menunggu') ? strtoupper($rawMetode) : 'MIDTRANS SANDBOX';
+                                        $displayMetode = !empty($rawMetode) && !str_contains(strtolower($rawMetode), 'menunggu')
+                                            ? ($rawMetode === 'Midtrans Sandbox (Admin)' ? 'MANUAL' : strtoupper($rawMetode))
+                                            : 'MANUAL';
                                     } else {
                                         $displayMetode = !empty($rawMetode) ? strtoupper($rawMetode) : 'Menunggu Pemilihan Metode';
                                     }

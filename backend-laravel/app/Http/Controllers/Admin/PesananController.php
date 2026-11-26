@@ -105,8 +105,8 @@ class PesananController extends Controller
                 if (empty($pembayaran->waktu_bayar)) {
                     $pembayaran->waktu_bayar = now();
                 }
-                // Jika paid diupdate manual lewat admin, beri label metode yang keren
-                $pembayaran->metode_bayar = 'Midtrans Sandbox (Admin)';
+                // Jika paid diupdate manual lewat admin, beri label metode MANUAL
+                $pembayaran->metode_bayar = 'MANUAL';
             }
             if (empty($pembayaran->jumlah_bayar)) {
                 $pembayaran->jumlah_bayar = $pesanan->total;
