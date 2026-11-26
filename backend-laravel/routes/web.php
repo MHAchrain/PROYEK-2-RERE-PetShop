@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GroomingController;
 use App\Http\Controllers\Admin\KategoriController;
 use App\Http\Controllers\Admin\PelangganController;
+use App\Http\Controllers\Admin\PengirimanController;
 use App\Http\Controllers\Admin\PesananController;
+use App\Http\Controllers\Admin\PesananDetailController;
 use App\Http\Controllers\Admin\ProdukController;
 use App\Http\Middleware\EnsureAdminUser;
 use Illuminate\Support\Facades\File;
@@ -126,22 +128,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/kategori/export', [KategoriController::class, 'export'])->name('kategori.export');
         Route::resource('/kategori', KategoriController::class)->names('kategori')->only(['index', 'store', 'update', 'destroy']);
 
-        // Modul Pesanan & Pengiriman
+        // Modul 1: Pesanan Toko
         Route::get('/pesanan/export', [PesananController::class, 'export'])->name('pesanan.export');
         Route::patch('/pesanan/{pesanan}/status', [PesananController::class, 'updateStatus'])->name('pesanan.status');
         Route::patch('/pesanan/{pesanan}/pengiriman', [PesananController::class, 'updatePengiriman'])->name('pesanan.pengiriman');
         Route::resource('/pesanan', PesananController::class)->names('pesanan')->only(['index', 'show']);
 
-        // Modul Pelanggan
-        Route::get('/pelanggan/export', [PelangganController::class, 'export'])->name('pelanggan.export');
-        Route::resource('/pelanggan', PelangganController::class)->names('pelanggan')->only(['index', 'show']);
+        // Modul 2: Detail Pesanan Item
+        Route::get('/pesanan-detail', [PesananDetailController::class, 'index'])->name('pesanan-detail.index');
+        Route::get('/pesanan-detail/export', [PesananDetailController::class, 'export'])->name('pesanan-detail.export');
 
-        // Modul Grooming
-        Route::get('/grooming', [GroomingController::class, 'index'])->name('grooming.index');
+        // Modul 3: Pengiriman Ekspedisi & Resi
+        Route::get('/pengiriman', [PengirimanController::class, 'index'])->name('pengiriman.index');
+        Route::get('/pengiriman/export', [PengirimanController::class, 'export'])->name('pengiriman.export');
+        Route::patch('/pengiriman/{pengiriman}', [PengirimanController::class, 'update'])->name('pengiriman.update');
+
+        // Modul 4: Grooming Terpisah (Layanan & Pesanan/Booking)
+        Route::get('/grooming/layanan', [GroomingController::class, 'services'])->name('grooming.services');
+        Route::get('/grooming/pesanan', [GroomingController::class, 'bookings'])->name('grooming.bookings');
         Route::get('/grooming/export', [GroomingController::class, 'exportBookings'])->name('grooming.export');
         Route::post('/grooming/service', [GroomingController::class, 'storeService'])->name('grooming.service.store');
         Route::put('/grooming/service/{service}', [GroomingController::class, 'updateService'])->name('grooming.service.update');
         Route::patch('/grooming/booking/{booking}/status', [GroomingController::class, 'updateBookingStatus'])->name('grooming.booking.status');
+
+        // Modul Pelanggan
+        Route::get('/pelanggan/export', [PelangganController::class, 'export'])->name('pelanggan.export');
+        Route::resource('/pelanggan', PelangganController::class)->names('pelanggan')->only(['index', 'show']);
     });
 });
 

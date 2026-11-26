@@ -10,10 +10,20 @@ use Spatie\SimpleExcel\SimpleExcelWriter;
 
 class GroomingController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Halaman Layanan Grooming (Paket & Tarif)
+     */
+    public function services()
     {
         $services = GroomingService::all();
+        return view('admin.grooming.services', compact('services'));
+    }
 
+    /**
+     * Halaman Pesanan / Booking Grooming
+     */
+    public function bookings(Request $request)
+    {
         $bookingQuery = GroomingBooking::with(['pelanggan', 'service']);
 
         if ($request->filled('status')) {
@@ -26,7 +36,7 @@ class GroomingController extends Controller
 
         $bookings = $bookingQuery->latest('id')->paginate(15)->withQueryString();
 
-        return view('admin.grooming.index', compact('services', 'bookings'));
+        return view('admin.grooming.bookings', compact('bookings'));
     }
 
     public function storeService(Request $request)
@@ -42,7 +52,7 @@ class GroomingController extends Controller
 
         GroomingService::create($validated);
 
-        return back()->with('success', 'Layanan grooming baru berhasil ditambahkan!');
+        return back()->with('success', 'Paket layanan grooming baru berhasil ditambahkan!');
     }
 
     public function updateService(Request $request, GroomingService $service)
@@ -58,7 +68,7 @@ class GroomingController extends Controller
 
         $service->update($validated);
 
-        return back()->with('success', 'Layanan grooming berhasil diperbarui!');
+        return back()->with('success', 'Paket layanan grooming berhasil diperbarui!');
     }
 
     public function updateBookingStatus(Request $request, GroomingBooking $booking)
@@ -69,12 +79,12 @@ class GroomingController extends Controller
 
         $booking->update($validated);
 
-        return back()->with('success', 'Status booking grooming berhasil diubah!');
+        return back()->with('success', 'Status pesanan grooming berhasil diubah!');
     }
 
     public function exportBookings()
     {
-        $fileName = 'rekap_grooming_' . date('Y-m-d_His') . '.xlsx';
+        $fileName = 'rekap_pesanan_grooming_' . date('Y-m-d_His') . '.xlsx';
         $filePath = storage_path('app/temp_' . $fileName);
 
         $writer = SimpleExcelWriter::create($filePath);
