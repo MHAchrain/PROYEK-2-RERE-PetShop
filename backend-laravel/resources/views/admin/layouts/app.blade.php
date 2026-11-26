@@ -208,7 +208,7 @@
                     </div>
                 @endif
 
-                @if($errors->any())
+                @if(isset($errors) && $errors->any())
                     <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm font-medium shadow-sm">
                         <div class="flex items-center gap-2 mb-1 text-red-700 font-bold">
                             <i class="fa-solid fa-triangle-exclamation"></i>

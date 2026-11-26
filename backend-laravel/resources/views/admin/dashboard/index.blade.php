@@ -108,7 +108,7 @@
                         <i class="fa-solid fa-calendar-day text-brand-600"></i>
                         <span>Grooming Hari Ini</span>
                     </h4>
-                    <a href="{{ route('admin.grooming.index') }}" class="text-xs text-brand-600 hover:underline font-semibold">Jadwal</a>
+                    <a href="{{ route('admin.grooming.bookings') }}" class="text-xs text-brand-600 hover:underline font-semibold">Jadwal</a>
                 </div>
                 @forelse($groomingHariIni as $booking)
                     <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-xs">
@@ -117,7 +117,7 @@
                             <span class="text-slate-400 text-[11px]">{{ $booking->service->name ?? 'Layanan' }}</span>
                         </div>
                         <span class="font-mono text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded">
-                            {{ substr($booking->booking_time, 0, 5) }}
+                            {{ substr($booking->time, 0, 5) }}
                         </span>
                     </div>
                 @empty
