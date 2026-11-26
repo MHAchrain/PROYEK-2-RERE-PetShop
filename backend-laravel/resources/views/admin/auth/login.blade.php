@@ -71,7 +71,8 @@
                             <i class="fa-solid fa-envelope text-sm"></i>
                         </div>
                         <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('email') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
+                            placeholder="@rerepetshop"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('email') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
                     </div>
                     @error('email')
                         <p class="text-xs text-red-600 mt-1.5 font-medium">{{ $message }}</p>
@@ -86,7 +87,8 @@
                             <i class="fa-solid fa-lock text-sm"></i>
                         </div>
                         <input type="password" name="password" id="password" required
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
+                            placeholder="••••••••••"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
                     </div>
                     @error('password')
                         <p class="text-xs text-red-600 mt-1.5 font-medium">{{ $message }}</p>
