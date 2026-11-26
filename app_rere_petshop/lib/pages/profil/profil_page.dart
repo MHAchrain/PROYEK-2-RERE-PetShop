@@ -2,7 +2,6 @@ import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/pages/about/about_page.dart';
-import 'package:app_rere_petshop/pages/pesanan/pesanan_page.dart';
 import 'package:app_rere_petshop/pages/profil/alamat_pengiriman_page.dart';
 import 'package:app_rere_petshop/pages/profil/data_pribadi_page.dart';
 import 'package:app_rere_petshop/pages/profil/pusat_bantuan_page.dart';
@@ -139,13 +138,8 @@ class _ProfilPageState extends State<ProfilPage> {
                         ProfileMenuTile(
                           icon: Icons.favorite_border,
                           title: 'Wishlist',
-                          onTap: _openWishlist,
-                        ),
-                        ProfileMenuTile(
-                          icon: Icons.receipt_long_outlined,
-                          title: 'Pesanan Saya',
                           showDivider: false,
-                          onTap: _loggedIn ? _openOrders : _openLogin,
+                          onTap: _openWishlist,
                         ),
                       ],
                     ),
@@ -199,13 +193,6 @@ class _ProfilPageState extends State<ProfilPage> {
       if (!mounted) return;
       await context.read<WishlistProvider>().load(force: true);
     }
-  }
-
-  void _openOrders() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const PesananPage()),
-    );
   }
 
   Future<void> _openWishlist() async {

@@ -92,13 +92,20 @@ class GroomingHistoryCard extends StatelessWidget {
   }
 
   (String, Color, Color) _statusStyle(String status) => switch (status) {
-        'menunggu_pembayaran' => ('Menunggu Bayar', Colors.orange.shade800, const Color(0xFFFFF4E5)),
-        'terjadwal' => ('Terjadwal', AppColors.primary, const Color(0xFFFCECEC)),
+        'menunggu_pembayaran' => (
+            'Menunggu Bayar',
+            const Color(0xFFB45309),
+            const Color(0xFFFEF3C7)
+          ),
+        'terjadwal' => ('Terjadwal', const Color(0xFF7E22CE), const Color(0xFFF3E8FF)),
         'dikonfirmasi' => ('Dikonfirmasi', Colors.blue.shade700, const Color(0xFFEAF3FF)),
-        'selesai' => ('Selesai', AppColors.success, const Color(0xFFE9F8EF)),
-        'dibatalkan' => ('Dibatalkan', AppColors.textSecondary, AppColors.greyBg),
-        'gagal' => ('Gagal', Colors.red.shade800, const Color(0xFFFCECEC)),
-        _ => (_humanize(status), AppColors.textSecondary, AppColors.greyBg),
+        'selesai' => ('Selesai', const Color(0xFF166534), const Color(0xFFDCFCE7)),
+        'dibatalkan' || 'gagal' => (
+            'Dibatalkan',
+            const Color(0xFFB91C1C),
+            const Color(0xFFFEE2E2)
+          ),
+        _ => (_humanize(status), const Color(0xFF475569), const Color(0xFFF1F5F9)),
       };
 
   String _humanize(String value) => value.replaceAll('_', ' ').split(' ').map((word) =>

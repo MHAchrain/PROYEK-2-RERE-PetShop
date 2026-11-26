@@ -336,11 +336,12 @@ class _SplashPageState extends State<SplashPage>
                         child: const Padding(
                           padding: EdgeInsets.only(bottom: 24),
                           child: Text(
-                            'Versi 1.0.0 • Made with ❤️ for Cats',
+                            'ReRe Petshop',
                             style: TextStyle(
                               color: Color(0xFFF0B8B8),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
