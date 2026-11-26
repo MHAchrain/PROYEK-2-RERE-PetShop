@@ -17,7 +17,7 @@ class EnsureAdminUser
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check()) {
-            return redirect()->route('admin.login')->with('error', 'Silakan masuk terlebih dahulu untuk mengakses panel admin.');
+            return redirect()->route('admin.login');
         }
 
         $user = Auth::user();

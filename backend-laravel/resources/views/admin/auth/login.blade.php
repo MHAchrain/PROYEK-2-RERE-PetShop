@@ -46,7 +46,7 @@
             <h2 class="text-lg font-bold text-slate-900 mb-1">Masuk ke Akun Anda</h2>
             <p class="text-xs text-slate-500 mb-6">Gunakan kredensial akun administrator yang telah terdaftar.</p>
 
-            @if(session('error'))
+            @if(session('error') && session('error') !== 'Silakan masuk terlebih dahulu untuk mengakses panel admin.')
                 <div class="mb-5 flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold">
                     <i class="fa-solid fa-circle-exclamation shrink-0"></i>
                     <span>{{ session('error') }}</span>
@@ -71,8 +71,7 @@
                             <i class="fa-solid fa-envelope text-sm"></i>
                         </div>
                         <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
-                            placeholder="admin@rerepetshop.com"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('email') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('email') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
                     </div>
                     @error('email')
                         <p class="text-xs text-red-600 mt-1.5 font-medium">{{ $message }}</p>
@@ -87,8 +86,7 @@
                             <i class="fa-solid fa-lock text-sm"></i>
                         </div>
                         <input type="password" name="password" id="password" required
-                            placeholder="••••••••"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('password') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
                     </div>
                     @error('password')
                         <p class="text-xs text-red-600 mt-1.5 font-medium">{{ $message }}</p>
