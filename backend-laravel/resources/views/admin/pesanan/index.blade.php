@@ -241,7 +241,7 @@
                                 <i class="fa-solid fa-lock text-[9px]"></i> QRIS Terkunci
                             </span>
                         </div>
-                        <select name="status_bayar" id="modalSelectBayar" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white text-slate-800 transition">
+                        <select name="status_bayar" id="modalSelectBayar" onchange="handleBayarChange(this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white text-slate-800 transition">
                             <option value="pending">PENDING</option>
                             <option value="paid">DIBAYAR / PAID</option>
                             <option value="cancel">FAILED / CANCEL</option>
@@ -344,6 +344,12 @@
         }
 
         document.getElementById('modalItemsContainer').innerHTML = itemsHtml;
+    }
+
+    function handleBayarChange(val) {
+        if (val === 'cancel') {
+            document.getElementById('modalSelectStatus').value = 'batal';
+        }
     }
 
     function closeDetailModal() {

@@ -145,28 +145,18 @@
                     <i class="fa-solid fa-users w-4 text-center {{ request()->routeIs('admin.pelanggan.*') ? 'text-brand-700' : 'text-red-200/80' }}"></i>
                     <span>Data Pelanggan</span>
                 </a>
-            </nav>
 
-            <!-- Profil Admin di Bawah Sidebar -->
-            <div class="p-3.5 border-t border-white/10 bg-brand-900/40">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="w-8 h-8 rounded-full bg-white text-brand-800 flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
-                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name ?? 'Administrator' }}</p>
-                            <span class="inline-block px-1.5 py-0.2 text-[9px] font-bold bg-amber-400 text-brand-950 rounded">Admin</span>
-                        </div>
-                    </div>
-                    <form action="{{ route('admin.logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" title="Keluar" class="w-8 h-8 rounded-lg flex items-center justify-center text-red-200 hover:text-white hover:bg-white/10 transition">
-                            <i class="fa-solid fa-right-from-bracket text-xs"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
+                <!-- Group: Logout (Tepat di bawah Pelanggan) -->
+                <div class="pt-4 px-3 pb-1.5 text-[10px] font-extrabold text-red-200/60 uppercase tracking-widest">Sesi Admin</div>
+
+                <form action="{{ route('admin.logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-100 hover:bg-white/10 hover:text-white transition">
+                        <i class="fa-solid fa-right-from-bracket w-4 text-center text-red-200"></i>
+                        <span>Logout Admin</span>
+                    </button>
+                </form>
+            </nav>
         </aside>
 
         <!-- MAIN CONTENT AREA -->
@@ -178,16 +168,27 @@
                 </div>
 
                 <div class="flex items-center gap-4">
+                    <!-- Status TiDB Cloud Indicator -->
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="font-mono">TiDB Cloud Connected</span>
+                    </div>
+
                     <!-- Link ke Frontend Vercel -->
                     <a href="https://rerepetshop.biz.id" target="_blank" class="hidden sm:inline-flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
                         <i class="fa-solid fa-arrow-up-right-from-square text-slate-400"></i>
                         <span>Web Toko</span>
                     </a>
 
-                    <!-- Status TiDB Cloud Indicator -->
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span class="font-mono">TiDB Cloud Connected</span>
+                    <!-- Admin Profile di Top Navbar -->
+                    <div class="flex items-center gap-2.5 pl-3 border-l border-slate-200">
+                        <div class="w-8 h-8 rounded-full bg-brand-800 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
+                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                        </div>
+                        <div class="hidden md:block">
+                            <p class="text-xs font-bold text-slate-800 leading-tight">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                            <span class="text-[10px] text-slate-400 font-semibold">Admin ReRe</span>
+                        </div>
                     </div>
                 </div>
             </header>

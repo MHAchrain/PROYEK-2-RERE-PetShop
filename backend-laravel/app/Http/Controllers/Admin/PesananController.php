@@ -89,7 +89,7 @@ class PesananController extends Controller
             'status_bayar' => ['nullable', 'in:pending,paid,cancel'],
         ]);
 
-        $pesanan->update(['status_pesanan' => $validated['status_pesanan']]);
+        $statusPesanan = $validated['status_pesanan'];
 
         // 1. Update Status Pembayaran (Jika QRIS sudah PAID, status pembayaran TERKUNCI & tidak boleh diubah)
         $pembayaranExisting = $pesanan->pembayaran;
@@ -107,12 +107,17 @@ class PesananController extends Controller
                 }
                 // Jika paid diupdate manual lewat admin, beri label metode MANUAL
                 $pembayaran->metode_bayar = 'MANUAL';
+            } elseif (in_array(strtolower($statusBayar), ['cancel', 'cancelled', 'failed', 'gagal'])) {
+                // Jika pembayaran FAILED / CANCEL, otomatis status pesanan menjadi BATAL!
+                $statusPesanan = 'batal';
             }
             if (empty($pembayaran->jumlah_bayar)) {
                 $pembayaran->jumlah_bayar = $pesanan->total;
             }
             $pembayaran->save();
         }
+
+        $pesanan->update(['status_pesanan' => $statusPesanan]);
 
         // 2. Jika status diubah menjadi 'dikirim', pastikan record pengiriman ada
         if ($validated['status_pesanan'] === 'dikirim') {
