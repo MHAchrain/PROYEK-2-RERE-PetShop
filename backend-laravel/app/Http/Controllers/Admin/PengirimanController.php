@@ -11,7 +11,15 @@ class PengirimanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Pengiriman::with(['pesanan.pelanggan']);
+        // Hanya tampilkan pengiriman dari pesanan yang statusnya 'dikirim' atau 'selesai'
+        $query = Pengiriman::with(['pesanan.pelanggan'])
+            ->whereHas('pesanan', function ($q) {
+                $q->whereIn('status_pesanan', ['dikirim', 'selesai']);
+            });
+
+        if ($request->filled('kurir')) {
+            $query->where('kurir', $request->kurir);
+        }
 
         if ($request->filled('status_kirim')) {
             $query->where('status_kirim', $request->status_kirim);
@@ -40,18 +48,20 @@ class PengirimanController extends Controller
     public function update(Request $request, Pengiriman $pengiriman)
     {
         $validated = $request->validate([
-            'kurir' => ['required', 'string', 'max:50'],
+            'kurir' => ['required', 'in:Internal,JNE,Ojol'],
             'resi' => ['nullable', 'string', 'max:100'],
             'status_kirim' => ['required', 'string', 'max:50'],
         ]);
 
         $pengiriman->update($validated);
 
-        if (!empty($validated['resi']) && $pengiriman->pesanan && $pengiriman->pesanan->status_pesanan !== 'dikirim') {
+        if ($validated['status_kirim'] === 'terkirim' && $pengiriman->pesanan && $pengiriman->pesanan->status_pesanan !== 'selesai') {
+            $pengiriman->pesanan->update(['status_pesanan' => 'selesai']);
+        } elseif ($validated['status_kirim'] === 'dikirim' && $pengiriman->pesanan && $pengiriman->pesanan->status_pesanan !== 'dikirim') {
             $pengiriman->pesanan->update(['status_pesanan' => 'dikirim']);
         }
 
-        return back()->with('success', 'Status pengiriman dan nomor resi berhasil diperbarui!');
+        return back()->with('success', 'Status pengiriman dan kurir berhasil diperbarui!');
     }
 
     public function export()
@@ -61,20 +71,24 @@ class PengirimanController extends Controller
 
         $writer = SimpleExcelWriter::create($filePath);
 
-        Pengiriman::with(['pesanan.pelanggan'])->chunk(100, function ($pengirimans) use ($writer) {
-            foreach ($pengirimans as $p) {
-                $writer->addRow([
-                    'ID Pengiriman' => $p->id_pengiriman,
-                    'Kode Pesanan' => $p->pesanan ? $p->pesanan->kode_pesanan : '-',
-                    'Penerima' => $p->pesanan->pelanggan->nama ?? '-',
-                    'Alamat Kirim' => $p->pesanan->alamat_kirim ?? '-',
-                    'Kurir' => $p->kurir,
-                    'Nomor Resi' => $p->resi ?? '-',
-                    'Status Pengiriman' => $p->status_kirim,
-                    'Tanggal Kirim' => (string) $p->tanggal_kirim,
-                ]);
-            }
-        });
+        Pengiriman::with(['pesanan.pelanggan'])
+            ->whereHas('pesanan', function ($q) {
+                $q->whereIn('status_pesanan', ['dikirim', 'selesai']);
+            })
+            ->chunk(100, function ($pengirimans) use ($writer) {
+                foreach ($pengirimans as $p) {
+                    $writer->addRow([
+                        'ID Pengiriman' => $p->id_pengiriman,
+                        'Kode Pesanan' => $p->pesanan ? $p->pesanan->kode_pesanan : '-',
+                        'Penerima' => $p->pesanan->pelanggan->nama ?? '-',
+                        'Alamat Kirim' => $p->pesanan->alamat_kirim ?? '-',
+                        'Kurir' => $p->kurir,
+                        'Nomor Resi' => $p->resi ?? '-',
+                        'Status Pengiriman' => $p->status_kirim,
+                        'Tanggal Kirim' => (string) $p->tanggal_kirim,
+                    ]);
+                }
+            });
 
         return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
     }
