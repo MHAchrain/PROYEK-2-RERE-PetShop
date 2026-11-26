@@ -99,9 +99,11 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="py-3 px-6">
+                            <td class="py-3 px-6 max-w-[280px]">
                                 <p class="font-bold text-slate-900 leading-snug">{{ $p->nama_produk }}</p>
-                                <p class="text-xs text-slate-400 line-clamp-1 mt-0.5">{{ $p->deskripsi ?? 'Tidak ada deskripsi' }}</p>
+                                <p class="text-xs text-slate-400 mt-0.5 truncate" title="{{ $p->deskripsi }}">
+                                    {{ \Illuminate\Support\Str::limit($p->deskripsi ?? 'Tidak ada deskripsi', 50, '...') }}
+                                </p>
                             </td>
                             <td class="py-3 px-6 text-xs font-semibold text-slate-700">
                                 <span class="bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
