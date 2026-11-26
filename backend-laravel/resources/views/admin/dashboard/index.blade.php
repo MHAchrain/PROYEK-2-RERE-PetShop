@@ -244,11 +244,7 @@
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 50000, // Interval per 50.000 (50k, 100k, 150k, dst)
                         callback: function(value) {
-                            if (value >= 1000000) {
-                                return 'Rp ' + (value / 1000000).toLocaleString('id-ID') + ' jt';
-                            }
                             return 'Rp ' + (value / 1000).toLocaleString('id-ID') + 'k';
                         },
                         font: { size: 11, family: 'Plus Jakarta Sans' },

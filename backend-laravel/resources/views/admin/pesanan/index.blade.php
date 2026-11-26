@@ -127,139 +127,110 @@
 </div>
 
 <!-- ======================================================== -->
-<!-- MODAL POP-UP DETAIL PESANAN CEPAT                        -->
+<!-- MODAL POP-UP DETAIL PESANAN CEPAT & SIMPLE               -->
 <!-- ======================================================== -->
-<div id="detailPesananModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+<div id="detailPesananModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full max-h-[88vh] flex flex-col overflow-hidden">
         
-        <!-- Header Modal -->
-        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+        <!-- Header Modal Sederhana -->
+        <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-white">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs">
                     <i class="fa-solid fa-receipt"></i>
                 </div>
                 <div>
-                    <h3 class="text-base font-extrabold text-slate-900" id="modalKodePesanan">Memuat...</h3>
-                    <p class="text-xs text-slate-400" id="modalTanggalPesanan">-</p>
+                    <h3 class="text-sm font-bold text-slate-900" id="modalKodePesanan">Pesanan</h3>
+                    <p class="text-[11px] text-slate-400" id="modalTanggalPesanan">-</p>
                 </div>
             </div>
-            <button onclick="closeDetailModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition">
-                <i class="fa-solid fa-xmark text-sm"></i>
+            <button onclick="closeDetailModal()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                <i class="fa-solid fa-xmark text-xs"></i>
             </button>
         </div>
 
-        <!-- Body Modal (Scrollable) -->
-        <div class="p-6 overflow-y-auto space-y-5 text-xs text-slate-600 flex-1">
-            <!-- Informasi Pelanggan & Alamat -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
-                <div>
-                    <span class="text-slate-400 font-bold uppercase text-[10px] tracking-wider block mb-1">Informasi Pemesan</span>
-                    <p class="font-bold text-slate-900 text-sm" id="modalNamaPelanggan">-</p>
-                    <p class="text-slate-500 mt-0.5" id="modalTelpPelanggan">-</p>
-                    <p class="text-slate-500" id="modalEmailPelanggan">-</p>
+        <!-- Body Modal Ringkas & Padat -->
+        <div class="p-5 overflow-y-auto space-y-4 text-xs text-slate-600 flex-1">
+            <!-- Info Pembeli Ringkas -->
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200/80 space-y-1 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-slate-900" id="modalNamaPelanggan">-</span>
+                    <span class="font-mono text-slate-500 text-[11px]" id="modalTelpPelanggan">-</span>
                 </div>
-                <div>
-                    <span class="text-slate-400 font-bold uppercase text-[10px] tracking-wider block mb-1">Alamat Tujuan Pengiriman</span>
-                    <p class="text-slate-800 leading-relaxed" id="modalAlamatKirim">-</p>
-                </div>
+                <p class="text-slate-600 text-[11px] line-clamp-2" id="modalAlamatKirim">-</p>
             </div>
 
-            <!-- Daftar Item Produk yang Dibeli -->
+            <!-- Rincian Produk -->
             <div>
-                <span class="text-slate-400 font-bold uppercase text-[10px] tracking-wider block mb-2">Item Produk yang Dipesan</span>
-                <div class="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden" id="modalItemsContainer">
-                    <!-- Dynamic Items via JS -->
+                <span class="text-slate-400 font-bold uppercase text-[10px] tracking-wider block mb-1.5">Produk Dipesan</span>
+                <div class="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden max-h-44 overflow-y-auto" id="modalItemsContainer">
+                    <!-- Dynamic Items -->
                 </div>
             </div>
 
-            <!-- Total Pembayaran -->
-            <div class="flex items-center justify-between p-4 bg-brand-50 rounded-2xl border border-brand-100">
-                <div>
-                    <span class="text-brand-700 font-bold block">Total Tagihan Belanja</span>
-                    <span class="text-[11px] text-brand-600" id="modalMetodeBayar">-</span>
-                </div>
-                <div class="text-right">
-                    <span class="text-lg font-extrabold text-brand-700" id="modalTotalFormatted">Rp 0</span>
-                </div>
+            <!-- Total Ringkas -->
+            <div class="flex items-center justify-between px-3.5 py-2.5 bg-brand-50 rounded-xl border border-brand-100">
+                <span class="text-brand-700 font-bold text-xs" id="modalMetodeBayar">Total Tagihan</span>
+                <span class="text-base font-extrabold text-brand-700" id="modalTotalFormatted">Rp 0</span>
             </div>
 
-            <!-- Form Ubah Status, Percobaan Pembayaran, & Kurir Langsung dari Pop-up -->
-            <form id="modalUpdateForm" method="POST" class="p-5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-4">
+            <!-- Form Aksi Cepat Sederhana -->
+            <form id="modalUpdateForm" method="POST" class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
                 @csrf
                 @method('PATCH')
-                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-                    <span class="text-slate-800 font-bold uppercase text-[11px] tracking-wider">Aksi Cepat Admin (Status, Pembayaran & Resi)</span>
-                </div>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- 1. Status Pesanan -->
+                <div class="grid grid-cols-2 gap-2.5">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Pesanan</label>
-                        <select name="status_pesanan" id="modalSelectStatus" onchange="toggleKurirInputs()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
+                        <select name="status_pesanan" id="modalSelectStatus" onchange="toggleKurirInputs()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">
                             <option value="baru">Baru</option>
                             <option value="menunggu_verifikasi">Menunggu Verifikasi</option>
-                            <option value="diproses">Diproses (Packing)</option>
+                            <option value="diproses">Diproses</option>
                             <option value="dikirim">Dikirim</option>
                             <option value="selesai">Selesai</option>
                             <option value="batal">Batal</option>
                         </select>
                     </div>
 
-                    <!-- 2. Status Pembayaran -->
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
-                            Status Pembayaran
-                        </label>
-                        <select name="status_bayar" id="modalSelectBayar" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-800">
-                            <option value="pending">PENDING (Belum Bayar)</option>
-                            <option value="paid">DIBAYAR / PAID (Lunas)</option>
-                            <option value="cancel">CANCEL (Dibatalkan)</option>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Pembayaran</label>
+                        <select name="status_bayar" id="modalSelectBayar" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white text-slate-800">
+                            <option value="pending">PENDING</option>
+                            <option value="paid">DIBAYAR / PAID</option>
+                            <option value="cancel">CANCEL</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 border-t border-slate-200/60" id="kurirSection">
-                    <!-- 3. Pilihan 3 Kurir Resmi -->
+                <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-200/60" id="kurirSection">
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kurir Pengiriman</label>
-                        <select name="kurir" id="modalSelectKurir" onchange="autoUpdateResiPrefix()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
-                            <option value="Internal">Internal (Kurir Toko ReRe)</option>
-                            <option value="JNE">JNE Ekspedisi</option>
-                            <option value="Ojol">Ojol (Gojek / Grab Express)</option>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kurir (3 Pilihan)</label>
+                        <select name="kurir" id="modalSelectKurir" onchange="autoUpdateResiPrefix()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold bg-white">
+                            <option value="Internal">Internal (Toko ReRe)</option>
+                            <option value="JNE">JNE</option>
+                            <option value="Ojol">Ojol</option>
                         </select>
                     </div>
 
-                    <!-- 4. Nomor Resi & Tombol Auto-Generate -->
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
-                            <span>Nomor Resi</span>
-                            <button type="button" onclick="generateResiOtomatis()" class="text-brand-600 hover:text-brand-800 font-bold inline-flex items-center gap-1 text-[10px]">
-                                <i class="fa-solid fa-arrows-rotate"></i>
-                                <span>Generate Resi Otomatis</span>
-                            </button>
-                        </label>
-                        <div class="relative">
-                            <input type="text" name="resi" id="modalInputResi" placeholder="Contoh: JNE12345 / Klik Generate..." class="w-full pl-3 pr-20 py-2 rounded-xl border border-slate-200 text-xs font-mono bg-white">
-                            <button type="button" onclick="generateResiOtomatis()" class="absolute right-1 top-1 bottom-1 px-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold text-slate-700 transition">
-                                Buat Otomatis
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Resi</label>
+                            <button type="button" onclick="generateResiOtomatis()" class="text-brand-600 hover:text-brand-800 font-bold text-[10px]">
+                                Generate
                             </button>
                         </div>
+                        <input type="text" name="resi" id="modalInputResi" placeholder="Nomor resi..." class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono bg-white">
                     </div>
                 </div>
 
-                <div class="pt-2 text-right">
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md shadow-brand-600/20 transition">
-                        Simpan Perubahan Pesanan
+                <div class="pt-1 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeDetailModal()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-sm transition">
+                        Simpan
                     </button>
                 </div>
             </form>
-        </div>
-
-        <!-- Footer Modal -->
-        <div class="px-6 py-3 border-t border-slate-200 flex justify-end bg-white">
-            <button type="button" onclick="closeDetailModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
-                Tutup Pop-up
-            </button>
         </div>
 
     </div>
