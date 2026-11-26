@@ -205,11 +205,10 @@
                         </select>
                     </div>
 
-                    <!-- 2. Status Pembayaran (Percobaan / Testing Admin) -->
+                    <!-- 2. Status Pembayaran -->
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
-                            <span>Status Pembayaran</span>
-                            <span class="text-amber-600 font-semibold text-[9px]">(Mode Percobaan)</span>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                            Status Pembayaran
                         </label>
                         <select name="status_bayar" id="modalSelectBayar" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-800">
                             <option value="pending">PENDING (Belum Bayar)</option>
