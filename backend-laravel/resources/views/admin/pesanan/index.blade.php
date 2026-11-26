@@ -233,12 +233,20 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Pembayaran</label>
-                        <select name="status_bayar" id="modalSelectBayar" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white text-slate-800">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-[10px] font-bold text-slate-500 uppercase">Status Pembayaran</label>
+                            <span id="qrisLockIcon" class="hidden text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                                <i class="fa-solid fa-lock text-[9px]"></i> QRIS Terkunci
+                            </span>
+                        </div>
+                        <select name="status_bayar" id="modalSelectBayar" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white text-slate-800 transition">
                             <option value="pending">PENDING</option>
                             <option value="paid">DIBAYAR / PAID</option>
                             <option value="cancel">CANCEL</option>
                         </select>
+                        <p id="qrisLockNotice" class="hidden text-[10px] text-emerald-700 font-semibold mt-1">
+                            <i class="fa-solid fa-shield-halved"></i> QRIS Lunas (Hanya status pesanan yang dapat diubah).
+                        </p>
                     </div>
                 </div>
 
@@ -280,12 +288,31 @@
         
         // Status Bayar (pending / paid / cancel)
         const rawBayar = (data.pembayaran.status_bayar || 'pending').toLowerCase();
+        const rawMetode = (data.pembayaran.metode_bayar || '').toUpperCase();
+        const selectBayar = document.getElementById('modalSelectBayar');
+        const lockIcon = document.getElementById('qrisLockIcon');
+        const lockNotice = document.getElementById('qrisLockNotice');
+
         if (rawBayar === 'dibayar' || rawBayar === 'paid') {
-            document.getElementById('modalSelectBayar').value = 'paid';
+            selectBayar.value = 'paid';
         } else if (rawBayar === 'cancel' || rawBayar === 'cancelled' || rawBayar === 'batal') {
-            document.getElementById('modalSelectBayar').value = 'cancel';
+            selectBayar.value = 'cancel';
         } else {
-            document.getElementById('modalSelectBayar').value = 'pending';
+            selectBayar.value = 'pending';
+        }
+
+        // Pengecekan Khusus: Jika metode QRIS dan status sudah PAID -> TERKUNCI (tidak bisa diubah)
+        const isQrisPaid = rawMetode.includes('QRIS') && (rawBayar === 'paid' || rawBayar === 'dibayar');
+        if (isQrisPaid) {
+            selectBayar.disabled = true;
+            selectBayar.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'border-slate-200');
+            lockIcon.classList.remove('hidden');
+            lockNotice.classList.remove('hidden');
+        } else {
+            selectBayar.disabled = false;
+            selectBayar.classList.remove('bg-slate-100', 'text-slate-400', 'cursor-not-allowed');
+            lockIcon.classList.add('hidden');
+            lockNotice.classList.add('hidden');
         }
 
 

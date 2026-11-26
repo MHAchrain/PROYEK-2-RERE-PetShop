@@ -91,8 +91,13 @@ class PesananController extends Controller
 
         $pesanan->update(['status_pesanan' => $validated['status_pesanan']]);
 
-        // 1. Update Status Pembayaran (Percobaan / Testing Manual Admin)
-        if ($request->filled('status_bayar')) {
+        // 1. Update Status Pembayaran (Jika QRIS sudah PAID, status pembayaran TERKUNCI & tidak boleh diubah)
+        $pembayaranExisting = $pesanan->pembayaran;
+        $isQrisPaid = $pembayaranExisting 
+            && stripos($pembayaranExisting->metode_bayar ?? '', 'qris') !== false 
+            && in_array(strtolower($pembayaranExisting->status_bayar ?? ''), ['paid', 'dibayar']);
+
+        if (! $isQrisPaid && $request->filled('status_bayar')) {
             $statusBayar = $request->status_bayar;
             $pembayaran = Pembayaran::firstOrNew(['id_pesanan' => $pesanan->id_pesanan]);
             $pembayaran->status_bayar = $statusBayar;
