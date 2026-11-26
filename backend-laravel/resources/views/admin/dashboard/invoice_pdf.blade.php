@@ -201,7 +201,7 @@
                     <td>
                         <strong style="color: #dc2626;">{{ $p->kode_pesanan ?? '#' . $p->id_pesanan }}</strong>
                         <div class="text-muted">
-                            {{ $p->pembayaran && $p->pembayaran->waktu_bayar ? \Carbon\Carbon::parse($p->pembayaran->waktu_bayar)->timezone('Asia/Jakarta')->format('H:i') . ' WIB' : 'Hari ini' }}
+                            {{ $p->tanggal_pesanan ? \Carbon\Carbon::parse($p->tanggal_pesanan)->timezone('Asia/Jakarta')->format('d/m/Y H:i') . ' WIB' : 'Hari ini' }}
                         </div>
                     </td>
                     <td>

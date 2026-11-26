@@ -21,25 +21,12 @@ class DashboardController extends Controller
         $totalPelanggan = Pelanggan::count();
         $totalPesanan = Pesanan::count();
 
-        // Total Pendapatan Hari Ini (Pesanan yang sudah dibayar lunas hari ini)
-        $totalPendapatanHariIni = (float) Pesanan::where(function ($query) use ($today) {
-            $query->whereHas('pembayaran', function ($q) use ($today) {
-                $q->where('status_bayar', 'paid')
-                  ->where(function ($w) use ($today) {
-                      $w->whereDate('waktu_bayar', $today)
-                        ->orWhere(function ($or) use ($today) {
-                            $or->whereNull('waktu_bayar')
-                               ->whereDate('updated_at', $today);
-                        });
-                  });
-            })->orWhere(function ($q) use ($today) {
-                $q->whereDate('tanggal_pesanan', $today)
-                  ->whereIn('status_pesanan', ['diproses', 'dikirim', 'selesai'])
-                  ->whereHas('pembayaran', function ($p) {
-                      $p->where('status_bayar', 'paid');
-                  });
-            });
-        })->sum('total');
+        // Total Pendapatan Hari Ini: Pesanan yang tanggal pesanannya hari ini DAN status pembayarannya paid (lunas)
+        $totalPendapatanHariIni = (float) Pesanan::whereDate('tanggal_pesanan', $today)
+            ->whereHas('pembayaran', function ($p) {
+                $p->where('status_bayar', 'paid');
+            })
+            ->sum('total');
 
         // 2. Pesanan Siap Kirim (Hanya yang status_pesanan = 'diproses' / sedang diproses saja)
         $pesananSiapKirim = Pesanan::with(['pelanggan', 'pembayaran', 'pengiriman'])
@@ -94,24 +81,11 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
+        // Rincian pesanan yang tanggal pesanannya hari ini DAN sudah dibayar lunas
         $pesananPaidHariIni = Pesanan::with(['pelanggan', 'details.produk', 'pembayaran', 'pengiriman'])
-            ->where(function ($query) use ($today) {
-                $query->whereHas('pembayaran', function ($q) use ($today) {
-                    $q->where('status_bayar', 'paid')
-                      ->where(function ($w) use ($today) {
-                          $w->whereDate('waktu_bayar', $today)
-                            ->orWhere(function ($or) use ($today) {
-                                $or->whereNull('waktu_bayar')
-                                   ->whereDate('updated_at', $today);
-                            });
-                      });
-                })->orWhere(function ($q) use ($today) {
-                    $q->whereDate('tanggal_pesanan', $today)
-                      ->whereIn('status_pesanan', ['diproses', 'dikirim', 'selesai'])
-                      ->whereHas('pembayaran', function ($p) {
-                          $p->where('status_bayar', 'paid');
-                      });
-                });
+            ->whereDate('tanggal_pesanan', $today)
+            ->whereHas('pembayaran', function ($p) {
+                $p->where('status_bayar', 'paid');
             })
             ->latest('id_pesanan')
             ->get();
