@@ -8,9 +8,11 @@ import 'package:app_rere_petshop/providers/cart_provider.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:app_rere_petshop/providers/wishlist_provider.dart';
 import 'package:app_rere_petshop/pages/splash/splash_page.dart';
+import 'package:app_rere_petshop/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.instance.init();
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

@@ -1,33 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:app_rere_petshop/constants/app_colors.dart';
-
-class NotificationModel {
-  final String id;
-  final String group; // 'today', 'yesterday', 'previous'
-  final String category;
-  final String title;
-  final String description;
-  final String time;
-  final IconData icon;
-  final Color iconBg;
-  final Color iconColor;
-  final String? actionText;
-  bool isUnread;
-
-  NotificationModel({
-    required this.id,
-    required this.group,
-    required this.category,
-    required this.title,
-    required this.description,
-    required this.time,
-    required this.icon,
-    required this.iconBg,
-    required this.iconColor,
-    this.actionText,
-    this.isUnread = false,
-  });
-}
+import 'package:app_rere_petshop/models/notification_model.dart';
+import 'package:app_rere_petshop/services/notification_service.dart';
+import 'package:app_rere_petshop/pages/order/order_detail_page.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -38,94 +12,22 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   String _activeTab = 'all'; // 'all' or 'unread'
-
-  late List<NotificationModel> _notifications;
+  bool _isLoading = true;
+  List<NotificationModel> _notifications = [];
 
   @override
   void initState() {
     super.initState();
-    _notifications = [
-      NotificationModel(
-        id: '1',
-        group: 'today',
-        category: 'Pesanan • #RR1024',
-        title: 'Pesanan Dalam Pengiriman',
-        description:
-            'Pesanan Anda telah dikirim oleh kurir dan sedang menuju alamat tujuan.',
-        time: '10:30 WIB',
-        icon: Icons.local_shipping_outlined,
-        iconBg: const Color(0xFFFCECEC),
-        iconColor: const Color(0xFF850909),
-        actionText: 'Lihat Lacak Pesanan',
-        isUnread: true,
-      ),
-      NotificationModel(
-        id: '2',
-        group: 'today',
-        category: 'Grooming Service',
-        title: 'Booking Grooming Dikonfirmasi',
-        description:
-            'Jadwal grooming untuk Milo telah dikonfirmasi untuk besok, 14:00 WIB di Cabang Dago.',
-        time: '08:15 WIB',
-        icon: Icons.pets,
-        iconBg: const Color(0xFFFFDAD5),
-        iconColor: const Color(0xFF850909),
-        actionText: 'Lihat Tiket Jadwal',
-        isUnread: true,
-      ),
-      NotificationModel(
-        id: '3',
-        group: 'yesterday',
-        category: 'Pesanan • #RR1024',
-        title: 'Pesanan Sedang Diproses',
-        description:
-            'Pesanan Anda sedang dikemas dan disiapkan oleh tim ReRe Petshop.',
-        time: 'Kemarin, 16:45 WIB',
-        icon: Icons.inventory_2_outlined,
-        iconBg: const Color(0xFFF5F5F5),
-        iconColor: const Color(0xFF333333),
-        isUnread: true,
-      ),
-      NotificationModel(
-        id: '4',
-        group: 'yesterday',
-        category: 'Pembayaran',
-        title: 'Pembayaran Berhasil',
-        description:
-            'Pembayaran pesanan #RR1024 sebesar Rp145.000 telah berhasil diverifikasi.',
-        time: 'Kemarin, 14:20 WIB',
-        icon: Icons.verified_outlined,
-        iconBg: const Color(0xFFECFDF5),
-        iconColor: const Color(0xFF22C55E),
-        isUnread: false,
-      ),
-      NotificationModel(
-        id: '5',
-        group: 'previous',
-        category: 'Pesanan • #RR1024',
-        title: 'Pesanan Berhasil Dibuat',
-        description:
-            'Pesanan #RR1024 berhasil dibuat. Menunggu konfirmasi pembayaran.',
-        time: '2 hari lalu',
-        icon: Icons.shopping_bag_outlined,
-        iconBg: const Color(0xFFF5F5F5),
-        iconColor: const Color(0xFF333333),
-        isUnread: false,
-      ),
-      NotificationModel(
-        id: '6',
-        group: 'previous',
-        category: 'Pesanan Selesai',
-        title: 'Pesanan Selesai',
-        description:
-            'Pesanan #RR1019 telah selesai. Terima kasih telah berbelanja di ReRe Petshop! Berikan ulasan untuk anabul tercinta.',
-        time: '5 hari lalu',
-        icon: Icons.auto_awesome,
-        iconBg: const Color(0xFFF5F5F5),
-        iconColor: const Color(0xFF333333),
-        isUnread: false,
-      ),
-    ];
+    _loadNotifications();
+  }
+
+  Future<void> _loadNotifications() async {
+    final list = await NotificationService.instance.getNotifications();
+    if (!mounted) return;
+    setState(() {
+      _notifications = list;
+      _isLoading = false;
+    });
   }
 
   int get _unreadCount => _notifications.where((n) => n.isUnread).length;
@@ -137,7 +39,9 @@ class _NotificationPageState extends State<NotificationPage> {
     return _notifications;
   }
 
-  void _markAllAsRead() {
+  Future<void> _markAllAsRead() async {
+    await NotificationService.instance.markAllAsRead();
+    if (!mounted) return;
     setState(() {
       for (var n in _notifications) {
         n.isUnread = false;
@@ -160,20 +64,78 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 
-  void _onNotificationTap(NotificationModel item) {
-    setState(() {
-      item.isUnread = false;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Membuka ${item.title}...'),
-        backgroundColor: const Color(0xFF313030),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        duration: const Duration(seconds: 1),
+  Future<void> _clearAll() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hapus Notifikasi'),
+        content: const Text(
+            'Apakah kamu yakin ingin menghapus semua notifikasi untuk akun ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF850909),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Hapus'),
+          ),
+        ],
       ),
     );
+
+    if (confirmed == true) {
+      await NotificationService.instance.clearAll();
+      if (!mounted) return;
+      setState(() {
+        _notifications.clear();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Semua notifikasi akun ini berhasil dihapus'),
+          backgroundColor: const Color(0xFF313030),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _onNotificationTap(NotificationModel item) async {
+    if (item.isUnread) {
+      await NotificationService.instance.markAsRead(item.id);
+      if (!mounted) return;
+      setState(() {
+        item.isUnread = false;
+      });
+    }
+
+    if (!mounted) return;
+    if (item.orderId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => OrderDetailPage(orderId: item.orderId!),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(item.title),
+          backgroundColor: const Color(0xFF313030),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   @override
@@ -199,142 +161,195 @@ class _NotificationPageState extends State<NotificationPage> {
           'Notifikasi',
           style: TextStyle(
             fontFamily: 'Plus Jakarta Sans',
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
             color: Color(0xFF111111),
           ),
         ),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Status Info & "Tandai Semua Dibaca"
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
+        actions: [
+          if (_notifications.isNotEmpty)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Color(0xFF111111)),
+              onSelected: (value) {
+                if (value == 'read_all') {
+                  _markAllAsRead();
+                } else if (value == 'clear_all') {
+                  _clearAll();
+                }
+              },
+              itemBuilder: (context) => [
+                if (_unreadCount > 0)
+                  const PopupMenuItem(
+                    value: 'read_all',
+                    child: Row(
+                      children: [
+                        Icon(Icons.done_all, size: 18, color: Color(0xFF333333)),
+                        SizedBox(width: 8),
+                        Text('Tandai Semua Dibaca'),
+                      ],
+                    ),
+                  ),
+                const PopupMenuItem(
+                  value: 'clear_all',
+                  child: Row(
                     children: [
-                      const Text(
-                        'Status: ',
-                        style: TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 13,
-                          color: Color(0xFF777777),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: _unreadCount > 0
-                              ? const Color(0xFFFCECEC)
-                              : const Color(0xFFF0EDEC),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          _unreadCount > 0
-                              ? '$_unreadCount belum dibaca'
-                              : 'Semua sudah dibaca',
-                          style: TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: _unreadCount > 0
-                                ? const Color(0xFF850909)
-                                : const Color(0xFF777777),
-                          ),
-                        ),
-                      ),
+                      Icon(Icons.delete_outline,
+                          size: 18, color: Color(0xFF850909)),
+                      SizedBox(width: 8),
+                      Text('Hapus Semua',
+                          style: TextStyle(color: Color(0xFF850909))),
                     ],
                   ),
-                  if (_unreadCount > 0)
-                    TextButton(
-                      onPressed: _markAllAsRead,
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: const Text(
-                        'Tandai Semua Dibaca',
-                        style: TextStyle(
-                          fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF850909),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            // Tab Filter Pill
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0EDEC),
-                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildFilterTab(
-                        title: 'Semua',
-                        count: _notifications.length,
-                        isActive: _activeTab == 'all',
-                        onTap: () => setState(() => _activeTab = 'all'),
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildFilterTab(
-                        title: 'Belum Dibaca',
-                        count: _unreadCount,
-                        isActive: _activeTab == 'unread',
-                        isUnreadBadge: true,
-                        onTap: () => setState(() => _activeTab = 'unread'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
-
-            // Notification List or Empty State
-            Expanded(
-              child: filtered.isEmpty
-                  ? _buildEmptyState()
-                  : ListView(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF850909)),
+              ),
+            )
+          : RefreshIndicator(
+              color: const Color(0xFF850909),
+              onRefresh: _loadNotifications,
+              child: Column(
+                children: [
+                  // Header Bar Status
+                  Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (todayItems.isNotEmpty)
-                          _buildGroupSection(
-                            title: 'Hari Ini',
-                            subtitle: 'Terbaru',
-                            items: todayItems,
-                          ),
-                        if (yesterdayItems.isNotEmpty)
-                          _buildGroupSection(
-                            title: 'Kemarin',
-                            subtitle: '1 Hari Lalu',
-                            items: yesterdayItems,
-                          ),
-                        if (previousItems.isNotEmpty)
-                          _buildGroupSection(
-                            title: 'Sebelumnya',
-                            subtitle: 'Riwayat',
-                            items: previousItems,
+                        Row(
+                          children: [
+                            const Text(
+                              'Aktivitas Akun Kamu',
+                              style: TextStyle(
+                                fontFamily: 'Plus Jakarta Sans',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF111111),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: _unreadCount > 0
+                                    ? const Color(0xFFFCECEC)
+                                    : const Color(0xFFF0EDEC),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                _unreadCount > 0
+                                    ? '$_unreadCount Baru'
+                                    : 'Sudah Dibaca',
+                                style: TextStyle(
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: _unreadCount > 0
+                                      ? const Color(0xFF850909)
+                                      : const Color(0xFF777777),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (_unreadCount > 0)
+                          TextButton(
+                            onPressed: _markAllAsRead,
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text(
+                              'Tandai Dibaca',
+                              style: TextStyle(
+                                fontFamily: 'Plus Jakarta Sans',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF850909),
+                              ),
+                            ),
                           ),
                       ],
                     ),
+                  ),
+
+                  // Tab Filter Pill
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0EDEC),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _buildFilterTab(
+                              title: 'Semua',
+                              count: _notifications.length,
+                              isActive: _activeTab == 'all',
+                              onTap: () => setState(() => _activeTab = 'all'),
+                            ),
+                          ),
+                          Expanded(
+                            child: _buildFilterTab(
+                              title: 'Belum Dibaca',
+                              count: _unreadCount,
+                              isActive: _activeTab == 'unread',
+                              isUnreadBadge: true,
+                              onTap: () =>
+                                  setState(() => _activeTab = 'unread'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Notification List or Empty State
+                  Expanded(
+                    child: filtered.isEmpty
+                        ? _buildEmptyState()
+                        : ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                            children: [
+                              if (todayItems.isNotEmpty)
+                                _buildGroupSection(
+                                  title: 'Hari Ini',
+                                  subtitle: 'Terbaru',
+                                  items: todayItems,
+                                ),
+                              if (yesterdayItems.isNotEmpty)
+                                _buildGroupSection(
+                                  title: 'Kemarin',
+                                  subtitle: '1 Hari Lalu',
+                                  items: yesterdayItems,
+                                ),
+                              if (previousItems.isNotEmpty)
+                                _buildGroupSection(
+                                  title: 'Sebelumnya',
+                                  subtitle: 'Riwayat',
+                                  items: previousItems,
+                                ),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -355,7 +370,7 @@ class _NotificationPageState extends State<NotificationPage> {
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 4,
                     offset: const Offset(0, 1),
                   ),
@@ -399,7 +414,8 @@ class _NotificationPageState extends State<NotificationPage> {
               )
             else if (count > 0)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE5E2E1),
                   borderRadius: BorderRadius.circular(10),
@@ -430,7 +446,6 @@ class _NotificationPageState extends State<NotificationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Group Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
             child: Row(
@@ -457,8 +472,6 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
           ),
           const SizedBox(height: 6),
-
-          // Notification Cards
           ...items.map((item) => _buildNotificationCard(item)),
         ],
       ),
@@ -478,7 +491,7 @@ class _NotificationPageState extends State<NotificationPage> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -494,7 +507,6 @@ class _NotificationPageState extends State<NotificationPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Icon Avatar
                 Container(
                   width: 40,
                   height: 40,
@@ -511,13 +523,10 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                 ),
                 const SizedBox(width: 12),
-
-                // Content
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Category & Time Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -562,8 +571,6 @@ class _NotificationPageState extends State<NotificationPage> {
                         ],
                       ),
                       const SizedBox(height: 4),
-
-                      // Title
                       Text(
                         item.title,
                         style: const TextStyle(
@@ -574,8 +581,6 @@ class _NotificationPageState extends State<NotificationPage> {
                         ),
                       ),
                       const SizedBox(height: 3),
-
-                      // Description
                       Text(
                         item.description,
                         style: const TextStyle(
@@ -585,8 +590,6 @@ class _NotificationPageState extends State<NotificationPage> {
                           height: 1.35,
                         ),
                       ),
-
-                      // Action Link (if any)
                       if (item.actionText != null) ...[
                         const SizedBox(height: 8),
                         Row(
@@ -622,8 +625,9 @@ class _NotificationPageState extends State<NotificationPage> {
 
   Widget _buildEmptyState() {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -654,7 +658,7 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
             const SizedBox(height: 6),
             const Text(
-              'Semua kabar terbaru terkait pesanan dan anabul kamu akan muncul di sini.',
+              'Notifikasi terkait pesanan, booking, dan transaksi akun kamu akan muncul di sini.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
@@ -691,4 +695,3 @@ class _NotificationPageState extends State<NotificationPage> {
     );
   }
 }
-

@@ -3,6 +3,7 @@ import 'package:app_rere_petshop/pages/order/order_detail_page.dart';
 import 'package:app_rere_petshop/pages/pembayaran/snap_payment_page.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
+import 'package:app_rere_petshop/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:app_rere_petshop/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
@@ -71,6 +72,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       );
       if (!mounted) return;
+      await NotificationService.instance.addNotification(
+        title: 'Pembayaran Telah Diproses! ✨',
+        description:
+            'Pembayaran pesanan #ORD-$orderId telah diproses. Cek detail pesanan kamu.',
+        category: 'Pembayaran • #ORD-$orderId',
+        type: 'pembayaran',
+        actionText: 'Lihat Pesanan',
+        orderId: orderId,
+      );
+      if (!mounted) return;
       await Navigator.pushReplacement<void, void>(
         context,
         MaterialPageRoute(builder: (_) => OrderDetailPage(orderId: orderId)),
@@ -94,6 +105,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final orderId = int.parse(order['id_pesanan'].toString());
     _createdOrderId = orderId;
     if (mounted) context.read<CartProvider>().refreshCount();
+
+    // Picu notifikasi pesanan baru (hanya untuk akun pemesan ini)
+    await NotificationService.instance.addNotification(
+      title: 'Pesanan Berhasil Dibuat! 🛒',
+      description:
+          'Pesanan #ORD-$orderId berhasil dibuat. Menunggu konfirmasi pembayaran.',
+      category: 'Pesanan • #ORD-$orderId',
+      type: 'pesanan',
+      actionText: 'Lihat Detail Pesanan',
+      orderId: orderId,
+    );
+
     return orderId;
   }
 

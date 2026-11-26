@@ -34,12 +34,53 @@ class AuthService {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
+    await prefs.remove('auth_user_id');
+    await prefs.remove('auth_user_email');
+  }
+
+  Future<String> getCurrentUserKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedId = prefs.getString('auth_user_id');
+    if (cachedId != null && cachedId.isNotEmpty) {
+      return 'user_$cachedId';
+    }
+    final cachedEmail = prefs.getString('auth_user_email');
+    if (cachedEmail != null && cachedEmail.isNotEmpty) {
+      return 'user_$cachedEmail';
+    }
+
+    try {
+      final data = await getCurrentUser();
+      final user = data['user'] as Map?;
+      final customer = data['pelanggan'] as Map?;
+      final id = user?['id'] ?? customer?['id_pelanggan'];
+      if (id != null) return 'user_$id';
+      final email = user?['email'] ?? customer?['email'];
+      if (email != null) return 'user_$email';
+    } catch (_) {}
+
+    return 'guest';
   }
 
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {
       final response = await _dio.get('/me', options: await authOptions());
-      return Map<String, dynamic>.from(response.data['data'] ?? {});
+      final data = Map<String, dynamic>.from(response.data['data'] ?? {});
+
+      final prefs = await SharedPreferences.getInstance();
+      final user = data['user'] as Map?;
+      final customer = data['pelanggan'] as Map?;
+      final userId = user?['id'] ?? customer?['id_pelanggan'];
+      final userEmail = user?['email'] ?? customer?['email'];
+
+      if (userId != null) {
+        await prefs.setString('auth_user_id', userId.toString());
+      }
+      if (userEmail != null) {
+        await prefs.setString('auth_user_email', userEmail.toString());
+      }
+
+      return data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -94,6 +135,18 @@ class AuthService {
       }
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+
+      final data = response.data['data'] as Map?;
+      final user = data?['user'] as Map?;
+      final customer = data?['pelanggan'] as Map?;
+      final userId = user?['id'] ?? customer?['id_pelanggan'];
+      final userEmail = user?['email'] ?? customer?['email'] ?? email;
+      if (userId != null) {
+        await prefs.setString('auth_user_id', userId.toString());
+      }
+      if (userEmail != null) {
+        await prefs.setString('auth_user_email', userEmail.toString());
+      }
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -110,6 +163,18 @@ class AuthService {
       }
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+
+      final data = response.data['data'] as Map?;
+      final user = data?['user'] as Map?;
+      final customer = data?['pelanggan'] as Map?;
+      final userId = user?['id'] ?? customer?['id_pelanggan'];
+      final userEmail = user?['email'] ?? customer?['email'];
+      if (userId != null) {
+        await prefs.setString('auth_user_id', userId.toString());
+      }
+      if (userEmail != null) {
+        await prefs.setString('auth_user_email', userEmail.toString());
+      }
     } on DioException catch (e) {
       throw _handleError(e);
     }

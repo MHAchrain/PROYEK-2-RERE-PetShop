@@ -11,6 +11,7 @@ import 'package:app_rere_petshop/pages/groombook/widgets/groom_book_step_indicat
 import 'package:app_rere_petshop/pages/groombook/widgets/grooming_booking_formatters.dart';
 import 'package:app_rere_petshop/pages/groombook/widgets/grooming_snap_page.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
+import 'package:app_rere_petshop/services/notification_service.dart';
 
 class ConfirmBookPage extends StatefulWidget {
   const ConfirmBookPage({
@@ -65,9 +66,24 @@ class _ConfirmBookPageState extends State<ConfirmBookPage> {
       if (!mounted) return;
       setState(() => _submitting = false);
 
+      final bookingCode =
+          result['kodeBooking']?.toString() ?? 'GR-${result['id'] ?? ''}';
+
+      // Notifikasi booking dibuat
+      await NotificationService.instance.addNotification(
+        title: 'Booking Grooming Dibuat! 🐱',
+        description:
+            'Booking grooming untuk ${widget.petName} ($bookingCode) berhasil dicatat.',
+        category: 'Grooming • $bookingCode',
+        type: 'grooming',
+        actionText: 'Lihat Tiket Jadwal',
+        bookingId: int.tryParse('${result['id']}'),
+      );
+
       var bookingStatus = 'menunggu_pembayaran';
       final token = result['snap_token']?.toString();
       if (token != null && token.isNotEmpty) {
+        if (!mounted) return;
         final paymentStatus = await Navigator.push<String>(
           context,
           MaterialPageRoute(builder: (_) => GroomingSnapPage(token: token)),
@@ -76,6 +92,15 @@ class _ConfirmBookPageState extends State<ConfirmBookPage> {
         if (paymentStatus != null) {
           if (['settlement', 'capture', 'success'].contains(paymentStatus)) {
             bookingStatus = 'terjadwal';
+            await NotificationService.instance.addNotification(
+              title: 'Pembayaran Grooming Berhasil! ✨',
+              description:
+                  'Pembayaran booking $bookingCode telah diverifikasi. Jadwal grooming siap!',
+              category: 'Grooming • $bookingCode',
+              type: 'pembayaran',
+              actionText: 'Lihat Tiket Jadwal',
+              bookingId: int.tryParse('${result['id']}'),
+            );
           } else if (['deny', 'cancel', 'expire'].contains(paymentStatus)) {
             bookingStatus = 'gagal';
           }
