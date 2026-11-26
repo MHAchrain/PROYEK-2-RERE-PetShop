@@ -116,9 +116,9 @@
                                     }
 
                                     $bayarColor = match($bayarStatus) {
-                                        'paid', 'dibayar' => 'text-emerald-600 bg-emerald-50 border-emerald-200',
-                                        'cancel', 'cancelled', 'dibatalkan' => 'text-red-600 bg-red-50 border-red-200',
-                                        default => 'text-amber-600 bg-amber-50 border-amber-200'
+                                        'paid', 'dibayar' => 'text-emerald-700 bg-emerald-100 border-emerald-200',
+                                        'failed', 'cancel', 'cancelled', 'dibatalkan', 'gagal', 'batal', 'deny', 'expire' => 'text-red-700 bg-red-100 border-red-200',
+                                        default => 'text-amber-700 bg-amber-100 border-amber-200'
                                     };
                                 @endphp
                                 <span class="font-semibold block text-slate-700 text-[11px]">{{ $displayMetode }}</span>
@@ -129,12 +129,12 @@
                             <td class="py-3.5 px-6">
                                 @php
                                     $badge = match($p->status_pesanan) {
-                                        'baru', 'menunggu_verifikasi' => 'bg-amber-100 text-amber-800',
-                                        'diproses' => 'bg-blue-100 text-blue-800',
-                                        'dikirim' => 'bg-indigo-100 text-indigo-800',
-                                        'selesai' => 'bg-emerald-100 text-emerald-800',
-                                        'batal' => 'bg-red-100 text-red-800',
-                                        default => 'bg-slate-100 text-slate-700'
+                                        'baru', 'menunggu_verifikasi' => 'bg-amber-100 text-amber-800 border border-amber-200',
+                                        'diproses' => 'bg-slate-100 text-slate-700 border border-slate-200',
+                                        'dikirim' => 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                                        'selesai' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                                        'batal', 'failed' => 'bg-red-100 text-red-800 border border-red-200',
+                                        default => 'bg-slate-100 text-slate-700 border border-slate-200'
                                     };
                                 @endphp
                                 <span class="px-2.5 py-1 rounded-full text-xs font-bold {{ $badge }}">
@@ -244,7 +244,7 @@
                         <select name="status_bayar" id="modalSelectBayar" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-white text-slate-800 transition">
                             <option value="pending">PENDING</option>
                             <option value="paid">DIBAYAR / PAID</option>
-                            <option value="cancel">CANCEL</option>
+                            <option value="cancel">FAILED / CANCEL</option>
                         </select>
                         <p id="qrisLockNotice" class="hidden text-[10px] text-emerald-700 font-semibold mt-1">
                             <i class="fa-solid fa-shield-halved"></i> QRIS Lunas (Hanya status pesanan yang dapat diubah).
@@ -297,7 +297,7 @@
 
         if (rawBayar === 'dibayar' || rawBayar === 'paid') {
             selectBayar.value = 'paid';
-        } else if (rawBayar === 'cancel' || rawBayar === 'cancelled' || rawBayar === 'batal') {
+        } else if (rawBayar === 'cancel' || rawBayar === 'cancelled' || rawBayar === 'batal' || rawBayar === 'failed' || rawBayar === 'gagal') {
             selectBayar.value = 'cancel';
         } else {
             selectBayar.value = 'pending';
