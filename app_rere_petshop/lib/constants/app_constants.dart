@@ -9,19 +9,15 @@ class AppConstants {
   //   flutter run                                                      -> otomatis (web/desktop/iOS: 127.0.0.1, emulator Android: 10.0.2.2)
   //   flutter run --dart-define=API_BASE_URL=http://192.168.1.40:8000  -> HP fisik (pakai IP LAN laptop)
   //   flutter run --dart-define=API_BASE_URL=https://api.rerepetshop.biz.id -> produksi
+  // Base domain default: PRODUKSI (Cloudflare Tunnel)
+  // Bisa dioverride saat running lokal:
+  //   flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000
   static const String _apiOverride = String.fromEnvironment('API_BASE_URL');
-
-  static const String localHost = 'http://127.0.0.1:8000';
-
-  // Emulator Android tidak bisa pakai 127.0.0.1; 10.0.2.2 = localhost komputer host.
-  static const String androidEmulatorHost = 'http://10.0.2.2:8000';
+  static const String productionHost = 'https://api.rerepetshop.biz.id';
 
   static String get baseDomain {
     if (_apiOverride.isNotEmpty) return _apiOverride;
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      return androidEmulatorHost;
-    }
-    return localHost;
+    return productionHost;
   }
 
   static String get baseUrl => '$baseDomain/api';
