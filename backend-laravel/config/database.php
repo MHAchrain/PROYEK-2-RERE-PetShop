@@ -57,25 +57,16 @@ return [
     'strict' => true,
     'engine' => null,
     'options' => extension_loaded('pdo_mysql') ? array_filter([
-        // TiDB Cloud / MySQL wajib SSL. Nilai MYSQL_ATTR_SSL_CA di .env sering
-        // masih menunjuk path lama (mis. C:/xampp/...) sehingga koneksi gagal
-        // di mesin lain, jadi pakai kandidat pertama yang benar-benar ada.
-        PDO::MYSQL_ATTR_SSL_CA => (function () {
-            $candidates = [
-                env('MYSQL_ATTR_SSL_CA'),
-                base_path('cacert.pem'),
-                '/etc/pki/tls/certs/ca-bundle.crt',
-                '/etc/ssl/certs/ca-certificates.crt',
-            ];
+            // =========================================================================
+            // LOKAL (MySQL XAMPP): Ambil dari env('MYSQL_ATTR_SSL_CA').
+            // Jika di .env kosong (seperti lokal), SSL nonaktif otomatis.
+            // =========================================================================
+            PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
 
-            foreach ($candidates as $ca) {
-                if (is_string($ca) && $ca !== '' && file_exists($ca)) {
-                    return $ca;
-                }
-            }
-
-            return null;
-        })(),
+            // =========================================================================
+            // PRODUCTION (TiDB Cloud): Uncomment jika ingin selalu force cacert.pem
+            // =========================================================================
+            // PDO::MYSQL_ATTR_SSL_CA => base_path('cacert.pem'),
     ]) : [],
 ],
         'mariadb' => [

@@ -78,6 +78,7 @@ Route::post('/chat-ai', [RecommendationController::class, 'chatAI']);
 |--------------------------------------------------------------------------
 */
 
+Route::get('/captcha', [AuthController::class, 'getCaptcha']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 

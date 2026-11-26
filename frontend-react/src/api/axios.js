@@ -6,6 +6,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    'X-Client-Platform': 'web',
     'ngrok-skip-browser-warning': 'true', // <-- Wajib untuk bypass proteksi ngrok
   },
 });

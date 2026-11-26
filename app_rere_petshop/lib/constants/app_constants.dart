@@ -32,7 +32,7 @@ class AppConstants {
   static const String email = 'rereps@gmail.com';
   static const String address = 'Jl. Kecubung 1 No.14, Tangerang';
 
-  static const String googleClientId =
+  static const String googleClientId =   
       '876505123972-275fabovfuu6pal978bnu7g3gb9kp50t.apps.googleusercontent.com';
   static const String midtransClientKey = 'Mid-client-kbF8O_OJSIc1ljLp';
 
