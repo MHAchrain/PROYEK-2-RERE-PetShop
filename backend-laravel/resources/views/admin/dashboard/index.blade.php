@@ -8,16 +8,23 @@
 
     <!-- BARIS 1: 4 KARTU STATISTIK UTAMA -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <!-- Pendapatan -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <!-- Total Pendapatan Hari Ini -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group">
             <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pendapatan</p>
-                <h3 class="text-xl font-extrabold text-slate-900">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
+                <div class="flex items-center gap-1.5 mb-1">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pendapatan Hari Ini</p>
+                    <a href="{{ route('admin.dashboard.invoice-pdf') }}" title="Download Invoice Hari Ini (PDF)" 
+                       class="w-6 h-6 rounded-lg bg-brand-50 hover:bg-brand-600 hover:text-white text-brand-600 flex items-center justify-center transition border border-brand-200 text-xs shadow-xs"
+                       download>
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </a>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-900">Rp {{ number_format($totalPendapatanHariIni, 0, ',', '.') }}</h3>
                 <span class="text-[11px] font-semibold text-emerald-600 mt-1 inline-flex items-center gap-1">
-                    <i class="fa-solid fa-arrow-trend-up"></i> Dari Pesanan Berhasil
+                    <i class="fa-solid fa-circle-check"></i> Pesanan Lunas Hari Ini
                 </span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold shrink-0">
                 <i class="fa-solid fa-rupiah-sign"></i>
             </div>
         </div>

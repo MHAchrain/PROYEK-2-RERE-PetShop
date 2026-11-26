@@ -7,18 +7,39 @@ use App\Models\GroomingBooking;
 use App\Models\Pelanggan;
 use App\Models\Pesanan;
 use App\Models\Produk;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        $today = Carbon::today();
+
         // 1. Metrik Utama
         $totalProduk = Produk::count();
         $totalPelanggan = Pelanggan::count();
         $totalPesanan = Pesanan::count();
-        $totalPendapatan = (float) Pesanan::whereIn('status_pesanan', ['diproses', 'dikirim', 'selesai'])
-            ->sum('total');
+
+        // Total Pendapatan Hari Ini (Pesanan yang sudah dibayar lunas hari ini)
+        $totalPendapatanHariIni = (float) Pesanan::where(function ($query) use ($today) {
+            $query->whereHas('pembayaran', function ($q) use ($today) {
+                $q->where('status_bayar', 'paid')
+                  ->where(function ($w) use ($today) {
+                      $w->whereDate('waktu_bayar', $today)
+                        ->orWhere(function ($or) use ($today) {
+                            $or->whereNull('waktu_bayar')
+                               ->whereDate('updated_at', $today);
+                        });
+                  });
+            })->orWhere(function ($q) use ($today) {
+                $q->whereDate('tanggal_pesanan', $today)
+                  ->whereIn('status_pesanan', ['diproses', 'dikirim', 'selesai'])
+                  ->whereHas('pembayaran', function ($p) {
+                      $p->where('status_bayar', 'paid');
+                  });
+            });
+        })->sum('total');
 
         // 2. Pesanan Siap Kirim (Hanya yang status_pesanan = 'diproses' / sedang diproses saja)
         $pesananSiapKirim = Pesanan::with(['pelanggan', 'pembayaran', 'pengiriman'])
@@ -29,7 +50,7 @@ class DashboardController extends Controller
 
         // 3. Grooming Hari Ini (Kolom database TiDB: date & time)
         $groomingHariIni = GroomingBooking::with(['service', 'pelanggan'])
-            ->whereDate('date', Carbon::today())
+            ->whereDate('date', $today)
             ->orderBy('time', 'asc')
             ->take(6)
             ->get();
@@ -57,12 +78,53 @@ class DashboardController extends Controller
             'totalProduk',
             'totalPelanggan',
             'totalPesanan',
-            'totalPendapatan',
+            'totalPendapatanHariIni',
             'pesananSiapKirim',
             'groomingHariIni',
             'stokMenipis',
             'chartDates',
             'chartTotals'
         ));
+    }
+
+    /**
+     * Download Invoice / Rekap PDF Pesanan yang Sudah Dibayar Hari Ini
+     */
+    public function downloadInvoiceHariIni()
+    {
+        $today = Carbon::today();
+
+        $pesananPaidHariIni = Pesanan::with(['pelanggan', 'details.produk', 'pembayaran', 'pengiriman'])
+            ->where(function ($query) use ($today) {
+                $query->whereHas('pembayaran', function ($q) use ($today) {
+                    $q->where('status_bayar', 'paid')
+                      ->where(function ($w) use ($today) {
+                          $w->whereDate('waktu_bayar', $today)
+                            ->orWhere(function ($or) use ($today) {
+                                $or->whereNull('waktu_bayar')
+                                   ->whereDate('updated_at', $today);
+                            });
+                      });
+                })->orWhere(function ($q) use ($today) {
+                    $q->whereDate('tanggal_pesanan', $today)
+                      ->whereIn('status_pesanan', ['diproses', 'dikirim', 'selesai'])
+                      ->whereHas('pembayaran', function ($p) {
+                          $p->where('status_bayar', 'paid');
+                      });
+                });
+            })
+            ->latest('id_pesanan')
+            ->get();
+
+        $totalPendapatanHariIni = (float) $pesananPaidHariIni->sum('total');
+        $tanggalFormatted = $today->translatedFormat('d F Y');
+
+        $pdf = Pdf::loadView('admin.dashboard.invoice_pdf', compact(
+            'pesananPaidHariIni',
+            'totalPendapatanHariIni',
+            'tanggalFormatted'
+        ))->setPaper('a4', 'portrait');
+
+        return $pdf->download('INVOICE-HARIAN-RERE-PETSHOP-' . date('Ymd') . '.pdf');
     }
 }

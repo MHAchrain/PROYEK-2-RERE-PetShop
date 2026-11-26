@@ -44,9 +44,10 @@
 
             <select name="status_kirim" onchange="this.form.submit()" class="py-2 px-3 rounded-xl border border-slate-200 text-xs text-slate-700 bg-white">
                 <option value="">Semua Status Ekspedisi</option>
-                <option value="pending" {{ request('status_kirim') == 'pending' ? 'selected' : '' }}>Pending / Siap Diambil</option>
-                <option value="dikirim" {{ request('status_kirim') == 'dikirim' ? 'selected' : '' }}>Dalam Pengiriman</option>
-                <option value="terkirim" {{ request('status_kirim') == 'terkirim' ? 'selected' : '' }}>Telah Sampai / Terkirim</option>
+                <option value="pending" {{ request('status_kirim') == 'pending' ? 'selected' : '' }}>Pending (Menunggu Driver)</option>
+                <option value="dikirim" {{ request('status_kirim') == 'dikirim' ? 'selected' : '' }}>Sedang Dikirim</option>
+                <option value="diterima" {{ request('status_kirim') == 'diterima' ? 'selected' : '' }}>Diterima</option>
+                <option value="terkirim" {{ request('status_kirim') == 'terkirim' ? 'selected' : '' }}>Terkirim</option>
             </select>
 
             @if(request('search') || request('kurir') || request('status_kirim'))
@@ -98,7 +99,15 @@
                                 {{ $p->resi ?? 'Belum ada resi' }}
                             </td>
                             <td class="py-3.5 px-6">
-                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold {{ $p->status_kirim == 'terkirim' ? 'bg-emerald-100 text-emerald-800' : ($p->status_kirim == 'dikirim' ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-800') }}">
+                                @php
+                                    $statusKirimBadge = match(strtolower($p->status_kirim)) {
+                                        'diterima', 'terkirim' => 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+                                        'pending' => 'bg-amber-100 text-amber-800 border border-amber-200',
+                                        'dikirim' => 'bg-indigo-100 text-indigo-800 border border-indigo-200',
+                                        default => 'bg-slate-100 text-slate-800 border border-slate-200',
+                                    };
+                                @endphp
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold {{ $statusKirimBadge }}">
                                     {{ ucfirst($p->status_kirim) }}
                                 </span>
                             </td>
@@ -158,6 +167,7 @@
                 <select name="status_kirim" id="modalStatus" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
                     <option value="pending">Pending (Menunggu Driver)</option>
                     <option value="dikirim">Sedang Dalam Perjalanan (Dikirim)</option>
+                    <option value="diterima">Paket Telah Diterima (Diterima)</option>
                     <option value="terkirim">Paket Telah Sampai (Terkirim)</option>
                 </select>
             </div>

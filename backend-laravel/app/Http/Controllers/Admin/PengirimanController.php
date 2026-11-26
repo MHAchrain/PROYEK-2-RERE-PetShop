@@ -55,7 +55,7 @@ class PengirimanController extends Controller
 
         $pengiriman->update($validated);
 
-        if ($validated['status_kirim'] === 'terkirim' && $pengiriman->pesanan && $pengiriman->pesanan->status_pesanan !== 'selesai') {
+        if (in_array($validated['status_kirim'], ['terkirim', 'diterima']) && $pengiriman->pesanan && $pengiriman->pesanan->status_pesanan !== 'selesai') {
             $pengiriman->pesanan->update(['status_pesanan' => 'selesai']);
         } elseif ($validated['status_kirim'] === 'dikirim' && $pengiriman->pesanan && $pengiriman->pesanan->status_pesanan !== 'dikirim') {
             $pengiriman->pesanan->update(['status_pesanan' => 'dikirim']);

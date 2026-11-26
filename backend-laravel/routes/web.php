@@ -118,6 +118,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             return redirect()->route('admin.dashboard');
         });
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/invoice-pdf', [DashboardController::class, 'downloadInvoiceHariIni'])->name('dashboard.invoice-pdf');
 
         // Modul Produk & Excel
         Route::get('/produk/export', [ProdukController::class, 'export'])->name('produk.export');
