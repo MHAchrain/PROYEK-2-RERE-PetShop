@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/constants/app_constants.dart';
 import 'package:app_rere_petshop/pages/order/order_detail_page.dart';
 import 'package:app_rere_petshop/pages/pembayaran/snap_payment_page.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
@@ -246,9 +249,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(children: [
-        Container(width: 56, height: 56, alignment: Alignment.center,
-          decoration: BoxDecoration(color: AppColors.greyBg, borderRadius: BorderRadius.circular(10)),
-          child: const Icon(Icons.pets_outlined, color: AppColors.primary)),
+        _productImage(product),
         const SizedBox(width: 12),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w500)),
@@ -258,6 +259,66 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ]),
     );
   }
+
+  Widget _productImage(Map product) {
+    // 1. Cek jika ada foto_base64
+    final raw = product['foto_base64']?.toString();
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        final encoded = raw.contains(',') ? raw.substring(raw.indexOf(',') + 1) : raw;
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.memory(
+            base64Decode(encoded),
+            width: 56,
+            height: 56,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _imagePlaceholder(),
+          ),
+        );
+      } catch (_) {}
+    }
+
+    // 2. Cek path atau URL foto
+    final foto = product['foto']?.toString() ?? product['foto_url']?.toString() ?? product['image']?.toString();
+    if (foto != null && foto.trim().isNotEmpty) {
+      String cleanFoto = foto.trim();
+      if (cleanFoto.startsWith('produk/')) {
+        cleanFoto = cleanFoto.substring(7);
+      }
+
+      final imageUrl = cleanFoto.startsWith('http://') || cleanFoto.startsWith('https://')
+          ? cleanFoto
+          : '${AppConstants.baseUrl}/image/$cleanFoto';
+
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: 56,
+          height: 56,
+          fit: BoxFit.cover,
+          placeholder: (_, __) => Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(color: AppColors.greyBg, borderRadius: BorderRadius.circular(10)),
+            child: const Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))),
+          ),
+          errorWidget: (_, __, ___) => _imagePlaceholder(),
+        ),
+      );
+    }
+
+    return _imagePlaceholder();
+  }
+
+  Widget _imagePlaceholder() => Container(
+    width: 56,
+    height: 56,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(color: AppColors.greyBg, borderRadius: BorderRadius.circular(10)),
+    child: const Icon(Icons.pets_outlined, color: AppColors.primary),
+  );
 
   Widget _amountRow(String label, num amount, {bool bold = false}) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
