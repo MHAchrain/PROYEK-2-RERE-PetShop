@@ -145,17 +145,6 @@
                     <i class="fa-solid fa-users w-4 text-center {{ request()->routeIs('admin.pelanggan.*') ? 'text-brand-700' : 'text-red-200/80' }}"></i>
                     <span>Data Pelanggan</span>
                 </a>
-
-                <!-- Group: Logout (Tepat di bawah Pelanggan) -->
-                <div class="pt-4 px-3 pb-1.5 text-[10px] font-extrabold text-red-200/60 uppercase tracking-widest">Sesi Admin</div>
-
-                <form action="{{ route('admin.logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-red-100 hover:bg-white/10 hover:text-white transition">
-                        <i class="fa-solid fa-right-from-bracket w-4 text-center text-red-200"></i>
-                        <span>Logout Admin</span>
-                    </button>
-                </form>
             </nav>
         </aside>
 
@@ -180,14 +169,32 @@
                         <span>Web Toko</span>
                     </a>
 
-                    <!-- Admin Profile di Top Navbar -->
-                    <div class="flex items-center gap-2.5 pl-3 border-l border-slate-200">
-                        <div class="w-8 h-8 rounded-full bg-brand-800 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
-                            {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
-                        </div>
-                        <div class="hidden md:block">
-                            <p class="text-xs font-bold text-slate-800 leading-tight">{{ Auth::user()->name ?? 'Administrator' }}</p>
-                            <span class="text-[10px] text-slate-400 font-semibold">Admin ReRe</span>
+                    <!-- Admin Profile di Top Navbar (dengan Dropdown Logout) -->
+                    <div class="relative pl-3 border-l border-slate-200">
+                        <button type="button" id="adminDropdownBtn" onclick="toggleAdminDropdown()" class="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-slate-100 transition focus:outline-none cursor-pointer">
+                            <div class="w-8 h-8 rounded-full bg-brand-800 text-white flex items-center justify-center font-extrabold text-xs shrink-0 shadow-sm">
+                                {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                            </div>
+                            <div class="hidden md:block text-left">
+                                <p class="text-xs font-bold text-slate-800 leading-tight">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                                <span class="text-[10px] text-slate-400 font-semibold">Admin ReRe</span>
+                            </div>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 ml-1"></i>
+                        </button>
+
+                        <!-- Dropdown Menu Logout -->
+                        <div id="adminDropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl border border-slate-200 shadow-xl py-1.5 z-50">
+                            <div class="px-4 py-2 border-b border-slate-100">
+                                <p class="text-xs font-bold text-slate-900 truncate">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                                <p class="text-[10px] text-slate-400 truncate">{{ Auth::user()->email ?? 'admin@rerepetshop.biz.id' }}</p>
+                            </div>
+                            <form action="{{ route('admin.logout') }}" method="POST" class="p-1.5">
+                                @csrf
+                                <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 transition text-left cursor-pointer">
+                                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                                    <span>Logout / Keluar</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -233,6 +240,25 @@
             </footer>
         </div>
     </div>
+
+    <script>
+        function toggleAdminDropdown() {
+            const menu = document.getElementById('adminDropdownMenu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('adminDropdownMenu');
+            const btn = document.getElementById('adminDropdownBtn');
+            if (menu && !menu.classList.contains('hidden')) {
+                if (!btn.contains(event.target) && !menu.contains(event.target)) {
+                    menu.classList.add('hidden');
+                }
+            }
+        });
+    </script>
 
     @stack('scripts')
 </body>
