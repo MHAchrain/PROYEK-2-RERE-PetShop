@@ -68,11 +68,38 @@ class GeminiController extends Controller
             ], 500);
         }
 
-        // Ambil ringkasan produk katalog agar Gemini bisa merekomendasikan produk riil di database
-        $katalogProduk = Produk::with('kategori')
+        // Ambil produk yang relevan dengan pertanyaan user terlebih dahulu, lalu lengkapi dengan produk lain
+        $keywords = collect(preg_split('/\s+/', strtolower($message)))
+            ->map(fn ($w) => trim($w, ".,?!\"'()"))
+            ->filter(fn ($w) => strlen($w) >= 3)
+            ->values();
+
+        $matchedProducts = collect();
+        if ($keywords->isNotEmpty()) {
+            $matchedProducts = Produk::with('kategori')
+                ->where('stok', '>', 0)
+                ->where(function ($q) use ($keywords) {
+                    foreach ($keywords as $word) {
+                        $q->orWhere('nama_produk', 'like', "%{$word}%")
+                          ->orWhere('deskripsi', 'like', "%{$word}%")
+                          ->orWhereHas('kategori', function ($kq) use ($word) {
+                              $kq->where('nama_kategori', 'like', "%{$word}%");
+                          });
+                    }
+                })
+                ->limit(25)
+                ->get(['id_produk', 'nama_produk', 'harga', 'stok', 'id_kategori']);
+        }
+
+        $otherProducts = Produk::with('kategori')
             ->where('stok', '>', 0)
-            ->limit(30)
-            ->get(['id_produk', 'nama_produk', 'harga', 'stok', 'id_kategori'])
+            ->when($matchedProducts->isNotEmpty(), function ($q) use ($matchedProducts) {
+                $q->whereNotIn('id_produk', $matchedProducts->pluck('id_produk'));
+            })
+            ->limit(25)
+            ->get(['id_produk', 'nama_produk', 'harga', 'stok', 'id_kategori']);
+
+        $katalogProduk = $matchedProducts->concat($otherProducts)
             ->map(function ($item) {
                 return "- [ID: {$item->id_produk}] {$item->nama_produk} (Rp " . number_format($item->harga, 0, ',', '.') . ") Kategori: " . ($item->kategori->nama_kategori ?? 'Umum');
             })
@@ -113,9 +140,7 @@ PANDUAN FORMAT JAWABAN:
             $contents[] = ['role' => 'user', 'parts' => $parts];
 
             $modelName = config('services.gemini.model', 'gemini-3.8-flash');
-            $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}";
-
-            $response = Http::timeout(45)->post($endpoint, [
+            $payload = [
                 'systemInstruction' => [
                     'parts' => [
                         ['text' => $systemPrompt]
@@ -125,13 +150,35 @@ PANDUAN FORMAT JAWABAN:
                 'generationConfig' => [
                     'temperature' => 0.7,
                     'maxOutputTokens' => 2048,
-                    'thinkingConfig' => [
-                        'thinkingBudget' => 0
-                    ]
                 ]
-            ]);
+            ];
 
-            if (!$response->successful()) {
+            $candidateModels = array_values(array_unique([
+                $modelName,
+                'gemini-3.8-flash',
+                'gemini-3.1-flash-lite',
+                'gemini-3.6-flash',
+            ]));
+
+            $response = null;
+            foreach ($candidateModels as $candidate) {
+                $modelName = $candidate;
+                $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}";
+                try {
+                    $response = Http::timeout(25)->post($endpoint, $payload);
+                    if ($response->successful()) {
+                        break;
+                    }
+                    if (!in_array($response->status(), [400, 404, 429, 503], true)) {
+                        break;
+                    }
+                } catch (\Throwable $timeoutEx) {
+                    Log::warning("Gemini timeout on {$modelName}: " . $timeoutEx->getMessage());
+                    $response = null;
+                }
+            }
+
+            if (!$response || !$response->successful()) {
                 Log::error('Gemini API Error', [
                     'status' => $response->status(),
                     'body' => $response->body(),

@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/constants/app_constants.dart';
+import 'package:app_rere_petshop/pages/auth/forgot_password_page.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_footer_link.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/google_sign_in_button.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_header.dart';
@@ -240,7 +241,22 @@ class _LoginPageState extends State<LoginPage> {
       Checkbox(value: _rememberMe, visualDensity: VisualDensity.compact, activeColor: AppColors.primary, onChanged: _loading ? null : (value) => setState(() => _rememberMe = value ?? false)),
       const Text('Ingat saya', style: TextStyle(fontSize: AuthTypography.helper, fontWeight: FontWeight.w500, color: AppColors.textSecondary)),
       const Spacer(),
-      TextButton(onPressed: null, child: Text('Lupa Kata Sandi?', style: TextStyle(color: AppColors.primary, fontSize: AuthTypography.helper, fontWeight: FontWeight.w700))),
+      TextButton(
+        onPressed: _loading
+            ? null
+            : () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+                ),
+        child: const Text(
+          'Lupa Kata Sandi?',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: AuthTypography.helper,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
     ]),
     const SizedBox(height: AuthSpacing.x6),
     AuthPrimaryButton(label: 'Masuk', loading: _loading, onPressed: _submit),

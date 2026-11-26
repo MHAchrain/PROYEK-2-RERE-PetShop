@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/constants/app_constants.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/pages/product/product_detail_page.dart';
+import 'package:app_rere_petshop/pages/grooming/grooming_page.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:app_rere_petshop/pages/auth/login_page.dart';
 
@@ -20,6 +22,7 @@ class _ChatMessage {
   final String text;
   final Uint8List? imageBytes;
   final List<dynamic> products;
+  final bool showGroomingButton;
   final DateTime time;
 
   _ChatMessage({
@@ -27,6 +30,7 @@ class _ChatMessage {
     required this.text,
     this.imageBytes,
     this.products = const [],
+    this.showGroomingButton = false,
     DateTime? time,
   }) : time = time ?? DateTime.now();
 }
@@ -51,12 +55,86 @@ class _ArpetPageState extends State<ArpetPage> {
   Uint8List? _selectedImageBytes;
   String? _selectedImageName;
   final ImagePicker _picker = ImagePicker();
+  Timer? _typingTimer;
 
   @override
   void dispose() {
+    _typingTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _addAnimatedAiMessage(
+    String fullText, {
+    List<dynamic> products = const [],
+    bool showGroomingButton = false,
+  }) {
+    _typingTimer?.cancel();
+    if (fullText.isEmpty) return;
+
+    final index = _messages.length;
+    setState(() {
+      _messages.add(_ChatMessage(
+        isUser: false,
+        text: '',
+        products: const [],
+        showGroomingButton: false,
+      ));
+    });
+    _scrollToBottom();
+
+    int cursor = 0;
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      cursor = (cursor + 3).clamp(0, fullText.length);
+      final done = cursor >= fullText.length;
+      setState(() {
+        _messages[index] = _ChatMessage(
+          isUser: false,
+          text: fullText.substring(0, cursor),
+          products: done ? products : const [],
+          showGroomingButton: done ? showGroomingButton : false,
+          time: _messages[index].time,
+        );
+      });
+      if (cursor % 30 == 0 || done) {
+        _scrollToBottom();
+      }
+      if (done) {
+        timer.cancel();
+      }
+    });
+  }
+
+  Widget _buildFormattedText(String text, TextStyle baseStyle) {
+    final spans = <TextSpan>[];
+    final regex = RegExp(r'\*\*(.*?)\*\*');
+    int lastEnd = 0;
+
+    for (final match in regex.allMatches(text)) {
+      if (match.start > lastEnd) {
+        spans.add(TextSpan(text: text.substring(lastEnd, match.start)));
+      }
+      spans.add(TextSpan(
+        text: match.group(1) ?? '',
+        style: baseStyle.copyWith(fontWeight: FontWeight.bold),
+      ));
+      lastEnd = match.end;
+    }
+
+    if (lastEnd < text.length) {
+      spans.add(TextSpan(
+        text: text.substring(lastEnd).replaceAll('**', ''),
+      ));
+    }
+
+    return Text.rich(
+      TextSpan(style: baseStyle, children: spans),
+    );
   }
 
   void _scrollToBottom() {
@@ -395,14 +473,13 @@ class _ArpetPageState extends State<ArpetPage> {
       final products = (response['products'] as List?) ?? [];
 
       if (mounted) {
-        setState(() {
-          _messages.add(_ChatMessage(
-            isUser: false,
-            text: aiMessage,
-            products: products,
-          ));
-        });
-        _scrollToBottom();
+        final isGrooming = text.toLowerCase().contains('grooming') ||
+            aiMessage.toLowerCase().contains('grooming');
+        _addAnimatedAiMessage(
+          aiMessage,
+          products: products,
+          showGroomingButton: isGrooming,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -416,13 +493,7 @@ class _ArpetPageState extends State<ArpetPage> {
           errorMsg = '🐾 Maaf, ARPET sedang mengalami kendala jaringan. Silakan coba sesaat lagi.';
         }
 
-        setState(() {
-          _messages.add(_ChatMessage(
-            isUser: false,
-            text: errorMsg,
-          ));
-        });
-        _scrollToBottom();
+        _addAnimatedAiMessage(errorMsg);
       }
     } finally {
       if (mounted) {
@@ -710,9 +781,9 @@ class _ArpetPageState extends State<ArpetPage> {
                         ),
                       ],
                     ),
-                    child: Text(
+                    child: _buildFormattedText(
                       message.text,
-                      style: const TextStyle(
+                      const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
                         height: 1.5,
@@ -722,6 +793,29 @@ class _ArpetPageState extends State<ArpetPage> {
                 ),
               ],
             ),
+            if (message.showGroomingButton) ...[
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.only(left: 42),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const GroomingPage()),
+                    );
+                  },
+                  icon: const Icon(Icons.content_cut, size: 16),
+                  label: const Text('Lihat Layanan Grooming'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             if (message.products.isNotEmpty) ...[
               const SizedBox(height: 10),
               Padding(

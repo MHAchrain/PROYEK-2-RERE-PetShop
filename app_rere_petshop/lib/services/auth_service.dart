@@ -219,6 +219,58 @@ class AuthService {
     }
   }
 
+  Future<String> sendResetCode(String email) async {
+    try {
+      final response = await _dio.post(
+        '/forgot-password/send-code',
+        data: {'email': email},
+      );
+      return response.data['message']?.toString() ??
+          'Kode OTP berhasil dikirim ke email Anda.';
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<String> verifyResetCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/forgot-password/verify-code',
+        data: {'email': email, 'code': code},
+      );
+      return response.data['message']?.toString() ??
+          'Kode OTP berhasil diverifikasi.';
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<String> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/forgot-password/reset',
+        data: {
+          'email': email,
+          'code': code,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
+      );
+      return response.data['message']?.toString() ??
+          'Kata sandi berhasil direset. Silakan masuk.';
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   String _messageFromResponse(DioException e) {
     final data = e.response?.data;
     final status = e.response?.statusCode;
