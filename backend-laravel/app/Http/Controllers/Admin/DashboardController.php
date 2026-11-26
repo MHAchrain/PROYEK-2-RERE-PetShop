@@ -20,15 +20,9 @@ class DashboardController extends Controller
         $totalPendapatan = (float) Pesanan::whereIn('status_pesanan', ['diproses', 'dikirim', 'selesai'])
             ->sum('total');
 
-        // 2. Pesanan Siap Kirim (Hanya yang SUDAH BAYAR / diproses atau siap dikirim)
-        $pesananSiapKirim = Pesanan::with(['pelanggan', 'pembayaran'])
-            ->where(function ($q) {
-                // Posisi sudah bayar (paid / dibayar) atau status pesanan diproses / dikirim
-                $q->whereHas('pembayaran', function ($pay) {
-                    $pay->whereIn('status_bayar', ['paid', 'dibayar']);
-                })->orWhereIn('status_pesanan', ['diproses', 'dikirim']);
-            })
-            ->whereNotIn('status_pesanan', ['batal', 'selesai'])
+        // 2. Pesanan Siap Kirim (Hanya yang status_pesanan = 'diproses' / sedang diproses saja)
+        $pesananSiapKirim = Pesanan::with(['pelanggan', 'pembayaran', 'pengiriman'])
+            ->where('status_pesanan', 'diproses')
             ->latest('id_pesanan')
             ->take(6)
             ->get();

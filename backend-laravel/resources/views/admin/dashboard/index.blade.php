@@ -127,15 +127,15 @@
         </div>
     </div>
 
-    <!-- BARIS 3: PESANAN SIAP KIRIM (SUDAH BAYAR) -->
+    <!-- BARIS 3: PESANAN SIAP KIRIM (HANYA STATUS DIPROSES) -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-200 flex items-center justify-between">
             <div>
                 <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-boxes-packing text-brand-600"></i>
-                    <span>Pesanan Siap Kirim (Sudah Bayar)</span>
+                    <span>Pesanan Siap Kirim (Diproses)</span>
                 </h3>
-                <p class="text-xs text-slate-400">Daftar transaksi yang sudah terverifikasi bayar dan siap dikemas/dikirim</p>
+                <p class="text-xs text-slate-400">Daftar transaksi yang sedang diproses dan perlu input kurir & resi</p>
             </div>
             <a href="{{ route('admin.pesanan.index') }}" class="text-xs font-bold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
                 <span>Kelola Semua Pesanan</span>
@@ -151,8 +151,7 @@
                         <th class="py-3 px-6">Waktu Pesan</th>
                         <th class="py-3 px-6">Total Tagihan</th>
                         <th class="py-3 px-6">Status Bayar</th>
-                        <th class="py-3 px-6">Status Pesanan</th>
-                        <th class="py-3 px-6 text-right">Aksi</th>
+                        <th class="py-3 px-6 text-right">Kirim Paket</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -176,31 +175,18 @@
                                     {{ strtoupper($pesanan->pembayaran->status_bayar ?? 'PAID') }}
                                 </span>
                             </td>
-                            <td class="py-3.5 px-6">
-                                @php
-                                    $badgeClass = match($pesanan->status_pesanan) {
-                                        'baru', 'menunggu_verifikasi' => 'bg-amber-100 text-amber-800',
-                                        'diproses' => 'bg-blue-100 text-blue-800',
-                                        'dikirim' => 'bg-indigo-100 text-indigo-800',
-                                        'selesai' => 'bg-emerald-100 text-emerald-800',
-                                        'batal' => 'bg-red-100 text-red-800',
-                                        default => 'bg-slate-100 text-slate-800'
-                                    };
-                                @endphp
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold {{ $badgeClass }}">
-                                    {{ ucfirst(str_replace('_', ' ', $pesanan->status_pesanan)) }}
-                                </span>
-                            </td>
                             <td class="py-3.5 px-6 text-right">
-                                <a href="{{ route('admin.pesanan.index') }}" class="text-xs font-bold text-brand-600 hover:bg-brand-50 px-3 py-1.5 rounded-lg border border-brand-200 transition">
-                                    Proses Kirim
-                                </a>
+                                <!-- Tombol Pop-up Pengiriman Instan di Dashboard -->
+                                <button type="button" onclick="openDashKirimModal('{{ $pesanan->id_pesanan }}', '{{ $pesanan->kode_pesanan }}', '{{ $pesanan->pelanggan->nama ?? 'Customer' }}', '{{ $pesanan->pengiriman->kurir ?? 'Internal' }}', '{{ $pesanan->pengiriman->resi ?? '' }}')" class="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm shadow-brand-600/20 transition inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-truck-fast text-[11px]"></i>
+                                    <span>Input Resi & Kirim</span>
+                                </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-8 text-slate-400 text-sm">
-                                Tidak ada antrean pesanan yang menunggu dikirim saat ini.
+                            <td colspan="6" class="text-center py-8 text-slate-400 text-sm">
+                                Tidak ada antrean pesanan yang sedang diproses saat ini.
                             </td>
                         </tr>
                     @endforelse
@@ -210,10 +196,119 @@
     </div>
 
 </div>
+
+<!-- ======================================================== -->
+<!-- MODAL POP-UP KHUSUS INPUT RESI & PENGIRIMAN DI DASHBOARD -->
+<!-- ======================================================== -->
+<div id="dashKirimModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs">
+                    <i class="fa-solid fa-truck"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900" id="dashModalKode">Input Resi Pengiriman</h3>
+                    <p class="text-[11px] text-slate-400" id="dashModalPelanggan">-</p>
+                </div>
+            </div>
+            <button onclick="closeDashKirimModal()" class="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+        </div>
+
+        <form id="dashKirimForm" method="POST" class="space-y-4 text-xs">
+            @csrf
+            @method('PATCH')
+            <input type="hidden" name="status_pesanan" value="dikirim">
+            <input type="hidden" name="status_bayar" value="paid">
+
+            <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Pilihan Kurir (3 Opsi)</label>
+                <select name="kurir" id="dashModalKurir" onchange="autoDashResi()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-800">
+                    <option value="Internal">Internal (Kurir Toko ReRe)</option>
+                    <option value="JNE">JNE Ekspedisi</option>
+                    <option value="Ojol">Ojol (Gojek / Grab Express)</option>
+                </select>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Nomor Resi / Keterangan</label>
+                    <button type="button" onclick="generateDashResi()" class="text-brand-600 hover:text-brand-800 font-bold text-[10px] inline-flex items-center gap-1">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                        <span>Buat Otomatis</span>
+                    </button>
+                </div>
+                <input type="text" name="resi" id="dashModalResi" placeholder="Contoh: JNE12345 / Klik Buat Otomatis" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono bg-white">
+            </div>
+
+            <p class="text-[11px] text-slate-400 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                Saat disimpan, status pesanan otomatis berubah menjadi <strong>Dikirim</strong> dan langsung masuk ke menu Pengiriman.
+            </p>
+
+            <div class="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+                <button type="button" onclick="closeDashKirimModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition">
+                    Batal
+                </button>
+                <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md shadow-brand-600/20 transition">
+                    Kirim Pesanan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
+    let activeDashPesananId = null;
+
+    function openDashKirimModal(idPesanan, kodePesanan, namaPelanggan, kurir, resi) {
+        activeDashPesananId = idPesanan;
+        const modal = document.getElementById('dashKirimModal');
+        const form = document.getElementById('dashKirimForm');
+        form.action = `/admin/pesanan/${idPesanan}/status`;
+
+        document.getElementById('dashModalKode').innerText = 'Kirim Pesanan: ' + kodePesanan;
+        document.getElementById('dashModalPelanggan').innerText = 'Penerima: ' + namaPelanggan;
+        document.getElementById('dashModalKurir').value = kurir || 'Internal';
+        document.getElementById('dashModalResi').value = resi || '';
+
+        if (!resi) {
+            generateDashResi();
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeDashKirimModal() {
+        document.getElementById('dashKirimModal').classList.add('hidden');
+    }
+
+    function generateDashResi() {
+        const kurir = document.getElementById('dashModalKurir').value;
+        const now = new Date();
+        const dateStr = now.getFullYear().toString().substr(-2) + 
+                        String(now.getMonth() + 1).padStart(2, '0') + 
+                        String(now.getDate()).padStart(2, '0');
+        const rand = Math.floor(100000 + Math.random() * 900000);
+
+        let generatedResi = '';
+        if (kurir === 'JNE') {
+            generatedResi = 'JNE' + dateStr + rand;
+        } else if (kurir === 'Ojol') {
+            generatedResi = 'OJOL-' + dateStr + '-' + rand;
+        } else {
+            generatedResi = 'RERE-INT-' + dateStr + '-' + (activeDashPesananId || rand);
+        }
+
+        document.getElementById('dashModalResi').value = generatedResi;
+    }
+
+    function autoDashResi() {
+        generateDashResi();
+    }
     const ctx = document.getElementById('salesChart').getContext('2d');
     const salesChart = new Chart(ctx, {
         type: 'line',
