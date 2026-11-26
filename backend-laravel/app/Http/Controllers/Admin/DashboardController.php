@@ -27,10 +27,10 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // 3. Grooming Hari Ini
+        // 3. Grooming Hari Ini (Kolom database TiDB: date & time)
         $groomingHariIni = GroomingBooking::with(['service', 'pelanggan'])
-            ->whereDate('booking_date', Carbon::today())
-            ->orderBy('booking_time', 'asc')
+            ->whereDate('date', Carbon::today())
+            ->orderBy('time', 'asc')
             ->take(6)
             ->get();
 

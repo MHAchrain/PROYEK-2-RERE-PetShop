@@ -5,11 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -19,7 +17,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'pelanggan_id',
-        'google_id',        // ⬅️ SUDAH DITAMBAHKAN
+        'google_id',
     ];
 
     protected $hidden = [
@@ -33,10 +31,5 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return $this->role === 'admin';
     }
 }
