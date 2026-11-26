@@ -71,7 +71,7 @@
                             <i class="fa-solid fa-envelope text-sm"></i>
                         </div>
                         <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
-                            placeholder="@rerepetshop"
+                            placeholder="masukan email admin"
                             class="w-full pl-10 pr-4 py-2.5 rounded-xl border {{ $errors->has('email') ? 'border-red-500' : 'border-slate-300' }} text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600 transition">
                     </div>
                     @error('email')
