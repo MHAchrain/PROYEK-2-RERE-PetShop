@@ -58,7 +58,7 @@ class PesananController extends Controller
             ],
             'pembayaran' => [
                 'metode_bayar' => strtoupper($pesanan->pembayaran->metode_bayar ?? 'Online / Gateway'),
-                'status_bayar' => strtoupper($pesanan->pembayaran->status_bayar ?? 'Pending'),
+                'status_bayar' => $pesanan->pembayaran->status_bayar ?? 'pending',
                 'snap_token' => $pesanan->pembayaran->snap_token ?? '-',
                 'waktu_bayar' => $pesanan->pembayaran->waktu_bayar ?? '-',
             ],
@@ -85,14 +85,42 @@ class PesananController extends Controller
             'status_pesanan' => ['required', 'in:baru,menunggu_verifikasi,diproses,dikirim,selesai,batal'],
             'kurir' => ['nullable', 'in:Internal,JNE,Ojol'],
             'resi' => ['nullable', 'string', 'max:100'],
+            'status_bayar' => ['nullable', 'in:pending,paid,cancel'],
         ]);
 
         $pesanan->update(['status_pesanan' => $validated['status_pesanan']]);
 
-        // Jika status diubah menjadi 'dikirim', otomatis create / update pengiriman
+        // 1. Update Status Pembayaran (Percobaan / Testing Manual Admin)
+        if ($request->filled('status_bayar')) {
+            $statusBayar = $request->status_bayar;
+            $pembayaran = Pembayaran::firstOrNew(['id_pesanan' => $pesanan->id_pesanan]);
+            $pembayaran->status_bayar = $statusBayar;
+            if ($statusBayar === 'paid' && empty($pembayaran->waktu_bayar)) {
+                $pembayaran->waktu_bayar = now();
+            }
+            if (empty($pembayaran->jumlah_bayar)) {
+                $pembayaran->jumlah_bayar = $pesanan->total;
+            }
+            if (empty($pembayaran->metode_bayar)) {
+                $pembayaran->metode_bayar = 'Midtrans Manual Admin';
+            }
+            $pembayaran->save();
+        }
+
+        // 2. Jika status diubah menjadi 'dikirim', otomatis kelola pengiriman
         if ($validated['status_pesanan'] === 'dikirim') {
             $kurir = $request->input('kurir', 'Internal');
-            $resi = $request->input('resi') ?? ($kurir === 'Internal' ? 'INT-' . date('Ymd') . '-' . $pesanan->id_pesanan : ($kurir === 'Ojol' ? 'OJOL-' . date('Ymd') . '-' . $pesanan->id_pesanan : 'JNE-' . $pesanan->id_pesanan));
+            $resi = $request->input('resi');
+            
+            // Generate resi otomatis jika admin tidak mengisinya
+            if (empty($resi)) {
+                $randomDigits = mt_rand(100000, 999999);
+                $resi = match ($kurir) {
+                    'JNE' => 'JNE' . date('ymd') . $randomDigits,
+                    'Ojol' => 'GRAB-' . date('Hi') . '-' . $randomDigits,
+                    default => 'RERE-INT-' . date('ymd') . '-' . $pesanan->id_pesanan,
+                };
+            }
 
             Pengiriman::updateOrCreate(
                 ['id_pesanan' => $pesanan->id_pesanan],
@@ -105,7 +133,7 @@ class PesananController extends Controller
             );
         }
 
-        return back()->with('success', 'Status pesanan berhasil diperbarui!');
+        return back()->with('success', 'Status pesanan, pembayaran & pengiriman berhasil diperbarui!');
     }
 
     public function updatePengiriman(Request $request, Pesanan $pesanan)

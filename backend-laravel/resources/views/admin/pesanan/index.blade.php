@@ -70,9 +70,17 @@
                                 Rp {{ number_format($p->total, 0, ',', '.') }}
                             </td>
                             <td class="py-3.5 px-6 text-xs">
-                                <span class="font-semibold block text-slate-700">{{ strtoupper($p->pembayaran->metode_bayar ?? 'Online / Gateway') }}</span>
-                                <span class="text-[11px] font-bold {{ ($p->pembayaran->status_bayar ?? '') === 'paid' ? 'text-emerald-600' : 'text-amber-600' }}">
-                                    {{ strtoupper($p->pembayaran->status_bayar ?? 'Pending') }}
+                                <span class="font-semibold block text-slate-700">{{ strtoupper($p->pembayaran->metode_bayar ?? 'Midtrans') }}</span>
+                                @php
+                                    $bayarStatus = strtolower($p->pembayaran->status_bayar ?? 'pending');
+                                    $bayarColor = match($bayarStatus) {
+                                        'paid', 'dibayar' => 'text-emerald-600 bg-emerald-50 border-emerald-200',
+                                        'cancel', 'cancelled', 'dibatalkan' => 'text-red-600 bg-red-50 border-red-200',
+                                        default => 'text-amber-600 bg-amber-50 border-amber-200'
+                                    };
+                                @endphp
+                                <span class="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] font-bold border {{ $bayarColor }}">
+                                    {{ strtoupper($bayarStatus) }}
                                 </span>
                             </td>
                             <td class="py-3.5 px-6">
@@ -91,7 +99,7 @@
                                 </span>
                             </td>
                             <td class="py-3.5 px-6 text-right">
-                                <!-- Tombol Pop-up Detail Cepat (Modal) -->
+                                <!-- Tombol Pop-up Detail Cepat -->
                                 <button type="button" onclick="showDetailModal('{{ $p->id_pesanan }}')" class="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm shadow-brand-600/20 transition inline-flex items-center gap-1.5">
                                     <i class="fa-solid fa-eye text-[11px]"></i>
                                     <span>Detail</span>
@@ -119,7 +127,7 @@
 </div>
 
 <!-- ======================================================== -->
-<!-- MODAL POP-UP DETAIL PESANAN CEPAT (POP-UP AJAX INSTAN)   -->
+<!-- MODAL POP-UP DETAIL PESANAN CEPAT                        -->
 <!-- ======================================================== -->
 <div id="detailPesananModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
@@ -175,15 +183,18 @@
                 </div>
             </div>
 
-            <!-- Form Ubah Status Pesanan & Kurir Langsung dari Pop-up -->
-            <form id="modalUpdateForm" method="POST" class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-3">
+            <!-- Form Ubah Status, Percobaan Pembayaran, & Kurir Langsung dari Pop-up -->
+            <form id="modalUpdateForm" method="POST" class="p-5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-4">
                 @csrf
                 @method('PATCH')
-                <span class="text-slate-700 font-bold uppercase text-[11px] tracking-wider block">Kelola Pengiriman & Status</span>
+                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                    <span class="text-slate-800 font-bold uppercase text-[11px] tracking-wider">Aksi Cepat Admin (Status, Pembayaran & Resi)</span>
+                </div>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- 1. Status Pesanan -->
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status Pesanan</label>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Status Pesanan</label>
                         <select name="status_pesanan" id="modalSelectStatus" onchange="toggleKurirInputs()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
                             <option value="baru">Baru</option>
                             <option value="menunggu_verifikasi">Menunggu Verifikasi</option>
@@ -194,24 +205,52 @@
                         </select>
                     </div>
 
-                    <div id="kurirFieldWrap">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Pilihan Kurir (3 Opsi)</label>
-                        <select name="kurir" id="modalSelectKurir" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
+                    <!-- 2. Status Pembayaran (Percobaan / Testing Admin) -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
+                            <span>Status Pembayaran</span>
+                            <span class="text-amber-600 font-semibold text-[9px]">(Mode Percobaan)</span>
+                        </label>
+                        <select name="status_bayar" id="modalSelectBayar" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-800">
+                            <option value="pending">PENDING (Belum Bayar)</option>
+                            <option value="paid">DIBAYAR / PAID (Lunas)</option>
+                            <option value="cancel">CANCEL (Dibatalkan)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 border-t border-slate-200/60" id="kurirSection">
+                    <!-- 3. Pilihan 3 Kurir Resmi -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Kurir Pengiriman</label>
+                        <select name="kurir" id="modalSelectKurir" onchange="autoUpdateResiPrefix()" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white">
                             <option value="Internal">Internal (Kurir Toko ReRe)</option>
                             <option value="JNE">JNE Ekspedisi</option>
                             <option value="Ojol">Ojol (Gojek / Grab Express)</option>
                         </select>
                     </div>
 
-                    <div id="resiFieldWrap">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nomor Resi / Bukti</label>
-                        <input type="text" name="resi" id="modalInputResi" placeholder="Otomatis / input manual" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono bg-white">
+                    <!-- 4. Nomor Resi & Tombol Auto-Generate -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1 flex items-center justify-between">
+                            <span>Nomor Resi</span>
+                            <button type="button" onclick="generateResiOtomatis()" class="text-brand-600 hover:text-brand-800 font-bold inline-flex items-center gap-1 text-[10px]">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                                <span>Generate Resi Otomatis</span>
+                            </button>
+                        </label>
+                        <div class="relative">
+                            <input type="text" name="resi" id="modalInputResi" placeholder="Contoh: JNE12345 / Klik Generate..." class="w-full pl-3 pr-20 py-2 rounded-xl border border-slate-200 text-xs font-mono bg-white">
+                            <button type="button" onclick="generateResiOtomatis()" class="absolute right-1 top-1 bottom-1 px-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-[10px] font-bold text-slate-700 transition">
+                                Buat Otomatis
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="pt-2 text-right">
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition">
-                        Simpan & Update Pesanan
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md shadow-brand-600/20 transition">
+                        Simpan Perubahan Pesanan
                     </button>
                 </div>
             </form>
@@ -230,15 +269,16 @@
 
 @push('scripts')
 <script>
+    let currentPesananId = null;
+
     function showDetailModal(idPesanan) {
+        currentPesananId = idPesanan;
         const modal = document.getElementById('detailPesananModal');
         modal.classList.remove('hidden');
 
-        // Reset text
         document.getElementById('modalKodePesanan').innerText = 'Memuat data #' + idPesanan + '...';
         document.getElementById('modalItemsContainer').innerHTML = '<div class="p-4 text-center text-slate-400">Mengambil data dari server...</div>';
 
-        // Fetch JSON data
         fetch(`/admin/pesanan/${idPesanan}`, {
             headers: {
                 'Accept': 'application/json',
@@ -253,12 +293,23 @@
             document.getElementById('modalTelpPelanggan').innerText = 'Telp: ' + data.no_telp;
             document.getElementById('modalEmailPelanggan').innerText = 'Email: ' + data.pelanggan.email;
             document.getElementById('modalAlamatKirim').innerText = data.alamat_kirim || 'Alamat tidak dicantumkan.';
-            document.getElementById('modalMetodeBayar').innerText = 'Metode: ' + data.pembayaran.metode_bayar + ' (' + data.pembayaran.status_bayar + ')';
+            document.getElementById('modalMetodeBayar').innerText = 'Metode: ' + data.pembayaran.metode_bayar;
             document.getElementById('modalTotalFormatted').innerText = data.total_formatted;
 
-            // Form action
+            // Form action & values
             document.getElementById('modalUpdateForm').action = `/admin/pesanan/${data.id_pesanan}/status`;
             document.getElementById('modalSelectStatus').value = data.status_pesanan;
+            
+            // Status Bayar (pending / paid / cancel)
+            const rawBayar = (data.pembayaran.status_bayar || 'pending').toLowerCase();
+            if (rawBayar === 'dibayar' || rawBayar === 'paid') {
+                document.getElementById('modalSelectBayar').value = 'paid';
+            } else if (rawBayar === 'cancel' || rawBayar === 'cancelled' || rawBayar === 'batal') {
+                document.getElementById('modalSelectBayar').value = 'cancel';
+            } else {
+                document.getElementById('modalSelectBayar').value = 'pending';
+            }
+
             document.getElementById('modalSelectKurir').value = data.pengiriman.kurir || 'Internal';
             document.getElementById('modalInputResi').value = data.pengiriman.resi || '';
 
@@ -292,17 +343,44 @@
         });
     }
 
+    // Tombol Generate Resi Otomatis
+    function generateResiOtomatis() {
+        const kurir = document.getElementById('modalSelectKurir').value;
+        const now = new Date();
+        const dateStr = now.getFullYear().toString().substr(-2) + 
+                        String(now.getMonth() + 1).padStart(2, '0') + 
+                        String(now.getDate()).padStart(2, '0');
+        const rand = Math.floor(100000 + Math.random() * 900000);
+
+        let generatedResi = '';
+        if (kurir === 'JNE') {
+            generatedResi = 'JNE' + dateStr + rand;
+        } else if (kurir === 'Ojol') {
+            generatedResi = 'OJOL-' + dateStr + '-' + rand;
+        } else {
+            generatedResi = 'RERE-INT-' + dateStr + '-' + (currentPesananId || rand);
+        }
+
+        document.getElementById('modalInputResi').value = generatedResi;
+    }
+
+    function autoUpdateResiPrefix() {
+        if (!document.getElementById('modalInputResi').value) {
+            generateResiOtomatis();
+        }
+    }
+
     function toggleKurirInputs() {
         const status = document.getElementById('modalSelectStatus').value;
-        const kurirWrap = document.getElementById('kurirFieldWrap');
-        const resiWrap = document.getElementById('resiFieldWrap');
+        const kurirSection = document.getElementById('kurirSection');
 
         if (status === 'dikirim' || status === 'selesai') {
-            kurirWrap.style.opacity = '1';
-            resiWrap.style.opacity = '1';
+            kurirSection.style.opacity = '1';
+            if (!document.getElementById('modalInputResi').value) {
+                generateResiOtomatis();
+            }
         } else {
-            kurirWrap.style.opacity = '0.5';
-            resiWrap.style.opacity = '0.5';
+            kurirSection.style.opacity = '0.6';
         }
     }
 
