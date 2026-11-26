@@ -624,6 +624,9 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   Widget _buildEmptyState() {
+    final isUnreadFilterWithItems =
+        _activeTab == 'unread' && _notifications.isNotEmpty;
+
     return Center(
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -638,18 +641,22 @@ class _NotificationPageState extends State<NotificationPage> {
                 color: Color(0xFFFCECEC),
                 shape: BoxShape.circle,
               ),
-              child: const Center(
+              child: Center(
                 child: Icon(
-                  Icons.notifications_none_rounded,
+                  isUnreadFilterWithItems
+                      ? Icons.mark_email_read_outlined
+                      : Icons.notifications_none_rounded,
                   size: 36,
-                  color: Color(0xFF850909),
+                  color: const Color(0xFF850909),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Belum Ada Notifikasi',
-              style: TextStyle(
+            Text(
+              isUnreadFilterWithItems
+                  ? 'Tidak Ada Notifikasi Baru'
+                  : 'Belum Ada Notifikasi',
+              style: const TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -657,38 +664,42 @@ class _NotificationPageState extends State<NotificationPage> {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Notifikasi terkait pesanan, booking, dan transaksi akun kamu akan muncul di sini.',
+            Text(
+              isUnreadFilterWithItems
+                  ? 'Semua notifikasi kamu telah dibaca. Periksa tab Semua untuk melihat riwayat lengkap.'
+                  : 'Notifikasi terkait pesanan, booking, dan transaksi akun kamu akan muncul di sini.',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
                 fontSize: 13,
                 color: Color(0xFF777777),
                 height: 1.4,
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => setState(() => _activeTab = 'all'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF850909),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+            if (isUnreadFilterWithItems) ...[
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => setState(() => _activeTab = 'all'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF850909),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              ),
-              child: const Text(
-                'Tampilkan Semua Notifikasi',
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                child: const Text(
+                  'Tampilkan Semua Notifikasi',
+                  style: TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),
