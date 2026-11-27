@@ -40,7 +40,6 @@
             <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-slate-50 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
                     <tr>
-                        <th class="py-3 px-6 w-16">ID</th>
                         <th class="py-3 px-6">Nama Kategori</th>
                         <th class="py-3 px-6">Jumlah Produk</th>
                         <th class="py-3 px-6 text-right w-28">Aksi</th>
@@ -49,7 +48,6 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($kategoris as $k)
                         <tr class="hover:bg-slate-50/80 transition">
-                            <td class="py-3.5 px-6 font-mono text-xs text-slate-400">#{{ $k->id_kategori }}</td>
                             <td class="py-3.5 px-6 font-bold text-slate-900">
                                 {{ $k->nama_kategori }}
                             </td>
@@ -70,7 +68,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center py-8 text-slate-400 text-sm">
+                            <td colspan="3" class="text-center py-8 text-slate-400 text-sm">
                                 Belum ada kategori yang dibuat.
                             </td>
                         </tr>
