@@ -67,6 +67,61 @@ export default function AboutPage() {
           />
         )}
 
+        {/* Download Aplikasi Android (Paling Atas, Gaya Google Play) */}
+        <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white via-white to-emerald-50/40 p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div className="max-w-xl space-y-3 text-center md:text-left">
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
+                Android App • v1.0.0
+              </span>
+              <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                Download Aplikasi ReRe Petshop
+              </h2>
+              <p className="text-sm leading-relaxed text-gray-600">
+                Scan QR Code di samping dengan kamera HP Android Anda, atau klik langsung gambar QR / tombol Play Store di bawah untuk mengunduh APK resmi.
+              </p>
+              <div className="pt-1 flex justify-center md:justify-start">
+                <a
+                  href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
+                  download
+                  className="inline-flex items-center gap-3 rounded-xl bg-gray-950 px-5 py-2.5 text-white shadow-md transition hover:bg-gray-800"
+                >
+                  <svg viewBox="0 0 24 24" className="h-7 w-7 shrink-0" fill="none">
+                    <path d="M3.6 2.3C3.2 2.7 3 3.3 3 4.1v15.8c0 .8.2 1.4.6 1.8l.1.1 8.9-8.9v-.2L3.7 2.2l-.1.1z" fill="#00D2FF"/>
+                    <path d="M15.6 15.8l-3-3v-.2l3-3 .1.1 3.5 2c1 .6 1 1.5 0 2.1l-3.5 2-.1 0z" fill="#FFD500"/>
+                    <path d="M15.7 15.8l-3.1-3.1-9 9c.3.4.9.4 1.6 0l10.5-5.9z" fill="#FF3A44"/>
+                    <path d="M15.7 8.2L5.2 2.3C4.5 1.9 3.9 1.9 3.6 2.3l9 9 3.1-3.1z" fill="#00F076"/>
+                  </svg>
+                  <div className="text-left leading-tight">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-gray-300">
+                      Download APK
+                    </div>
+                    <div className="text-base font-bold tracking-tight">
+                      Android App
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <a
+              href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
+              download
+              title="Klik untuk download ReRe Petshop APK"
+              className="group flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-emerald-500 hover:shadow-md"
+            >
+              <img
+                src="/qr-apk.png"
+                alt="QR Code Download ReRe Petshop Android APK"
+                className="h-40 w-40 rounded-lg bg-white p-1 transition group-hover:scale-[1.03]"
+              />
+              <span className="mt-2 text-[11px] font-semibold text-gray-600 group-hover:text-emerald-700">
+                Scan / Klik QR untuk Download
+              </span>
+            </a>
+          </div>
+        </div>
+
         <div className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
           <div className="w-full flex-1 space-y-6">
             {isLoading ? (
@@ -294,48 +349,6 @@ export default function AboutPage() {
                     </div>
                   );
                 })}
-          </div>
-        </div>
-
-        {/* Download Aplikasi Android */}
-        <div className="rounded-3xl border border-primary/15 bg-white p-6 shadow-sm sm:p-10">
-          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
-            <div className="max-w-xl space-y-3 text-center md:text-left">
-              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
-                Aplikasi Android
-              </span>
-              <h3 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-                Belanja &amp; Booking Grooming Lebih Praktis di HP
-              </h3>
-              <p className="text-sm leading-relaxed text-gray-600 sm:text-base">
-                Scan QR Code di samping dengan kamera HP Anda, atau klik langsung gambar QR / tombol di bawah untuk mengunduh aplikasi resmi <strong>ReRe Petshop (APK)</strong>.
-              </p>
-              <div className="pt-2">
-                <a
-                  href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
-                  download
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90"
-                >
-                  Download Aplikasi Android (.APK)
-                </a>
-              </div>
-            </div>
-
-            <a
-              href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
-              download
-              title="Klik untuk download ReRe Petshop APK"
-              className="group flex flex-col items-center rounded-3xl border-2 border-dashed border-primary/25 bg-gray-50 p-4 transition hover:border-primary hover:bg-primary/5"
-            >
-              <img
-                src="/qr-apk.png"
-                alt="QR Code Download ReRe Petshop Android APK"
-                className="h-44 w-44 rounded-xl bg-white p-2 shadow-sm transition group-hover:scale-[1.02]"
-              />
-              <span className="mt-2.5 text-xs font-semibold text-gray-600 group-hover:text-primary">
-                Scan atau Klik QR untuk Download
-              </span>
-            </a>
           </div>
         </div>
       </div>
