@@ -37,14 +37,28 @@ class CheckoutController extends Controller
             'item_ids.*' => 'integer',
         ]);
 
-        $alamatKirim = $validated['alamat_kirim'] ?? $pelanggan->alamat;
-        $noTelp = $validated['no_telp'] ?? $pelanggan->no_hp;
+        $alamatKirim = trim((string) ($validated['alamat_kirim'] ?? $pelanggan->alamat ?? ''));
+        $noTelp = trim((string) ($validated['no_telp'] ?? $pelanggan->no_hp ?? ''));
 
-        if (! $alamatKirim || ! $noTelp) {
+        if ($alamatKirim === '' || $noTelp === '') {
             return response()->json([
                 'success' => false,
                 'message' => 'Lengkapi alamat dan nomor telepon Anda terlebih dahulu sebelum checkout.',
             ], 422);
+        }
+
+        // Sinkronkan ke profil pelanggan jika sebelumnya masih kosong
+        $pelangganDirty = false;
+        if (empty(trim((string) $pelanggan->no_hp))) {
+            $pelanggan->no_hp = $noTelp;
+            $pelangganDirty = true;
+        }
+        if (empty(trim((string) $pelanggan->alamat))) {
+            $pelanggan->alamat = $alamatKirim;
+            $pelangganDirty = true;
+        }
+        if ($pelangganDirty) {
+            $pelanggan->save();
         }
 
         $keranjang = Keranjang::where('id_pelanggan', $pelanggan->id_pelanggan)->first();
