@@ -303,8 +303,9 @@
             selectBayar.value = 'pending';
         }
 
-        // Pengecekan Khusus: Jika metode QRIS dan status sudah PAID -> TERKUNCI (tidak bisa diubah)
-        const isQrisPaid = rawMetode.includes('QRIS') && (rawBayar === 'paid' || rawBayar === 'dibayar');
+        // Pengecekan Khusus: Jika metode Midtrans otomatis (QRIS, VA, E-Wallet, dll) dan status sudah PAID -> TERKUNCI (tidak bisa diubah)
+        const isAutoMidtrans = ['QRIS', 'VA', 'VIRTUAL ACCOUNT', 'ECHANNEL', 'MANDIRI', 'BANK', 'GOPAY', 'SHOPEEPAY', 'DANA', 'OVO', 'MIDTRANS', 'CSTORE', 'CREDIT'].some(k => rawMetode.includes(k));
+        const isQrisPaid = isAutoMidtrans && (rawBayar === 'paid' || rawBayar === 'dibayar');
         if (isQrisPaid) {
             selectBayar.disabled = true;
             selectBayar.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'border-slate-200');

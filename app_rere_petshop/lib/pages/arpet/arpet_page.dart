@@ -56,10 +56,13 @@ class _ArpetPageState extends State<ArpetPage> {
   String? _selectedImageName;
   final ImagePicker _picker = ImagePicker();
   Timer? _typingTimer;
+  Timer? _thinkingTimer;
+  int _thinkingSeconds = 0;
 
   @override
   void dispose() {
     _typingTimer?.cancel();
+    _thinkingTimer?.cancel();
     _textController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -443,6 +446,13 @@ class _ArpetPageState extends State<ArpetPage> {
     setState(() {
       _messages.add(_ChatMessage(isUser: true, text: text, imageBytes: imgBytes));
       _isLoading = true;
+      _thinkingSeconds = 0;
+    });
+    _thinkingTimer?.cancel();
+    _thinkingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted && _isLoading) {
+        setState(() => _thinkingSeconds++);
+      }
     });
     _scrollToBottom();
 
@@ -496,8 +506,12 @@ class _ArpetPageState extends State<ArpetPage> {
         _addAnimatedAiMessage(errorMsg);
       }
     } finally {
+      _thinkingTimer?.cancel();
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _thinkingSeconds = 0;
+        });
       }
     }
   }
@@ -642,8 +656,8 @@ class _ArpetPageState extends State<ArpetPage> {
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          SizedBox(
+                        children: [
+                          const SizedBox(
                             width: 14,
                             height: 14,
                             child: CircularProgressIndicator(
@@ -651,10 +665,10 @@ class _ArpetPageState extends State<ArpetPage> {
                               color: AppColors.primary,
                             ),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
-                            'ARPET sedang memikirkan jawaban...',
-                            style: TextStyle(
+                            'ARPET sedang memikirkan jawaban... (${_thinkingSeconds}d)',
+                            style: const TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,
                               fontStyle: FontStyle.italic,
@@ -888,9 +902,16 @@ class _ArpetPageState extends State<ArpetPage> {
                                           BorderRadius.circular(8),
                                       child: image.isNotEmpty
                                           ? Image.network(
-                                              image.startsWith('http')
-                                                  ? image
-                                                  : '${AppConstants.storageUrl}/$image',
+                                              () {
+                                                var clean = image.trim();
+                                                if (clean.startsWith('produk/')) {
+                                                  clean = clean.substring(7);
+                                                }
+                                                return clean.startsWith('http://') ||
+                                                        clean.startsWith('https://')
+                                                    ? clean
+                                                    : '${AppConstants.baseUrl}/image/$clean';
+                                              }(),
                                               fit: BoxFit.cover,
                                               width: double.infinity,
                                               errorBuilder:

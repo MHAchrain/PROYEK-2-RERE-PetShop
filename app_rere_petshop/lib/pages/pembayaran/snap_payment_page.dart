@@ -57,6 +57,14 @@ class _SnapPaymentPageState extends State<SnapPaymentPage> {
           onNavigationRequest: (request) async {
             final uri = Uri.tryParse(request.url);
             if (uri == null) return NavigationDecision.prevent;
+            final lower = request.url.toLowerCase();
+            if (lower.contains('transaction_status=settlement') ||
+                lower.contains('transaction_status=capture') ||
+                lower.contains('status_code=200') ||
+                lower.contains('example.com')) {
+              if (mounted) Navigator.pop(context, true);
+              return NavigationDecision.prevent;
+            }
             if (uri.scheme == 'http' || uri.scheme == 'https') {
               return NavigationDecision.navigate;
             }

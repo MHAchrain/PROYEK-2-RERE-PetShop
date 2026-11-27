@@ -1,3 +1,5 @@
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/pages/auth/login_page.dart';
@@ -29,6 +31,8 @@ class _ProfilPageState extends State<ProfilPage> {
   Map<String, dynamic> _customer = {};
   bool _loading = true;
   bool _loggedIn = true;
+  int? _avatarIndex;
+  String? _avatarImagePath;
 
   String get _name =>
       (_user['name'] ?? _customer['nama'] ?? _customer['nama_pelanggan'])
@@ -78,6 +82,176 @@ class _ProfilPageState extends State<ProfilPage> {
         });
       }
     }
+    await _loadSavedAvatar();
+  }
+
+  Future<void> _loadSavedAvatar() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keyPrefix = await _auth.getCurrentUserKey();
+    final type = prefs.getString('${keyPrefix}_avatar_type');
+    final value = prefs.getString('${keyPrefix}_avatar_value');
+    if (!mounted) return;
+    setState(() {
+      if (type == 'template' && value != null) {
+        _avatarIndex = int.tryParse(value);
+        _avatarImagePath = null;
+      } else if (type == 'gallery' && value != null) {
+        _avatarImagePath = value;
+        _avatarIndex = null;
+      } else {
+        _avatarIndex = null;
+        _avatarImagePath = null;
+      }
+    });
+  }
+
+  Future<void> _saveAvatarTemplate(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    final keyPrefix = await _auth.getCurrentUserKey();
+    await prefs.setString('${keyPrefix}_avatar_type', 'template');
+    await prefs.setString('${keyPrefix}_avatar_value', '$index');
+    if (!mounted) return;
+    setState(() {
+      _avatarIndex = index;
+      _avatarImagePath = null;
+    });
+  }
+
+  Future<void> _pickAvatarFromGallery() async {
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 600,
+    );
+    if (picked == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    final keyPrefix = await _auth.getCurrentUserKey();
+    await prefs.setString('${keyPrefix}_avatar_type', 'gallery');
+    await prefs.setString('${keyPrefix}_avatar_value', picked.path);
+    if (!mounted) return;
+    setState(() {
+      _avatarImagePath = picked.path;
+      _avatarIndex = null;
+    });
+  }
+
+  Future<void> _resetAvatar() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keyPrefix = await _auth.getCurrentUserKey();
+    await prefs.remove('${keyPrefix}_avatar_type');
+    await prefs.remove('${keyPrefix}_avatar_value');
+    if (!mounted) return;
+    setState(() {
+      _avatarIndex = null;
+      _avatarImagePath = null;
+    });
+  }
+
+  Future<void> _openAvatarPicker() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Pilih Foto Profil',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: kProfileAvatarTemplates.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.0,
+                  ),
+                  itemBuilder: (_, i) {
+                    final tpl = kProfileAvatarTemplates[i];
+                    final selected =
+                        _avatarImagePath == null && _avatarIndex == i;
+                    return GestureDetector(
+                      onTap: () async {
+                        Navigator.pop(sheetCtx);
+                        await _saveAvatarTemplate(i);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? AppColors.primary.withValues(alpha: 0.06)
+                              : const Color(0xFFFAF8F7),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: selected
+                                ? AppColors.primary
+                                : const Color(0xFFE5E7EB),
+                            width: selected ? 2 : 1,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            PetAvatarArtwork(template: tpl, size: 52),
+                            const SizedBox(height: 6),
+                            Text(
+                              tpl.label,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: selected
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
+                                color: selected
+                                    ? AppColors.primary
+                                    : AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 18),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    Navigator.pop(sheetCtx);
+                    await _pickAvatarFromGallery();
+                  },
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('Pilih dari Galeri'),
+                ),
+                if (_avatarIndex != null || _avatarImagePath != null) ...[
+                  const SizedBox(height: 6),
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.pop(sheetCtx);
+                      await _resetAvatar();
+                    },
+                    child: const Text('Gunakan Inisial Nama'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -108,6 +282,9 @@ class _ProfilPageState extends State<ProfilPage> {
                       email: _email,
                       phone: _phone,
                       isLoggedIn: _loggedIn,
+                      avatarIndex: _avatarIndex,
+                      avatarImagePath: _avatarImagePath,
+                      onTapAvatar: _loggedIn ? _openAvatarPicker : null,
                     ),
                     if (!_loggedIn)
                       Padding(

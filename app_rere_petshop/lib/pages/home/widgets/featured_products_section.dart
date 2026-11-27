@@ -82,7 +82,7 @@ class FeaturedSection extends StatelessWidget {
               else if (provider.error != null)
                 _buildError(provider)
               else if (provider.featuredProducts.isEmpty)
-                _buildEmpty()
+                _buildEmpty(provider)
               else
                 GridView.builder(
                   shrinkWrap: true,
@@ -152,14 +152,23 @@ class FeaturedSection extends StatelessWidget {
     );
   }
 
-  Widget _buildEmpty() {
-    return const Center(
-      child: Column(
-        children: [
-          Icon(Icons.pets, size: 48, color: AppColors.grey),
-          SizedBox(height: 8),
-          Text('Belum ada produk', style: TextStyle(color: AppColors.grey)),
-        ],
+  Widget _buildEmpty(dynamic provider) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          children: [
+            const Icon(Icons.pets, size: 48, color: AppColors.grey),
+            const SizedBox(height: 8),
+            const Text('Belum ada produk', style: TextStyle(color: AppColors.grey)),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => provider.fetchHomeData(),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Refresh'),
+            ),
+          ],
+        ),
       ),
     );
   }

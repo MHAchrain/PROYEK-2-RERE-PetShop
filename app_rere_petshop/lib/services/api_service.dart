@@ -153,6 +153,14 @@ class ApiService {
     }
   }
 
+  Future<void> confirmOrderReceived(int orderId) async {
+    try {
+      await _dio.post('/pesanan/$orderId/selesai', options: await _authOptions());
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // ─── PRODUCTS ─────────────────────────────────────────────
 
   Future<List<Product>> getProducts({int? categoryId, int page = 1}) async {

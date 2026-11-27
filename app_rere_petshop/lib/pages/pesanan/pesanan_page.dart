@@ -5,6 +5,7 @@ import 'package:app_rere_petshop/pages/order/order_detail_page.dart';
 import 'package:app_rere_petshop/pages/pesanan/widgets/grooming_history_card.dart';
 import 'package:app_rere_petshop/pages/pesanan/widgets/order_history_card.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
+import 'package:app_rere_petshop/services/notification_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:app_rere_petshop/components/pet_loading_indicator.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
@@ -417,9 +418,193 @@ class PesananPageState extends State<PesananPage> {
           void openDetails() => Navigator.push<void>(context, MaterialPageRoute(
             builder: (_) => OrderDetailPage(orderId: orderId),
           )).then((_) => _load());
-          return OrderHistoryCard(order: order, onDetails: openDetails, onTrack: openDetails);
+          return OrderHistoryCard(
+            order: order,
+            onDetails: openDetails,
+            onTrack: () => _showTrackingSheet(order, orderId),
+          );
         },
       ),
+    );
+  }
+
+  Future<void> _showTrackingSheet(Map<String, dynamic> order, int orderId) async {
+    final pengiriman = order['pengiriman'] as Map?;
+    final kurir = pengiriman?['kurir']?.toString() ?? 'Kurir Toko / Ekspedisi';
+    final resi = pengiriman?['no_resi']?.toString();
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        bool confirming = false;
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: AppColors.greyLight,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Lacak Pengiriman #ORD-$orderId',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      resi != null && resi.isNotEmpty
+                          ? '$kurir • No. Resi: $resi'
+                          : kurir,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    _trackingStep(
+                      title: 'Pesanan Diproses',
+                      subtitle: 'Pesanan telah dikemas oleh ReRe Petshop',
+                      active: true,
+                    ),
+                    _trackingStep(
+                      title: 'Sedang Dikirim',
+                      subtitle: 'Paket dalam perjalanan menuju alamat Anda',
+                      active: true,
+                    ),
+                    _trackingStep(
+                      title: 'Pesanan Diterima',
+                      subtitle: 'Konfirmasi jika paket sudah sampai',
+                      active: false,
+                      isLast: true,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      height: 48,
+                      child: ElevatedButton.icon(
+                        onPressed: confirming
+                            ? null
+                            : () async {
+                                setSheetState(() => confirming = true);
+                                try {
+                                  await _api.confirmOrderReceived(orderId);
+                                  await NotificationService.instance.showLocalNotification(
+                                    id: orderId + 20000,
+                                    title: 'Pesanan #ORD-$orderId Selesai',
+                                    body:
+                                        'Terima kasih sudah berbelanja di ReRe Petshop! Semoga anabul suka dengan pesanannya.',
+                                  );
+                                  if (!ctx.mounted) return;
+                                  Navigator.pop(ctx);
+                                  if (!mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Pesanan telah ditandai selesai'),
+                                    ),
+                                  );
+                                  _load();
+                                } catch (e) {
+                                  if (!ctx.mounted) return;
+                                  setSheetState(() => confirming = false);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(e.toString())),
+                                  );
+                                }
+                              },
+                        icon: confirming
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.check_circle_outline),
+                        label: Text(
+                          confirming ? 'Memproses...' : 'Pesanan Sudah Diterima',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _trackingStep({
+    required String title,
+    required String subtitle,
+    required bool active,
+    bool isLast = false,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Icon(
+              active ? Icons.check_circle : Icons.radio_button_unchecked,
+              size: 20,
+              color: active ? AppColors.primary : AppColors.greyLight,
+            ),
+            if (!isLast)
+              Container(
+                width: 2,
+                height: 28,
+                color: active ? AppColors.primary : AppColors.greyLight,
+              ),
+          ],
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: active ? AppColors.textPrimary : AppColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

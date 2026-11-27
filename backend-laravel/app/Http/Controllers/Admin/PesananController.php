@@ -91,10 +91,18 @@ class PesananController extends Controller
 
         $statusPesanan = $validated['status_pesanan'];
 
-        // 1. Update Status Pembayaran (Jika QRIS sudah PAID, status pembayaran TERKUNCI & tidak boleh diubah)
+        // 1. Update Status Pembayaran (Jika Midtrans otomatis sudah PAID, status pembayaran TERKUNCI & tidak boleh diubah)
         $pembayaranExisting = $pesanan->pembayaran;
-        $isQrisPaid = $pembayaranExisting 
-            && stripos($pembayaranExisting->metode_bayar ?? '', 'qris') !== false 
+        $rawMetodeExisting = strtoupper($pembayaranExisting->metode_bayar ?? '');
+        $isAutoMidtrans = false;
+        foreach (['QRIS', 'VA', 'VIRTUAL ACCOUNT', 'ECHANNEL', 'MANDIRI', 'BANK', 'GOPAY', 'SHOPEEPAY', 'DANA', 'OVO', 'MIDTRANS', 'CSTORE', 'CREDIT'] as $kw) {
+            if (str_contains($rawMetodeExisting, $kw)) {
+                $isAutoMidtrans = true;
+                break;
+            }
+        }
+        $isQrisPaid = $pembayaranExisting
+            && $isAutoMidtrans
             && in_array(strtolower($pembayaranExisting->status_bayar ?? ''), ['paid', 'dibayar']);
 
         if (! $isQrisPaid && $request->filled('status_bayar')) {

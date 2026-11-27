@@ -8,6 +8,7 @@ import 'package:app_rere_petshop/pages/order/widgets/order_shipping_section.dart
 import 'package:app_rere_petshop/pages/order/widgets/order_status_card.dart';
 import 'package:app_rere_petshop/pages/pembayaran/snap_payment_page.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
+import 'package:app_rere_petshop/services/notification_service.dart';
 import 'package:flutter/material.dart';
 
 class OrderDetailPage extends StatefulWidget {
@@ -92,26 +93,115 @@ class _OrderDetailPageState extends State<OrderDetailPage> {
         actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
       ),
       body: _body(order, payment, details, status),
-      bottomNavigationBar: order != null && status != 'paid' && order['status_pesanan'] != 'batal'
-          ? SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: _paying ? null : _retryPayment,
-                    icon: _paying
-                        ? const SizedBox(width: 17, height: 17,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.lock_outline),
-                    label: Text(_paying ? 'Memuat Pembayaran...' : 'Bayar Sekarang'),
-                  ),
-                ),
-              ),
-            )
-          : null,
+      bottomNavigationBar: _buildBottomBar(order, status),
     );
+  }
+
+  Widget? _buildBottomBar(Map<String, dynamic>? order, String status) {
+    if (order == null) return null;
+    final orderStatus = order['status_pesanan']?.toString() ?? '';
+
+    if (status != 'paid' && orderStatus != 'batal') {
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: _paying ? null : _retryPayment,
+              icon: _paying
+                  ? const SizedBox(
+                      width: 17,
+                      height: 17,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.lock_outline),
+              label: Text(_paying ? 'Memuat Pembayaran...' : 'Bayar Sekarang'),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (orderStatus == 'dikirim') {
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: _paying ? null : _confirmReceived,
+              icon: _paying
+                  ? const SizedBox(
+                      width: 17,
+                      height: 17,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.check_circle_outline),
+              label: Text(
+                _paying ? 'Memproses...' : 'Pesanan Sudah Diterima',
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return null;
+  }
+
+  Future<void> _confirmReceived() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi Penerimaan'),
+        content: const Text(
+          'Apakah Anda yakin pesanan sudah diterima dengan baik?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Ya, Sudah Diterima'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+
+    setState(() => _paying = true);
+    try {
+      await _api.confirmOrderReceived(widget.orderId);
+      await NotificationService.instance.showLocalNotification(
+        id: widget.orderId + 20000,
+        title: 'Pesanan #ORD-${widget.orderId} Selesai',
+        body:
+            'Terima kasih sudah berbelanja di ReRe Petshop! Semoga anabul suka dengan pesanannya.',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pesanan telah ditandai selesai')),
+      );
+      await _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) setState(() => _paying = false);
+    }
   }
 
   Widget _body(Map<String, dynamic>? order, Map? payment, List details, String status) {
