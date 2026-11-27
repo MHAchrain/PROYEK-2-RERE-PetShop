@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/pembayaran/snap_payment_web.dart'
+    if (dart.library.io) 'package:app_rere_petshop/pages/pembayaran/snap_payment_stub.dart'
+    as platform_snap;
 
 class GroomingSnapPage extends StatefulWidget {
   const GroomingSnapPage({super.key, required this.token});
@@ -43,8 +45,35 @@ class _GroomingSnapPageState extends State<GroomingSnapPage> {
       ..loadRequest(_snapUri);
   }
 
-  Future<void> _openWebSnap() async {
-    await launchUrl(_snapUri, mode: LaunchMode.externalApplication);
+  void _openWebSnap() {
+    platform_snap.openSnapWeb(
+      snapToken: widget.token,
+      onSuccess: (_) {
+        if (mounted && !_returnedFromPayment) {
+          _returnedFromPayment = true;
+          Navigator.pop(context, 'settlement');
+        }
+      },
+      onPending: (_) {
+        if (mounted && !_returnedFromPayment) {
+          _returnedFromPayment = true;
+          Navigator.pop(context, 'pending');
+        }
+      },
+      onError: (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Pembayaran gagal atau dibatalkan.')),
+          );
+        }
+      },
+      onClose: () {
+        if (mounted && !_returnedFromPayment) {
+          _returnedFromPayment = true;
+          Navigator.pop(context, 'pending');
+        }
+      },
+    );
   }
 
   void _checkPaymentReturn(String url) {

@@ -18,7 +18,7 @@ class GroomingBookingController extends Controller
     public function __construct()
     {
         Config::$serverKey = config('midtrans.server_key'); 
-        Config::$isProduction = config('midtrans.isproduction', false);
+        Config::$isProduction = (bool) config('midtrans.is_production', false);
         Config::$isSanitized = config('midtrans.is_sanitized', true);
         Config::$is3ds = config('midtrans.is3ds', true);
     }
@@ -123,6 +123,7 @@ class GroomingBookingController extends Controller
         }
 
         $bookings = $query->get()->map(function ($b) {
+            $this->syncMidtransBooking($b);
             return [
                 'id'          => $b->id,
                 'kodeBooking' => $b->kode_booking,
@@ -283,7 +284,8 @@ class GroomingBookingController extends Controller
         $paymentStatus = $request->input('payment_status'); // 'settlement', 'pending', 'deny', etc.
 
         if (in_array($paymentStatus, ['settlement', 'capture', 'success'])) {
-            $booking->update(['status' => 'terjadwal']);
+            $booking->update(['status' => 'terjadwal', 'payment_status' => 'paid']);
+            $this->syncMidtransBooking($booking, true);
         } elseif (in_array($paymentStatus, ['deny', 'cancel', 'expire'])) {
             $booking->update(['status' => 'gagal']);
         }
@@ -298,6 +300,35 @@ class GroomingBookingController extends Controller
     /**
      * Detail booking
      */
+    private function syncMidtransBooking(GroomingBooking $b, bool $force = false): void
+    {
+        if ((!$force && $b->status !== 'menunggu_pembayaran' && !empty($b->payment_method)) || empty($b->midtrans_order_id)) {
+            return;
+        }
+
+        try {
+            $s = (object) \Midtrans\Transaction::status($b->midtrans_order_id);
+            $pt = $s->payment_type ?? null;
+            $bank = $s->va_numbers[0]->bank ?? null;
+            $txStatus = $s->transaction_status ?? null;
+
+            if ($pt === 'bank_transfer' && $bank) {
+                $b->payment_method = strtoupper($bank) . ' VA';
+            } elseif ($pt === 'echannel') {
+                $b->payment_method = 'MANDIRI VA';
+            } elseif (!empty($pt)) {
+                $b->payment_method = strtoupper(str_replace('_', ' ', $pt));
+            }
+
+            if (in_array($txStatus, ['settlement', 'capture'], true)) {
+                $b->payment_status = 'paid';
+                $b->status = 'terjadwal';
+                $b->save();
+            }
+        } catch (\Throwable $e) {
+        }
+    }
+
     public function show(int $id): JsonResponse
     {
         $pelangganId = $this->resolvePelangganId();
@@ -312,6 +343,8 @@ class GroomingBookingController extends Controller
                 'message' => 'Data booking tidak ditemukan.',
             ], 404);
         }
+
+        $this->syncMidtransBooking($booking);
 
         return response()->json([
             'success' => true,
