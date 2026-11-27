@@ -261,14 +261,8 @@
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-1">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Nomor Resi / Keterangan</label>
-                    <button type="button" onclick="generateDashResi()" class="text-brand-600 hover:text-brand-800 font-bold text-[10px] inline-flex items-center gap-1">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                        <span>Buat Otomatis</span>
-                    </button>
-                </div>
-                <input type="text" name="resi" id="dashModalResi" placeholder="Contoh: JNE12345 / Klik Buat Otomatis" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono bg-white">
+                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Nomor Resi / Keterangan</label>
+                <input type="text" name="resi" id="dashModalResi" placeholder="Contoh: JNE12345 / Link Tracking" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono bg-white">
             </div>
 
             <p class="text-[11px] text-slate-400 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
@@ -291,21 +285,21 @@
 @push('scripts')
 <script>
     let activeDashPesananId = null;
+    let activeDashKodePesanan = '';
 
     function openDashKirimModal(idPesanan, kodePesanan, namaPelanggan, kurir, resi) {
         activeDashPesananId = idPesanan;
+        activeDashKodePesanan = kodePesanan || ('ORD-' + idPesanan);
         const modal = document.getElementById('dashKirimModal');
         const form = document.getElementById('dashKirimForm');
         form.action = `/admin/pesanan/${idPesanan}/status`;
 
-        document.getElementById('dashModalKode').innerText = 'Kirim Pesanan: ' + kodePesanan;
+        document.getElementById('dashModalKode').innerText = 'Kirim Pesanan: ' + activeDashKodePesanan;
         document.getElementById('dashModalPelanggan').innerText = 'Penerima: ' + namaPelanggan;
         document.getElementById('dashModalKurir').value = kurir || 'Internal';
         document.getElementById('dashModalResi').value = resi || '';
 
-        if (!resi) {
-            generateDashResi();
-        }
+        autoDashResi();
 
         modal.classList.remove('hidden');
     }
@@ -314,28 +308,22 @@
         document.getElementById('dashKirimModal').classList.add('hidden');
     }
 
-    function generateDashResi() {
-        const kurir = document.getElementById('dashModalKurir').value;
-        const now = new Date();
-        const dateStr = now.getFullYear().toString().substr(-2) + 
-                        String(now.getMonth() + 1).padStart(2, '0') + 
-                        String(now.getDate()).padStart(2, '0');
-        const rand = Math.floor(100000 + Math.random() * 900000);
-
-        let generatedResi = '';
-        if (kurir === 'JNE') {
-            generatedResi = 'JNE' + dateStr + rand;
-        } else if (kurir === 'Ojol') {
-            generatedResi = 'OJOL-' + dateStr + '-' + rand;
-        } else {
-            generatedResi = 'RERE-INT-' + dateStr + '-' + (activeDashPesananId || rand);
-        }
-
-        document.getElementById('dashModalResi').value = generatedResi;
-    }
-
     function autoDashResi() {
-        generateDashResi();
+        const kurir = document.getElementById('dashModalKurir').value;
+        const resiInput = document.getElementById('dashModalResi');
+        if (kurir === 'Internal') {
+            resiInput.value = activeDashKodePesanan;
+            resiInput.readOnly = true;
+            resiInput.classList.add('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+            resiInput.classList.remove('bg-white');
+        } else {
+            resiInput.readOnly = false;
+            resiInput.classList.remove('bg-slate-100', 'text-slate-500', 'cursor-not-allowed');
+            resiInput.classList.add('bg-white');
+            if (resiInput.value === activeDashKodePesanan) {
+                resiInput.value = '';
+            }
+        }
     }
     const ctx = document.getElementById('salesChart').getContext('2d');
     const salesChart = new Chart(ctx, {
