@@ -136,7 +136,6 @@ class ProdukController extends Controller
                     'Kategori' => $p->kategori->nama_kategori ?? '-',
                     'Harga (Rp)' => (float) $p->harga,
                     'Stok' => (int) $p->stok,
-                    'Deskripsi' => (string) $p->deskripsi,
                     'Path Foto' => (string) $p->foto,
                 ]);
             }

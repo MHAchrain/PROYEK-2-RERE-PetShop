@@ -170,12 +170,12 @@
         <table>
             <tr>
                 <td style="width: 50%;">
-                    <div class="summary-label">Total Pendapatan Hari Ini (Lunas)</div>
+                    <div class="summary-label">Total Pendapatan Hari Ini (Toko + Grooming)</div>
                     <div class="summary-value summary-total">Rp {{ number_format($totalPendapatanHariIni, 0, ',', '.') }}</div>
                 </td>
                 <td style="width: 50%; text-align: right;">
-                    <div class="summary-label">Jumlah Pesanan Dibayar Hari Ini</div>
-                    <div class="summary-value">{{ count($pesananPaidHariIni) }} Transaksi</div>
+                    <div class="summary-label">Jumlah Transaksi Dibayar Hari Ini</div>
+                    <div class="summary-value">{{ count($pesananPaidHariIni) + count($groomingPaidHariIni ?? []) }} Transaksi</div>
                 </td>
             </tr>
         </table>
@@ -244,15 +244,98 @@
             <tfoot>
                 <tr style="background: #f8fafc; font-weight: bold;">
                     <td colspan="5" class="text-right" style="padding: 10px; font-size: 11px;">
-                        TOTAL PENDAPATAN HARI INI :
+                        SUBTOTAL PESANAN TOKO :
                     </td>
-                    <td class="text-right" style="padding: 10px; font-size: 12px; color: #dc2626;">
-                        Rp {{ number_format($totalPendapatanHariIni, 0, ',', '.') }}
+                    <td class="text-right" style="padding: 10px; font-size: 12px; color: #0f172a;">
+                        Rp {{ number_format($subtotalToko ?? $totalPendapatanHariIni, 0, ',', '.') }}
                     </td>
                 </tr>
             </tfoot>
         @endif
     </table>
+
+    <!-- JARAK ANTAR TABEL -->
+    <div style="margin-top: 24px;"></div>
+
+    <!-- TABEL RINCIAN GROOMING -->
+    <h3 style="font-size: 12px; margin: 0 0 8px 0; color: #334155;">Rincian Booking Grooming yang Sudah Dibayar Hari Ini</h3>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;" class="text-center">No</th>
+                <th style="width: 18%;">Kode Booking</th>
+                <th style="width: 18%;">Pelanggan</th>
+                <th style="width: 32%;">Layanan &amp; Hewan</th>
+                <th style="width: 12%;">Metode</th>
+                <th style="width: 15%;" class="text-right">Total (Rp)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($groomingPaidHariIni ?? [] as $index => $g)
+                @php
+                    $gTotal = (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+                @endphp
+                <tr>
+                    <td class="text-center font-bold">{{ $index + 1 }}</td>
+                    <td>
+                        <strong style="color: #dc2626;">{{ $g->kode_booking }}</strong>
+                        <div class="text-muted">
+                            {{ $g->created_at ? \Carbon\Carbon::parse($g->created_at)->timezone('Asia/Jakarta')->format('d/m/Y H:i') . ' WIB' : 'Hari ini' }}
+                        </div>
+                    </td>
+                    <td>
+                        <strong>{{ $g->pelanggan->nama ?? 'Customer' }}</strong>
+                        <div class="text-muted">{{ $g->pelanggan->no_hp ?? '-' }}</div>
+                    </td>
+                    <td>
+                        <strong>{{ $g->service->name ?? 'Grooming' }}</strong>
+                        <div class="text-muted">{{ $g->pet_name }} ({{ $g->pet_type }})</div>
+                    </td>
+                    <td>
+                        <span class="badge-paid">LUNAS</span>
+                        <div class="text-muted" style="margin-top: 2px;">
+                            {{ strtoupper($g->payment_method ?? ($g->midtrans_order_id ? 'MIDTRANS' : 'MANUAL')) }}
+                        </div>
+                    </td>
+                    <td class="text-right font-bold" style="color: #0f172a;">
+                        Rp {{ number_format($gTotal, 0, ',', '.') }}
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center" style="padding: 20px; color: #94a3b8;">
+                        Belum ada transaksi grooming yang dibayar (lunas) untuk hari ini.
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+        @if(count($groomingPaidHariIni ?? []) > 0)
+            <tfoot>
+                <tr style="background: #f8fafc; font-weight: bold;">
+                    <td colspan="5" class="text-right" style="padding: 10px; font-size: 11px;">
+                        SUBTOTAL GROOMING :
+                    </td>
+                    <td class="text-right" style="padding: 10px; font-size: 12px; color: #0f172a;">
+                        Rp {{ number_format($subtotalGrooming ?? 0, 0, ',', '.') }}
+                    </td>
+                </tr>
+            </tfoot>
+        @endif
+    </table>
+
+    <!-- TOTAL PENDAPATAN KESELURUHAN -->
+    <div style="margin-top: 12px; padding: 12px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="font-size: 12px; font-weight: bold; color: #7f1d1d;">
+                    TOTAL PENDAPATAN HARI INI (TOKO + GROOMING)
+                </td>
+                <td class="text-right" style="font-size: 15px; font-weight: bold; color: #dc2626;">
+                    Rp {{ number_format($totalPendapatanHariIni, 0, ',', '.') }}
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <!-- TANDA TANGAN / PENGESAHAN -->
     <table style="width: 100%; margin-top: 15px;">

@@ -21,12 +21,21 @@ class DashboardController extends Controller
         $totalPelanggan = Pelanggan::count();
         $totalPesanan = Pesanan::count();
 
-        // Total Pendapatan Hari Ini: Pesanan yang tanggal pesanannya hari ini DAN status pembayarannya paid (lunas)
-        $totalPendapatanHariIni = (float) Pesanan::whereDate('tanggal_pesanan', $today)
+        // Total Pendapatan Hari Ini: Toko + Grooming yang sudah lunas hari ini
+        $pendapatanTokoHariIni = (float) Pesanan::whereDate('tanggal_pesanan', $today)
             ->whereHas('pembayaran', function ($p) {
                 $p->where('status_bayar', 'paid');
             })
             ->sum('total');
+
+        $pendapatanGroomingHariIni = (float) GroomingBooking::whereDate('created_at', $today)
+            ->where(function ($q) {
+                $q->where('payment_status', 'paid')
+                  ->orWhereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai']);
+            })
+            ->sum('price');
+
+        $totalPendapatanHariIni = $pendapatanTokoHariIni + $pendapatanGroomingHariIni;
 
         // 2. Pesanan Siap Kirim (Hanya yang status_pesanan = 'diproses' / sedang diproses saja)
         $pesananSiapKirim = Pesanan::with(['pelanggan', 'pembayaran', 'pengiriman'])
@@ -90,11 +99,29 @@ class DashboardController extends Controller
             ->latest('id_pesanan')
             ->get();
 
-        $totalPendapatanHariIni = (float) $pesananPaidHariIni->sum('total');
+        $subtotalToko = (float) $pesananPaidHariIni->sum('total');
+
+        $groomingPaidHariIni = GroomingBooking::with(['pelanggan', 'service'])
+            ->whereDate('created_at', $today)
+            ->where(function ($q) {
+                $q->where('payment_status', 'paid')
+                  ->orWhereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai']);
+            })
+            ->latest('id')
+            ->get();
+
+        $subtotalGrooming = (float) $groomingPaidHariIni->sum(function ($g) {
+            return (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+        });
+
+        $totalPendapatanHariIni = $subtotalToko + $subtotalGrooming;
         $tanggalFormatted = $today->translatedFormat('d F Y');
 
         $pdf = Pdf::loadView('admin.dashboard.invoice_pdf', compact(
             'pesananPaidHariIni',
+            'groomingPaidHariIni',
+            'subtotalToko',
+            'subtotalGrooming',
             'totalPendapatanHariIni',
             'tanggalFormatted'
         ))->setPaper('a4', 'portrait');
