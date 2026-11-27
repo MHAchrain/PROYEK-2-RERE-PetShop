@@ -273,7 +273,7 @@
         <tbody>
             @forelse($groomingPaidHariIni ?? [] as $index => $g)
                 @php
-                    $gTotal = (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+                    $gTotal = (float) ($g->service->price ?? $g->total_price ?? $g->price ?? 0);
                 @endphp
                 <tr>
                     <td class="text-center font-bold">{{ $index + 1 }}</td>

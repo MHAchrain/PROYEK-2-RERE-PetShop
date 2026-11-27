@@ -33,7 +33,7 @@ class DashboardController extends Controller
             ->whereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai'])
             ->get()
             ->sum(function ($g) {
-                return (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+                return (float) ($g->service->price ?? $g->total_price ?? $g->price ?? 0);
             });
 
         $totalPendapatanHariIni = $pendapatanTokoHariIni + $pendapatanGroomingHariIni;
@@ -45,10 +45,11 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // 3. Grooming Hari Ini (Hanya yang sudah dibayar & status terjadwal)
+        // 3. Grooming Terjadwal (Hari ini & mendatang yang sudah dibayar & status terjadwal)
         $groomingHariIni = GroomingBooking::with(['service', 'pelanggan'])
-            ->whereDate('date', $today)
+            ->whereDate('date', '>=', $today)
             ->where('status', 'terjadwal')
+            ->orderBy('date', 'asc')
             ->orderBy('time', 'asc')
             ->take(6)
             ->get();
@@ -76,7 +77,7 @@ class DashboardController extends Controller
                 ->whereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai'])
                 ->get()
                 ->sum(function ($g) {
-                    return (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+                    return (float) ($g->service->price ?? $g->total_price ?? $g->price ?? 0);
                 });
             $chartTotals[] = $sumToko + $sumGrooming;
         }
@@ -119,7 +120,7 @@ class DashboardController extends Controller
             ->get();
 
         $subtotalGrooming = (float) $groomingPaidHariIni->sum(function ($g) {
-            return (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+            return (float) ($g->service->price ?? $g->total_price ?? $g->price ?? 0);
         });
 
         $totalPendapatanHariIni = $subtotalToko + $subtotalGrooming;

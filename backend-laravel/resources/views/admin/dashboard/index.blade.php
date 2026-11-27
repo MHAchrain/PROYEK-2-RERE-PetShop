@@ -182,9 +182,9 @@
                 <div>
                     <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
                         <i class="fa-solid fa-calendar-day text-brand-600"></i>
-                        <span>Grooming Hari Ini (Terjadwal)</span>
+                        <span>Grooming Terjadwal</span>
                     </h3>
-                    <p class="text-xs text-slate-400">Hanya menampilkan booking yang sudah dibayar &amp; terjadwal hari ini</p>
+                    <p class="text-xs text-slate-400">Booking sudah dibayar &amp; menunggu konfirmasi</p>
                 </div>
                 <a href="{{ route('admin.grooming.bookings') }}" class="text-xs font-bold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
                     <span>Lihat Semua</span>
@@ -204,7 +204,7 @@
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
                             <span class="font-mono text-[11px] font-bold text-brand-700 bg-brand-50 px-2 py-1 rounded">
-                                {{ substr($booking->time, 0, 5) }} WIB
+                                {{ $booking->date ? $booking->date->format('d/m') : '' }} {{ substr($booking->time, 0, 5) }} WIB
                             </span>
                             <form action="{{ route('admin.grooming.booking.status', $booking->id) }}" method="POST" class="inline">
                                 @csrf

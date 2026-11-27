@@ -241,6 +241,8 @@ class GroomingBookingController extends Controller
             ];
 
             $snapToken = Snap::getSnapToken($params);
+            $booking->midtrans_order_id = $transactionDetails['order_id'];
+            $booking->save();
         } catch (\Exception $e) {
             // Log Midtrans error fallback
         }
