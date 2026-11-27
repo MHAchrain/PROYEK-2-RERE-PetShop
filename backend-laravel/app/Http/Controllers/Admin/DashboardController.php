@@ -28,12 +28,13 @@ class DashboardController extends Controller
             })
             ->sum('total');
 
-        $pendapatanGroomingHariIni = (float) GroomingBooking::whereDate('created_at', $today)
-            ->where(function ($q) {
-                $q->where('payment_status', 'paid')
-                  ->orWhereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai']);
-            })
-            ->sum('price');
+        $pendapatanGroomingHariIni = (float) GroomingBooking::with('service')
+            ->whereDate('created_at', $today)
+            ->whereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai'])
+            ->get()
+            ->sum(function ($g) {
+                return (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+            });
 
         $totalPendapatanHariIni = $pendapatanTokoHariIni + $pendapatanGroomingHariIni;
 
@@ -103,10 +104,7 @@ class DashboardController extends Controller
 
         $groomingPaidHariIni = GroomingBooking::with(['pelanggan', 'service'])
             ->whereDate('created_at', $today)
-            ->where(function ($q) {
-                $q->where('payment_status', 'paid')
-                  ->orWhereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai']);
-            })
+            ->whereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai'])
             ->latest('id')
             ->get();
 
