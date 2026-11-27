@@ -93,7 +93,7 @@
                                     </form>
                                     @php
                                         $payStatus = strtoupper($b->payment_status ?? (in_array($b->status, ['terjadwal', 'dikonfirmasi', 'selesai']) ? 'PAID' : ($b->status === 'dibatalkan' ? 'CANCEL' : 'PENDING')));
-                                        $payMethod = strtoupper($b->payment_method ?? ($b->midtrans_order_id ? 'MIDTRANS' : 'MANUAL'));
+                                        $payMethod = strtoupper($b->midtrans_payment_method ?? $b->payment_method ?? ($b->midtrans_order_id ? 'MIDTRANS' : 'MANUAL'));
                                         $detailPayload = [
                                             'kode' => $b->kode_booking,
                                             'tanggal' => $b->created_at ? $b->created_at->format('d/m/Y H:i') : '-',
