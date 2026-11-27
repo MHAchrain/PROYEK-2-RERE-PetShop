@@ -61,11 +61,15 @@ class OrderProductSection extends StatelessWidget {
       }
     }
 
-    final foto = product['foto']?.toString();
-    if (foto != null && foto.isNotEmpty) {
-      final imageUrl = foto.startsWith('http://') || foto.startsWith('https://')
-          ? foto
-          : '${AppConstants.baseUrl}/image/${foto.split('/').map((part) => Uri.encodeComponent(part)).join('/')}';
+    final foto = product['foto']?.toString() ?? product['foto_url']?.toString() ?? product['image']?.toString();
+    if (foto != null && foto.trim().isNotEmpty) {
+      String cleanFoto = foto.trim();
+      if (cleanFoto.startsWith('produk/')) {
+        cleanFoto = cleanFoto.substring(7);
+      }
+      final imageUrl = cleanFoto.startsWith('http://') || cleanFoto.startsWith('https://')
+          ? cleanFoto
+          : '${AppConstants.baseUrl}/image/$cleanFoto';
       return ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: CachedNetworkImage(

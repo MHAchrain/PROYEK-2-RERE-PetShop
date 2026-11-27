@@ -57,9 +57,16 @@ return [
     'strict' => true,
     'engine' => null,
     'options' => extension_loaded('pdo_mysql') ? array_filter([
-        PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA', file_exists('/etc/pki/tls/certs/ca-bundle.crt') 
-            ? '/etc/pki/tls/certs/ca-bundle.crt' 
-            : (file_exists('/etc/ssl/certs/ca-certificates.crt') ? '/etc/ssl/certs/ca-certificates.crt' : null)),
+            // =========================================================================
+            // LOKAL (MySQL XAMPP): Ambil dari env('MYSQL_ATTR_SSL_CA').
+            // Jika di .env kosong (seperti lokal), SSL nonaktif otomatis.
+            // =========================================================================
+            PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+
+            // =========================================================================
+            // PRODUCTION (TiDB Cloud): Uncomment jika ingin selalu force cacert.pem
+            // =========================================================================
+            // PDO::MYSQL_ATTR_SSL_CA => base_path('cacert.pem'),
     ]) : [],
 ],
         'mariadb' => [

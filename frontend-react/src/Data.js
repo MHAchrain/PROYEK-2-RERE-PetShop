@@ -153,7 +153,7 @@ export const groomingServices = [
     description:
       'Mandi dan perawatan dasar untuk hewan peliharaan Anda.',
     price: 150000,
-    durationMinutes: 60,
+    durationMinutes: 45,
     isActive: true,
   },
   {
@@ -162,7 +162,7 @@ export const groomingServices = [
     description:
       'Mandi, perawatan, dan pemotongan bulu untuk hewan peliharaan Anda.',
     price: 250000,
-    durationMinutes: 60,
+    durationMinutes: 50,
     isActive: true,
   },
   {
@@ -171,7 +171,7 @@ export const groomingServices = [
     description:
       'Perawatan lengkap termasuk mandi, pemotongan bulu, dan perawatan tambahan untuk hewan peliharaan Anda.',
     price: 350000,
-    durationMinutes: 90,
+    durationMinutes: 60,
     isActive: true,
   },
 ];

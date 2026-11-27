@@ -8,6 +8,8 @@ import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:app_rere_petshop/constants/app_constants.dart';
 import 'package:app_rere_petshop/pages/product/widgets/product_action_bar.dart';
 import 'package:app_rere_petshop/pages/product/widgets/product_detail_content.dart';
+import 'package:app_rere_petshop/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProductDetailPage extends StatefulWidget {
@@ -74,15 +76,21 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     try {
       await _apiService.addToCart(product.id, quantity: _quantity);
       if (!mounted) return;
+      await context.read<CartProvider>().refreshCount();
+      if (!mounted) return;
       if (buyNow) {
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const CartPage()),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Produk ditambahkan ke keranjang.')),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text('Produk telah ditambahkan ke dalam keranjang'),
+            ),
+          );
       }
     } catch (e) {
       if (mounted) {

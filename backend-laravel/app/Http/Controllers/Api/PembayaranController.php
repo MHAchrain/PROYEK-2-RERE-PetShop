@@ -251,6 +251,11 @@ class PembayaranController extends Controller
 
         if ($resolvedStatus === 'paid') {
             $pembayaran->waktu_bayar = now();
+        } elseif ($resolvedStatus === 'failed') {
+            $pesanan = Pesanan::find($pembayaran->id_pesanan);
+            if ($pesanan && $pesanan->status_pesanan !== 'batal') {
+                $pesanan->update(['status_pesanan' => 'batal']);
+            }
         }
 
         $pembayaran->save();
@@ -334,6 +339,11 @@ class PembayaranController extends Controller
 
         if ($resolvedStatus === 'paid') {
             $pembayaran->waktu_bayar = now();
+        } elseif ($resolvedStatus === 'failed') {
+            $pesanan = Pesanan::find($pembayaran->id_pesanan);
+            if ($pesanan && $pesanan->status_pesanan !== 'batal') {
+                $pesanan->update(['status_pesanan' => 'batal']);
+            }
         }
 
         $pembayaran->save();

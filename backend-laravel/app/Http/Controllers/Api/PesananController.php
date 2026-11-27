@@ -28,6 +28,12 @@ class PesananController extends Controller
             ->latest('id_pesanan')
             ->get();
 
+        foreach ($pesanan as $item) {
+            if ($item->pembayaran && $item->pembayaran->status_bayar === 'pending') {
+                $this->syncMidtransStatus($item);
+            }
+        }
+
         return response()->json([
             'message' => 'Riwayat pesanan berhasil diambil.',
             'data' => $pesanan
@@ -57,10 +63,57 @@ class PesananController extends Controller
             ], 404);
         }
 
+        $this->syncMidtransStatus($pesanan);
+
         return response()->json([
             'message' => 'Detail pesanan berhasil diambil.',
             'data' => $pesanan
         ]);
+    }
+
+    private function syncMidtransStatus(Pesanan $pesanan): void
+    {
+        $pembayaran = $pesanan->pembayaran;
+        if (!$pembayaran || $pembayaran->status_bayar !== 'pending' || empty($pembayaran->ref_gateway)) {
+            return;
+        }
+
+        try {
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = (bool) config('midtrans.is_production', false);
+
+            $status = (object) \Midtrans\Transaction::status($pembayaran->ref_gateway);
+            $txStatus = $status->transaction_status ?? null;
+            $fraudStatus = $status->fraud_status ?? null;
+
+            $isPaid = $txStatus === 'settlement' ||
+                ($txStatus === 'capture' && $fraudStatus !== 'challenge' && $fraudStatus !== 'deny');
+
+            if ($isPaid) {
+                $paymentType = $status->payment_type ?? null;
+                $vaBank = $status->va_numbers[0]->bank ?? null;
+                if ($paymentType === 'bank_transfer' && $vaBank) {
+                    $pembayaran->metode_bayar = strtoupper($vaBank) . ' VA';
+                } elseif ($paymentType === 'echannel') {
+                    $pembayaran->metode_bayar = 'MANDIRI VA';
+                } elseif (!empty($paymentType)) {
+                    $pembayaran->metode_bayar = strtoupper(str_replace('_', ' ', $paymentType));
+                }
+
+                $pembayaran->status_bayar = 'paid';
+                $pembayaran->save();
+
+                if (in_array($pesanan->status_pesanan, ['baru', 'menunggu_verifikasi'], true)) {
+                    $pesanan->status_pesanan = 'diproses';
+                    $pesanan->save();
+                }
+
+                $pesanan->refresh();
+                $pesanan->load(['details.produk', 'pembayaran', 'pengiriman']);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Midtrans sync error for order ' . $pesanan->id_pesanan . ': ' . $e->getMessage());
+        }
     }
 public function status(Request $request, $id)
 {

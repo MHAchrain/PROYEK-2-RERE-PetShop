@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Pelanggan;
+use App\Models\User;
+use App\Services\TurnstileService;
+use Google\Client as GoogleClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
-use Google\Client as GoogleClient;
-
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -73,8 +73,149 @@ class AuthController extends Controller
         ];
     }
 
+    /**
+     * Tentukan apakah request harus memvalidasi Cloudflare Turnstile CAPTCHA.
+     * Web browser (React) wajib divalidasi CAPTCHA.
+     * Mobile client (Flutter Android) dikecualikan sampai widget CAPTCHA mobile diimplementasikan.
+     */
+    protected function shouldValidateTurnstile(Request $request): bool
+    {
+        $userAgent = strtolower((string) $request->header('User-Agent'));
+        $clientPlatform = strtolower((string) $request->header('X-Client-Platform', ''));
+        $inputPlatform = strtolower((string) $request->input('platform', ''));
+
+        // 1. Identifikasi Mobile Client (Flutter / Dart / Dio / header mobile)
+        $isMobileClient = $clientPlatform === 'mobile' ||
+            $inputPlatform === 'mobile' ||
+            str_contains($userAgent, 'dart') ||
+            str_contains($userAgent, 'dio') ||
+            str_contains($userAgent, 'flutter') ||
+            str_contains($userAgent, 'okhttp');
+
+        if ($isMobileClient) {
+            // Jika mobile menyertakan turnstile_token secara eksplisit, tetap verifikasi.
+            // Jika tidak, jangan wajibkan CAPTCHA pada mobile.
+            return $request->filled('turnstile_token') || $request->filled('cf-turnstile-response');
+        }
+
+        // 2. Jika request menyertakan token Turnstile (dari form Web), wajib divalidasi
+        if ($request->has('turnstile_token') || $request->has('cf-turnstile-response')) {
+            return true;
+        }
+
+        // 3. Request dari browser web (React frontend) wajib divalidasi
+        $isWeb = $clientPlatform === 'web' ||
+            $inputPlatform === 'web' ||
+            $request->headers->has('Origin') ||
+            $request->headers->has('Sec-Fetch-Mode') ||
+            (str_contains($userAgent, 'mozilla') && !$isMobileClient);
+
+        return $isWeb;
+    }
+
+    /**
+     * Lakukan validasi Cloudflare Turnstile CAPTCHA sebelum autentikasi diproses.
+     */
+    protected function validateTurnstile(Request $request): ?\Illuminate\Http\JsonResponse
+    {
+        if (!$this->shouldValidateTurnstile($request)) {
+            return null;
+        }
+
+        $token = $request->input('turnstile_token') ?? $request->input('cf-turnstile-response');
+
+        $result = app(TurnstileService::class)->verify($token, $request->ip());
+
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+                'errors' => [
+                    'turnstile_token' => [$result['message']],
+                ],
+            ], 422);
+        }
+
+        return null;
+    }
+
+    /**
+     * Generate 5 digit Number CAPTCHA khusus aplikasi mobile (gaya Mobile JKN).
+     */
+    public function getCaptcha(): \Illuminate\Http\JsonResponse
+    {
+        $code = (string) mt_rand(10000, 99999);
+        $key = (string) Str::uuid();
+
+        Cache::put("mobile_captcha:{$key}", $code, now()->addMinutes(5));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Captcha berhasil dibuat',
+            'key' => $key,
+            'code' => $code,
+        ]);
+    }
+
+    /**
+     * Validasi Number CAPTCHA khusus aplikasi mobile (gaya Mobile JKN).
+     */
+    protected function validateMobileCaptcha(Request $request): ?\Illuminate\Http\JsonResponse
+    {
+        $userAgent = strtolower((string) $request->header('User-Agent'));
+        $clientPlatform = strtolower((string) $request->header('X-Client-Platform', ''));
+        $inputPlatform = strtolower((string) $request->input('platform', ''));
+
+        $isMobileClient = $clientPlatform === 'mobile'
+            || $inputPlatform === 'mobile'
+            || str_contains($userAgent, 'dart')
+            || str_contains($userAgent, 'dio')
+            || str_contains($userAgent, 'flutter')
+            || str_contains($userAgent, 'okhttp')
+            || $request->has('captcha_key');
+
+        if (! $isMobileClient) {
+            return null;
+        }
+
+        $captchaKey = $request->input('captcha_key');
+        $captchaCode = $request->input('captcha_code');
+
+        if (empty($captchaKey) || empty($captchaCode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode captcha angka wajib diisi.',
+                'errors' => [
+                    'captcha_code' => ['Kode captcha angka wajib diisi.'],
+                ],
+            ], 422);
+        }
+
+        $cachedCode = Cache::get("mobile_captcha:{$captchaKey}");
+
+        if (! $cachedCode || $cachedCode !== trim((string) $captchaCode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode captcha salah atau kedaluwarsa. Silakan muat ulang captcha.',
+                'errors' => [
+                    'captcha_code' => ['Kode captcha angka tidak valid atau telah kedaluwarsa.'],
+                ],
+            ], 422);
+        }
+
+        // Hapus kode setelah sukses divalidasi (one-time use)
+        Cache::forget("mobile_captcha:{$captchaKey}");
+
+        return null;
+    }
+
     public function register(Request $request)
     {
+        // 1. Validasi Turnstile CAPTCHA sebelum proses registrasi
+        if ($captchaError = $this->validateTurnstile($request)) {
+            return $captchaError;
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email|unique:pelanggan,email',
@@ -116,6 +257,16 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // 1. Validasi Turnstile CAPTCHA (khusus web)
+        if ($captchaError = $this->validateTurnstile($request)) {
+            return $captchaError;
+        }
+
+        // 2. Validasi Number CAPTCHA (khusus mobile gaya Mobile JKN)
+        if ($mobileCaptchaError = $this->validateMobileCaptcha($request)) {
+            return $mobileCaptchaError;
+        }
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
@@ -129,7 +280,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        if (! Auth::attempt([
+        if (!Auth::attempt([
             'email' => $request->email,
             'password' => $request->password,
         ])) {
@@ -183,7 +334,7 @@ class AuthController extends Controller
         $email = $request->email;
         $user = User::where('email', $email)->first();
 
-        if (! $user || $user->role !== 'customer') {
+        if (!$user || $user->role !== 'customer') {
             return response()->json([
                 'success' => false,
                 'message' => 'Akun customer tidak ditemukan',
@@ -227,7 +378,7 @@ class AuthController extends Controller
         );
 
         Mail::raw(
-            "Kode reset password ReRe PetShop Anda adalah: {$code}. Kode ini berlaku " . self::RESET_CODE_TTL_MINUTES . " menit.",
+            "Kode reset password ReRe PetShop Anda adalah: {$code}. Kode ini berlaku " . self::RESET_CODE_TTL_MINUTES . ' menit.',
             function ($message) use ($email) {
                 $message->to($email)->subject('Kode Reset Password ReRe PetShop');
             }
@@ -257,7 +408,7 @@ class AuthController extends Controller
         $email = $request->email;
         $cachedCode = Cache::get($this->resetCodeKey($email));
 
-        if (! $cachedCode) {
+        if (!$cachedCode) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kode reset sudah kedaluwarsa. Silakan kirim ulang kode baru.',
@@ -345,14 +496,14 @@ class AuthController extends Controller
         $cachedCode = Cache::get($this->resetCodeKey($email));
         $isVerified = Cache::get($this->resetVerifiedKey($email), false);
 
-        if (! $cachedCode || $cachedCode !== $request->code) {
+        if (!$cachedCode || $cachedCode !== $request->code) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kode reset tidak valid atau sudah kedaluwarsa',
             ], 422);
         }
 
-        if (! $isVerified) {
+        if (!$isVerified) {
             return response()->json([
                 'success' => false,
                 'message' => 'Konfirmasi kode reset dulu sebelum mengganti password',
@@ -383,7 +534,7 @@ class AuthController extends Controller
         ]);
     }
 
-        // ⬇️ 3 METHOD GOOGLE OAUTH (LENGKAP) ⬇️
+    // ⬇️ 3 METHOD GOOGLE OAUTH (LENGKAP) ⬇️
 
     public function redirectToGoogle()
     {
@@ -398,9 +549,9 @@ class AuthController extends Controller
             /** @var \Laravel\Socialite\Two\AbstractProvider $driver */
             $driver = Socialite::driver('google');
             $googleUser = $driver->stateless()->user();
-            
+
             $user = User::where('email', $googleUser->getEmail())->first();
-            
+
             if (!$user) {
                 $pelanggan = Pelanggan::create([
                     'nama' => $googleUser->getName(),
@@ -450,22 +601,21 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
             ]));
-
         } catch (\Exception $e) {
-            return "<pre>
-ERROR: " . $e->getMessage() . "
+            return '<pre>
+ERROR: ' . $e->getMessage() . '
 
-LINE: " . $e->getLine() . "
+LINE: ' . $e->getLine() . '
 
-FILE: " . $e->getFile() . "
-</pre>";
+FILE: ' . $e->getFile() . '
+</pre>';
         }
     }
 
     public function googleLogin(Request $request)
     {
         \Log::info('Google Login dipanggil');
-        
+
         $validator = Validator::make($request->all(), [
             'token' => 'required|string',
         ]);
@@ -480,9 +630,9 @@ FILE: " . $e->getFile() . "
         try {
             // 🔥 PAKAI SOCIALITE userFromToken (LEBIH SIMPLE)
             $googleUser = Socialite::driver('google')->stateless()->userFromToken($request->token);
-            
+
             $user = User::where('email', $googleUser->getEmail())->first();
-            
+
             if (!$user) {
                 $pelanggan = Pelanggan::create([
                     'nama' => $googleUser->getName(),
@@ -531,12 +681,11 @@ FILE: " . $e->getFile() . "
                 'token' => $token,
                 'data' => $this->buildAuthPayload($user),
             ]);
-
         } catch (\Exception $e) {
             \Log::error('Google Login Error: ' . $e->getMessage());
             \Log::error('Line: ' . $e->getLine());
             \Log::error('File: ' . $e->getFile());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Login Google gagal: ' . $e->getMessage(),

@@ -10,7 +10,9 @@ import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 
 class GroomBookPage extends StatefulWidget {
-  const GroomBookPage({super.key});
+  const GroomBookPage({super.key, this.initialService});
+
+  final Map<String, dynamic>? initialService;
 
   @override
   State<GroomBookPage> createState() => _GroomBookPageState();
@@ -65,6 +67,9 @@ class _GroomBookPageState extends State<GroomBookPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialService != null) {
+      _selectedService = widget.initialService;
+    }
     _ensureLogin();
     _loadServices();
   }
@@ -89,10 +94,16 @@ class _GroomBookPageState extends State<GroomBookPage> {
       final services = await _api.getGroomingServices();
       if (!mounted) return;
       setState(() {
-        _services = services.isEmpty
-            ? List<Map<String, dynamic>>.from(_fallbackServices)
-            : services;
+        _services = services;
         _loadingServices = false;
+        if (_selectedService != null && _services.isNotEmpty) {
+          final matched = _services
+              .where((s) => '${s['id']}' == '${_selectedService!['id']}')
+              .firstOrNull;
+          if (matched != null) {
+            _selectedService = matched;
+          }
+        }
       });
     } catch (_) {
       if (!mounted) return;

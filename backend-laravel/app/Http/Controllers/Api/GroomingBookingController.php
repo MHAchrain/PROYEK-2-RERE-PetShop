@@ -73,7 +73,7 @@ class GroomingBookingController extends Controller
 
         // Jam slot default
         $defaultTimes = ['09:00', '11:00', '13:00', '15:00', '17:00'];
-        $capacityPerSlot = 2; // kapasitas slot default
+        $capacityPerSlot = 1; // kapasitas slot default
 
         // Hitung booking yang sudah masuk pada tanggal & jam tersebut (yang belum dibatalkan)
         $bookedCounts = GroomingBooking::where('date', $date)
@@ -187,7 +187,7 @@ class GroomingBookingController extends Controller
             ->whereNotIn('status', ['dibatalkan', 'gagal'])
             ->count();
 
-        if ($existingBookings >= 2) {
+        if ($existingBookings >= 1) {
             return response()->json([
                 'success' => false,
                 'message' => 'Slot waktu pada jam tersebut sudah penuh.',

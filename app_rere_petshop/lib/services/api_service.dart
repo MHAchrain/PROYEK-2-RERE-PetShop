@@ -18,6 +18,7 @@ class ApiService {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Client-Platform': 'mobile',
       },
     ));
 
@@ -147,6 +148,14 @@ class ApiService {
       final response =
           await _dio.get('/pesanan/$orderId', options: await _authOptions());
       return Map<String, dynamic>.from(response.data['data'] ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> confirmOrderReceived(int orderId) async {
+    try {
+      await _dio.post('/pesanan/$orderId/selesai', options: await _authOptions());
     } on DioException catch (e) {
       throw _handleError(e);
     }

@@ -1,4 +1,5 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
+import 'package:app_rere_petshop/pages/auth/forgot_password_page.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -113,6 +114,22 @@ class _DataPribadiPageState extends State<DataPribadiPage> {
                                 ? const SizedBox(width: 18, height: 18,
                                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                                 : const Text('Simpan Perubahan'),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 48,
+                          child: OutlinedButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ForgotPasswordPage(
+                                  initialEmail: _email.text.trim(),
+                                ),
+                              ),
+                            ),
+                            icon: const Icon(Icons.lock_reset_outlined),
+                            label: const Text('Lupa Kata Sandi?'),
                           ),
                         ),
                       ],

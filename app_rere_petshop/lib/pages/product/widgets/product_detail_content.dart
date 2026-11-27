@@ -1,3 +1,4 @@
+import 'package:app_rere_petshop/components/cart_icon_button.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/models/product_model.dart';
 import 'package:app_rere_petshop/pages/product/widgets/product_hero_image.dart';
@@ -110,6 +111,16 @@ class ProductDetailContent extends StatelessWidget {
                 color: AppColors.textPrimary,
               ),
             ),
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.paddingOf(context).top + 8,
+          right: 16,
+          child: Material(
+            color: AppColors.white,
+            shape: const CircleBorder(),
+            elevation: 1,
+            child: const CartIconButton(),
           ),
         ),
       ],

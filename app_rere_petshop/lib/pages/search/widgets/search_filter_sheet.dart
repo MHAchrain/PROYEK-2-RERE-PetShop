@@ -181,7 +181,7 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 onChanged: (value) => setState(() => _inStockOnly = value),
               ),
               const Text(
-                'Urutkan Harga',
+                'Urutkan',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
@@ -195,15 +195,23 @@ class _SearchFilterSheetState extends State<SearchFilterSheet> {
                 items: const [
                   DropdownMenuItem(
                     value: SearchSortOrder.relevance,
-                    child: Text('Relevan'),
+                    child: Text('Paling Relevan'),
                   ),
                   DropdownMenuItem(
                     value: SearchSortOrder.priceLowToHigh,
-                    child: Text('Harga terendah'),
+                    child: Text('Harga: Terendah ke Tertinggi'),
                   ),
                   DropdownMenuItem(
                     value: SearchSortOrder.priceHighToLow,
-                    child: Text('Harga tertinggi'),
+                    child: Text('Harga: Tertinggi ke Terendah'),
+                  ),
+                  DropdownMenuItem(
+                    value: SearchSortOrder.stockHighToLow,
+                    child: Text('Stok: Terbanyak ke Tersedikit'),
+                  ),
+                  DropdownMenuItem(
+                    value: SearchSortOrder.stockLowToHigh,
+                    child: Text('Stok: Tersedikit ke Terbanyak'),
                   ),
                 ],
                 onChanged: (value) {

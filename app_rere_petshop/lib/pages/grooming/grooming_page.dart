@@ -23,7 +23,9 @@ class GroomingPage extends StatelessWidget {
             child: Column(
               children: [
                 const GroomingHeroSection(),
-                const GroomingServicesSection(),
+                GroomingServicesSection(
+                  onSelectPackage: (service) => _openBooking(context, service),
+                ),
                 const GroomingFeaturesSection(),
                 const GroomingScheduleSection(),
                 const SizedBox(height: 32),
@@ -71,7 +73,7 @@ class GroomingPage extends StatelessWidget {
     );
   }
 
-  Future<void> _openBooking(BuildContext context) async {
+  Future<void> _openBooking(BuildContext context, [Map<String, dynamic>? service]) async {
     if (!await AuthService().hasAuthToken()) {
       if (!context.mounted) return;
       final loggedIn = await Navigator.push<bool>(
@@ -83,7 +85,7 @@ class GroomingPage extends StatelessWidget {
 
     await Navigator.push<void>(
       context,
-      MaterialPageRoute(builder: (_) => const GroomBookPage()),
+      MaterialPageRoute(builder: (_) => GroomBookPage(initialService: service)),
     );
   }
 }

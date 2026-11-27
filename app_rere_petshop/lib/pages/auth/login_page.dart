@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/constants/app_constants.dart';
+import 'package:app_rere_petshop/pages/auth/forgot_password_page.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_footer_link.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/google_sign_in_button.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_header.dart';
@@ -12,6 +13,7 @@ import 'package:app_rere_petshop/pages/auth/widgets/auth_primary_button.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_spacing.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_typography.dart';
 import 'package:app_rere_petshop/pages/auth/widgets/auth_text_field.dart';
+import 'package:app_rere_petshop/pages/auth/widgets/mobile_jkn_captcha.dart';
 import 'package:app_rere_petshop/providers/auth_provider.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
 
@@ -30,7 +32,11 @@ class _LoginPageState extends State<LoginPage> {
   final _confirmPassword = TextEditingController();
   final _phone = TextEditingController();
   final _address = TextEditingController();
+  final _captcha = TextEditingController();
   final _auth = AuthService();
+  String? _captchaKey;
+  String? _captchaCode;
+  bool _loadingCaptcha = false;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: kIsWeb ? AppConstants.googleClientId : null,
     serverClientId: kIsWeb ? null : AppConstants.googleClientId,
@@ -42,6 +48,34 @@ class _LoginPageState extends State<LoginPage> {
   bool _obscureConfirmPassword = true;
   bool _rememberMe = false;
   bool _acceptedTerms = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCaptcha();
+  }
+
+  Future<void> _loadCaptcha() async {
+    setState(() => _loadingCaptcha = true);
+    try {
+      final res = await _auth.getCaptcha();
+      if (mounted) {
+        setState(() {
+          _captchaKey = res['key'] as String?;
+          _captchaCode = res['code']?.toString();
+          _captcha.clear();
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _captchaCode = null);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _loadingCaptcha = false);
+      }
+    }
+  }
 
   Future<void> _handleGoogleSignIn() async {
     setState(() => _loading = true);
@@ -90,11 +124,24 @@ class _LoginPageState extends State<LoginPage> {
         _switchMode(false);
         _showMessage('Pendaftaran berhasil. Silakan masuk.');
       } else {
-        await _auth.login(_email.text.trim(), _password.text);
+        final captchaVal = _captcha.text.trim();
+        if (captchaVal.isEmpty) {
+          _showMessage('Masukkan kode keamanan (CAPTCHA) terlebih dahulu.');
+          return;
+        }
+        await _auth.login(
+          _email.text.trim(),
+          _password.text,
+          captchaKey: _captchaKey,
+          captchaCode: captchaVal,
+        );
         if (mounted) await context.read<AuthProvider>().refreshProfile();
         if (mounted) Navigator.pop(context, true);
       }
     } catch (e) {
+      if (!_isRegister) {
+        _loadCaptcha();
+      }
       if (mounted) _showMessage(e.toString());
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -106,9 +153,13 @@ class _LoginPageState extends State<LoginPage> {
       _isRegister = register;
       _password.clear();
       _confirmPassword.clear();
+      _captcha.clear();
       _acceptedTerms = false;
       _formKey.currentState?.reset();
     });
+    if (!register && _captchaCode == null) {
+      _loadCaptcha();
+    }
   }
 
   void _showMessage(String message) {
@@ -140,6 +191,7 @@ class _LoginPageState extends State<LoginPage> {
     _confirmPassword.dispose();
     _phone.dispose();
     _address.dispose();
+    _captcha.dispose();
     super.dispose();
   }
 
@@ -168,12 +220,43 @@ class _LoginPageState extends State<LoginPage> {
     AuthTextField(controller: _email, label: 'Email', hint: 'Masukkan email Anda', icon: Icons.mail_outline_rounded, keyboardType: TextInputType.emailAddress, validator: _validateEmail),
     const SizedBox(height: AuthSpacing.x4),
     AuthTextField(controller: _password, label: 'Kata Sandi', hint: 'Masukkan kata sandi Anda', icon: Icons.lock_outline_rounded, obscureText: _obscurePassword, onVisibilityPressed: () => setState(() => _obscurePassword = !_obscurePassword), validator: _validatePassword),
+    const SizedBox(height: AuthSpacing.x4),
+    MobileJknCaptcha(
+      controller: _captcha,
+      captchaCode: _captchaCode,
+      isLoading: _loadingCaptcha,
+      onRefresh: _loadCaptcha,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Kode keamanan wajib diisi';
+        }
+        if (value.trim().length != 5) {
+          return 'Kode keamanan harus 5 angka';
+        }
+        return null;
+      },
+    ),
     const SizedBox(height: AuthSpacing.x2),
     Row(children: [
       Checkbox(value: _rememberMe, visualDensity: VisualDensity.compact, activeColor: AppColors.primary, onChanged: _loading ? null : (value) => setState(() => _rememberMe = value ?? false)),
       const Text('Ingat saya', style: TextStyle(fontSize: AuthTypography.helper, fontWeight: FontWeight.w500, color: AppColors.textSecondary)),
       const Spacer(),
-      TextButton(onPressed: null, child: Text('Lupa Kata Sandi?', style: TextStyle(color: AppColors.primary, fontSize: AuthTypography.helper, fontWeight: FontWeight.w700))),
+      TextButton(
+        onPressed: _loading
+            ? null
+            : () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+                ),
+        child: const Text(
+          'Lupa Kata Sandi?',
+          style: TextStyle(
+            color: AppColors.primary,
+            fontSize: AuthTypography.helper,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
     ]),
     const SizedBox(height: AuthSpacing.x6),
     AuthPrimaryButton(label: 'Masuk', loading: _loading, onPressed: _submit),

@@ -14,6 +14,7 @@ class AuthService {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'X-Client-Platform': 'mobile',
       },
     ));
   }
@@ -33,12 +34,53 @@ class AuthService {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
+    await prefs.remove('auth_user_id');
+    await prefs.remove('auth_user_email');
+  }
+
+  Future<String> getCurrentUserKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedId = prefs.getString('auth_user_id');
+    if (cachedId != null && cachedId.isNotEmpty) {
+      return 'user_$cachedId';
+    }
+    final cachedEmail = prefs.getString('auth_user_email');
+    if (cachedEmail != null && cachedEmail.isNotEmpty) {
+      return 'user_$cachedEmail';
+    }
+
+    try {
+      final data = await getCurrentUser();
+      final user = data['user'] as Map?;
+      final customer = data['pelanggan'] as Map?;
+      final id = user?['id'] ?? customer?['id_pelanggan'];
+      if (id != null) return 'user_$id';
+      final email = user?['email'] ?? customer?['email'];
+      if (email != null) return 'user_$email';
+    } catch (_) {}
+
+    return 'guest';
   }
 
   Future<Map<String, dynamic>> getCurrentUser() async {
     try {
       final response = await _dio.get('/me', options: await authOptions());
-      return Map<String, dynamic>.from(response.data['data'] ?? {});
+      final data = Map<String, dynamic>.from(response.data['data'] ?? {});
+
+      final prefs = await SharedPreferences.getInstance();
+      final user = data['user'] as Map?;
+      final customer = data['pelanggan'] as Map?;
+      final userId = user?['id'] ?? customer?['id_pelanggan'];
+      final userEmail = user?['email'] ?? customer?['email'];
+
+      if (userId != null) {
+        await prefs.setString('auth_user_id', userId.toString());
+      }
+      if (userEmail != null) {
+        await prefs.setString('auth_user_email', userEmail.toString());
+      }
+
+      return data;
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -65,11 +107,27 @@ class AuthService {
     }
   }
 
-  Future<void> login(String email, String password) async {
+  Future<Map<String, dynamic>> getCaptcha() async {
+    try {
+      final response = await _dio.get('/captcha');
+      return Map<String, dynamic>.from(response.data ?? {});
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<void> login(
+    String email,
+    String password, {
+    String? captchaKey,
+    String? captchaCode,
+  }) async {
     try {
       final response = await _dio.post('/login', data: {
         'email': email,
         'password': password,
+        if (captchaKey != null) 'captcha_key': captchaKey,
+        if (captchaCode != null) 'captcha_code': captchaCode,
       });
       final token = response.data['token']?.toString();
       if (token == null || token.isEmpty) {
@@ -77,6 +135,18 @@ class AuthService {
       }
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+
+      final data = response.data['data'] as Map?;
+      final user = data?['user'] as Map?;
+      final customer = data?['pelanggan'] as Map?;
+      final userId = user?['id'] ?? customer?['id_pelanggan'];
+      final userEmail = user?['email'] ?? customer?['email'] ?? email;
+      if (userId != null) {
+        await prefs.setString('auth_user_id', userId.toString());
+      }
+      if (userEmail != null) {
+        await prefs.setString('auth_user_email', userEmail.toString());
+      }
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -93,6 +163,18 @@ class AuthService {
       }
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('auth_token', token);
+
+      final data = response.data['data'] as Map?;
+      final user = data?['user'] as Map?;
+      final customer = data?['pelanggan'] as Map?;
+      final userId = user?['id'] ?? customer?['id_pelanggan'];
+      final userEmail = user?['email'] ?? customer?['email'];
+      if (userId != null) {
+        await prefs.setString('auth_user_id', userId.toString());
+      }
+      if (userEmail != null) {
+        await prefs.setString('auth_user_email', userEmail.toString());
+      }
     } on DioException catch (e) {
       throw _handleError(e);
     }
@@ -134,6 +216,58 @@ class AuthService {
         return _messageFromResponse(e);
       default:
         return _messageFromResponse(e);
+    }
+  }
+
+  Future<String> sendResetCode(String email) async {
+    try {
+      final response = await _dio.post(
+        '/forgot-password/send-code',
+        data: {'email': email},
+      );
+      return response.data['message']?.toString() ??
+          'Kode OTP berhasil dikirim ke email Anda.';
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<String> verifyResetCode({
+    required String email,
+    required String code,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/forgot-password/verify-code',
+        data: {'email': email, 'code': code},
+      );
+      return response.data['message']?.toString() ??
+          'Kode OTP berhasil diverifikasi.';
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
+  Future<String> resetPassword({
+    required String email,
+    required String code,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/forgot-password/reset',
+        data: {
+          'email': email,
+          'code': code,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+        },
+      );
+      return response.data['message']?.toString() ??
+          'Kata sandi berhasil direset. Silakan masuk.';
+    } on DioException catch (e) {
+      throw _handleError(e);
     }
   }
 

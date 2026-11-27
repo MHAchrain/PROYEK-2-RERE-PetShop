@@ -13,8 +13,7 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage>
-    with TickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   late AnimationController _mainController;
   late AnimationController _scribbleController;
   late AnimationController _catPlayController;
@@ -151,7 +150,8 @@ class _SplashPageState extends State<SplashPage>
 
                   // Animated Cat Doodle + Logo Box
                   AnimatedBuilder(
-                    animation: Listenable.merge([_mainController, _catPlayController]),
+                    animation:
+                        Listenable.merge([_mainController, _catPlayController]),
                     builder: (context, child) {
                       return Transform.scale(
                         scale: _logoScale.value,
@@ -185,7 +185,9 @@ class _SplashPageState extends State<SplashPage>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.18 + (_scribbleController.value * 0.12)),
+                                    color: Colors.white.withValues(
+                                        alpha: 0.18 +
+                                            (_scribbleController.value * 0.12)),
                                     width: 3.5,
                                   ),
                                 ),
@@ -200,12 +202,14 @@ class _SplashPageState extends State<SplashPage>
                                   borderRadius: BorderRadius.circular(28),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.35),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.35),
                                       blurRadius: 24,
                                       offset: const Offset(0, 12),
                                     ),
                                     BoxShadow(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
                                       blurRadius: 10,
                                       offset: const Offset(-2, -2),
                                     ),
@@ -218,7 +222,8 @@ class _SplashPageState extends State<SplashPage>
                                     child: Image.asset(
                                       'assets/images/logo-rere.png',
                                       fit: BoxFit.contain,
-                                      errorBuilder: (_, __, ___) => const Center(
+                                      errorBuilder: (_, __, ___) =>
+                                          const Center(
                                         child: Text(
                                           'ReRe',
                                           style: TextStyle(
@@ -251,8 +256,9 @@ class _SplashPageState extends State<SplashPage>
                         children: List.generate(4, (index) {
                           // Opacity bertahap untuk jejak kaki kucing
                           final trigger = index * 0.22;
-                          final alpha = ((_pawPrintProgress.value - trigger) / 0.25)
-                              .clamp(0.0, 1.0);
+                          final alpha =
+                              ((_pawPrintProgress.value - trigger) / 0.25)
+                                  .clamp(0.0, 1.0);
                           final tilt = (index % 2 == 0) ? -0.15 : 0.15;
 
                           return Padding(
@@ -309,7 +315,7 @@ class _SplashPageState extends State<SplashPage>
                                 ),
                               ),
                               child: const Text(
-                                '🐾 Sahabat Terbaik Kucing Kesayanganmu',
+                                'Sahabat Terbaik Kucing Kesayanganmu',
                                 style: TextStyle(
                                   fontFamily: 'Plus Jakarta Sans',
                                   color: Colors.white,
@@ -336,11 +342,12 @@ class _SplashPageState extends State<SplashPage>
                         child: const Padding(
                           padding: EdgeInsets.only(bottom: 24),
                           child: Text(
-                            'Versi 1.0.0 • Made with ❤️ for Cats',
+                            'ReRe Petshop',
                             style: TextStyle(
                               color: Color(0xFFF0B8B8),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ),
@@ -390,14 +397,20 @@ class CatScribblePainter extends CustomPainter {
     final pathTopLeft = Path();
     pathTopLeft.moveTo(w * 0.08, h * 0.12);
     pathTopLeft.cubicTo(
-      w * 0.25, h * 0.06,
-      w * 0.35, h * 0.18,
-      w * 0.15, h * 0.22,
+      w * 0.25,
+      h * 0.06,
+      w * 0.35,
+      h * 0.18,
+      w * 0.15,
+      h * 0.22,
     );
     pathTopLeft.cubicTo(
-      w * 0.02, h * 0.25,
-      w * 0.12, h * 0.32,
-      w * 0.28, h * 0.28,
+      w * 0.02,
+      h * 0.25,
+      w * 0.12,
+      h * 0.32,
+      w * 0.28,
+      h * 0.28,
     );
     _drawAnimatedPath(canvas, pathTopLeft, chalkPaint, drawProgress);
 
@@ -405,9 +418,12 @@ class CatScribblePainter extends CustomPainter {
     final pathTopRight = Path();
     pathTopRight.moveTo(w * 0.85, h * 0.10);
     pathTopRight.cubicTo(
-      w * 0.70, h * 0.15,
-      w * 0.95, h * 0.22,
-      w * 0.78, h * 0.27,
+      w * 0.70,
+      h * 0.15,
+      w * 0.95,
+      h * 0.22,
+      w * 0.78,
+      h * 0.27,
     );
     _drawAnimatedPath(canvas, pathTopRight, softPaint, drawProgress);
 
@@ -432,14 +448,19 @@ class CatScribblePainter extends CustomPainter {
     _drawAnimatedPath(canvas, catWhiskerLeft, chalkPaint, drawProgress);
 
     // 5. Coretan bintang-bintang / spark doodle kecil
-    _drawChalkStar(canvas, Offset(w * 0.18, h * 0.42), 9, chalkPaint, drawProgress);
-    _drawChalkStar(canvas, Offset(w * 0.82, h * 0.40), 11, softPaint, drawProgress);
-    _drawChalkStar(canvas, Offset(w * 0.25, h * 0.82), 8, softPaint, drawProgress);
-    _drawChalkStar(canvas, Offset(w * 0.78, h * 0.85), 10, chalkPaint, drawProgress);
+    _drawChalkStar(
+        canvas, Offset(w * 0.18, h * 0.42), 9, chalkPaint, drawProgress);
+    _drawChalkStar(
+        canvas, Offset(w * 0.82, h * 0.40), 11, softPaint, drawProgress);
+    _drawChalkStar(
+        canvas, Offset(w * 0.25, h * 0.82), 8, softPaint, drawProgress);
+    _drawChalkStar(
+        canvas, Offset(w * 0.78, h * 0.85), 10, chalkPaint, drawProgress);
 
     // 6. Coretan lingkaran bola benang (yarn ball sketch) di pojok kiri bawah
     final yarnBall = Path();
-    yarnBall.addOval(Rect.fromCircle(center: Offset(w * 0.15, h * 0.88), radius: 24));
+    yarnBall.addOval(
+        Rect.fromCircle(center: Offset(w * 0.15, h * 0.88), radius: 24));
     yarnBall.moveTo(w * 0.10, h * 0.88);
     yarnBall.quadraticBezierTo(w * 0.15, h * 0.82, w * 0.20, h * 0.88);
     yarnBall.moveTo(w * 0.15, h * 0.83);
@@ -447,7 +468,8 @@ class CatScribblePainter extends CustomPainter {
     _drawAnimatedPath(canvas, yarnBall, softPaint, drawProgress);
   }
 
-  void _drawAnimatedPath(Canvas canvas, Path path, Paint paint, double progress) {
+  void _drawAnimatedPath(
+      Canvas canvas, Path path, Paint paint, double progress) {
     for (final metric in path.computeMetrics()) {
       final extractLength = metric.length * progress.clamp(0.0, 1.0);
       final extracted = metric.extractPath(0.0, extractLength);
@@ -472,7 +494,8 @@ class CatScribblePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CatScribblePainter oldDelegate) {
-    return oldDelegate.drawProgress != drawProgress || oldDelegate.pulse != pulse;
+    return oldDelegate.drawProgress != drawProgress ||
+        oldDelegate.pulse != pulse;
   }
 }
 

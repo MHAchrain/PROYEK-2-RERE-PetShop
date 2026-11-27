@@ -1,6 +1,5 @@
 import 'package:app_rere_petshop/constants/app_colors.dart';
 import 'package:app_rere_petshop/models/product_model.dart';
-import 'package:app_rere_petshop/pages/cart/cart_page.dart';
 import 'package:app_rere_petshop/pages/auth/login_page.dart';
 import 'package:app_rere_petshop/services/api_service.dart';
 import 'package:app_rere_petshop/services/auth_service.dart';
@@ -58,7 +57,13 @@ class _ProductCardState extends State<ProductCard> {
       if (!mounted) return;
       await context.read<CartProvider>().refreshCount();
       if (!mounted) return;
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const CartPage()));
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Produk telah ditambahkan ke dalam keranjang'),
+          ),
+        );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));

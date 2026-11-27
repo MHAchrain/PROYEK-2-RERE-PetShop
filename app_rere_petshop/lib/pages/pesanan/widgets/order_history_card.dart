@@ -145,16 +145,20 @@ class OrderHistoryCard extends StatelessWidget {
 
   Widget _statusBadge(String status) {
     final (label, color, background) = switch (status) {
-      'diproses' => ('Diproses', Colors.red.shade800, const Color(0xFFFCECEC)),
-      'dikirim' => ('Dikirim', AppColors.primary, const Color(0xFFFCECEC)),
-      'selesai' => ('Selesai', AppColors.success, const Color(0xFFE9F8EF)),
-      'batal' => ('Dibatalkan', AppColors.textSecondary, AppColors.greyBg),
-      'baru' => (
+      'selesai' => ('Selesai', const Color(0xFF166534), const Color(0xFFDCFCE7)),
+      'baru' || 'menunggu_bayar' || 'menunggu_pembayaran' => (
           'Menunggu Bayar',
-          Colors.orange.shade800,
-          const Color(0xFFFFF4E5)
+          const Color(0xFFB45309),
+          const Color(0xFFFEF3C7)
         ),
-      _ => (_humanize(status), AppColors.textSecondary, AppColors.greyBg),
+      'dikirim' => ('Dikirim', const Color(0xFF7E22CE), const Color(0xFFF3E8FF)),
+      'diproses' => ('Diproses', const Color(0xFF475569), const Color(0xFFF1F5F9)),
+      'batal' || 'dibatalkan' || 'failed' => (
+          'Dibatalkan',
+          const Color(0xFFB91C1C),
+          const Color(0xFFFEE2E2)
+        ),
+      _ => (_humanize(status), const Color(0xFF475569), const Color(0xFFF1F5F9)),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

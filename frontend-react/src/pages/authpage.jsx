@@ -8,6 +8,7 @@ import axios from 'axios';
 import { FcGoogle } from 'react-icons/fc';
 import catImage from '../assets/catcool.jpg';
 import { Eye, EyeOff } from 'lucide-react';
+import Turnstile from '../components/turnstile';
 
 export default function AuthPage() {
   const { login } = useAuth();
@@ -34,10 +35,16 @@ export default function AuthPage() {
     isRegister,
     isForgotPassword,
     handleVerifyResetCode,
+    turnstileRef,
+    handleTurnstileVerify,
+    handleTurnstileExpire,
+    handleTurnstileError,
+    resetTurnstile,
   } = useAuthForm(authMode, login, navigate, setAuthMode);
 
   const switchToMode = (mode) => {
     setAuthMode(mode);
+    resetTurnstile();
     if (mode !== 'forgot') {
       resetForgotPasswordState();
     }
@@ -415,6 +422,17 @@ export default function AuthPage() {
                   </div>
                 )}
               </div>
+            )}
+
+            {/* CLOUDFLARE TURNSTILE CAPTCHA */}
+            {(isLogin || isRegister) && (
+              <Turnstile
+                ref={turnstileRef}
+                action={isLogin ? 'login' : 'register'}
+                onVerify={handleTurnstileVerify}
+                onExpire={handleTurnstileExpire}
+                onError={handleTurnstileError}
+              />
             )}
 
             {/* TOMBOL SUBMIT */}

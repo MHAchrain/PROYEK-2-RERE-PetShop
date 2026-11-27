@@ -1,22 +1,34 @@
 // lib/core/constants/app_constants.dart
+import 'package:flutter/foundation.dart';
 
 class AppConstants {
-  // // API produksi
-  static const String baseDomain = 'https://api.rerepetshop.biz.id';
+  // ── KONFIGURASI API ──────────────────────────────────────────────
+  // Default: backend LARAVEL LOKAL.
+  //
+  // Bisa dioverride tanpa ubah kode, contoh:
+  //   flutter run                                                      -> otomatis (web/desktop/iOS: 127.0.0.1, emulator Android: 10.0.2.2)
+  //   flutter run --dart-define=API_BASE_URL=http://192.168.1.40:8000  -> HP fisik (pakai IP LAN laptop)
+  //   flutter run --dart-define=API_BASE_URL=https://api.rerepetshop.biz.id -> produksi
+  // Base domain default: PRODUKSI (Cloudflare Tunnel)
+  // Bisa dioverride saat running lokal:
+  //   flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000
+  static const String _apiOverride = String.fromEnvironment('API_BASE_URL');
+  static const String productionHost = 'https://api.rerepetshop.biz.id';
+
+  static String get baseDomain {
+    if (_apiOverride.isNotEmpty) return _apiOverride;
+    return productionHost;
+  }
+
   static String get baseUrl => '$baseDomain/api';
   static String get storageUrl => '$baseDomain/storage';
-
-  // API Laravel lokal
-  //static const String localBaseDomain = 'http://127.0.0.1:8000';
-  //static String get baseUrl => '$localBaseDomain/api';
-  //static String get storageUrl => '$localBaseDomain/storage';
 
   static const String appName = 'ReRe Petshop';
   static const String whatsappNumber = '6281319410250'; // 0813-1941-0250
   static const String email = 'rereps@gmail.com';
   static const String address = 'Jl. Kecubung 1 No.14, Tangerang';
 
-  static const String googleClientId =
+  static const String googleClientId =   
       '876505123972-275fabovfuu6pal978bnu7g3gb9kp50t.apps.googleusercontent.com';
   static const String midtransClientKey = 'Mid-client-kbF8O_OJSIc1ljLp';
 

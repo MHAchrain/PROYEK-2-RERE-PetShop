@@ -13,7 +13,11 @@ return [
                         'http://localhost:5173', // jaga-jaga kalau testing lokal
                         ], // Mengizinkan semua domain (termasuk Vercel)
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        // Flutter web dev server memakai port acak (localhost:xxxxx).
+        '#^http://localhost(:\d+)?$#',
+        '#^http://127\.0\.0\.1(:\d+)?$#',
+    ],
 
     'allowed_headers' => ['*'], // Mengizinkan semua custom header (termasuk ngrok header)
 

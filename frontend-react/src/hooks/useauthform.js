@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { formatPhone } from "../utils/formatphone";
 import { validateLogin, validateRegister } from "../utils/validation";
 import toast from "../utils/toast.jsx";
 import { loginUser, registerUser, resetPassword, sendResetCode, verifyResetCode } from "../services/authservice";
 
 export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
+  const turnstileRef = useRef(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -28,6 +31,26 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
   const isLogin = authMode === "login";
   const isRegister = authMode === "register";
   const isForgotPassword = authMode === "forgot";
+
+  const handleTurnstileVerify = (token) => {
+    setTurnstileToken(token);
+  };
+
+  const handleTurnstileExpire = () => {
+    setTurnstileToken("");
+    toast.error("Verifikasi CAPTCHA kedaluwarsa. Silakan verifikasi ulang.");
+  };
+
+  const handleTurnstileError = () => {
+    setTurnstileToken("");
+  };
+
+  const resetTurnstile = () => {
+    setTurnstileToken("");
+    if (turnstileRef.current?.reset) {
+      turnstileRef.current.reset();
+    }
+  };
 
   const handleChange = (field, value) => {
     if (field === "email" && isForgotPassword) {
@@ -207,11 +230,18 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
       return;
     }
 
+    if ((isLogin || isRegister) && !turnstileToken) {
+      toast.error("Harap selesaikan verifikasi keamanan (CAPTCHA)");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isLogin) {
         const response = await loginUser({
           email: cleanIdentifier,
           password: form.password,
+          turnstile_token: turnstileToken,
         });
 
         login(response.data, response.token);
@@ -222,9 +252,11 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
           ...form,
           email: cleanIdentifier,
           no_hp: formatPhone(cleanNoHp),
+          turnstile_token: turnstileToken,
         });
 
         toast.success("Registrasi berhasil, silakan login");
+        resetTurnstile();
         setForm({
           name: "",
           email: "",
@@ -257,6 +289,7 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
         }));
       }
     } catch (error) {
+      resetTurnstile();
       const status = error.response?.status;
       const message = error.response?.data?.message;
       const errors = error.response?.data?.errors;
@@ -300,6 +333,12 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
     isRegister,
     isForgotPassword,
     handleVerifyResetCode,
+    turnstileToken,
+    turnstileRef,
+    handleTurnstileVerify,
+    handleTurnstileExpire,
+    handleTurnstileError,
+    resetTurnstile,
   };
 };
 
