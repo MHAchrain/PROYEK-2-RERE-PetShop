@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
 import { ArrowRight, CarFront, Store } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { groomingServices as fallbackServices } from '../Data';
-import { getGroomingServices } from '../services/groomingservice';
+import { groomingServices } from '../Data';
 import GroomingHero from '../components/section/grooming/groominghero';
 import GroomingServiceList from '../components/section/grooming/groomingservicelist';
 
@@ -13,22 +11,6 @@ const bookingSteps = [
 ];
 
 export default function GroomingPage() {
-  const [services, setServices] = useState(fallbackServices);
-
-  useEffect(() => {
-    let active = true;
-    getGroomingServices()
-      .then((data) => {
-        if (active && Array.isArray(data) && data.length > 0) {
-          setServices(data);
-        }
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, []);
-
   return (
     <main className="min-h-screen grow px-4 py-8 md:px-8 md:py-10 lg:px-16 xl:px-20">
       <div className="mx-auto w-full max-w-7xl space-y-8">
@@ -54,7 +36,7 @@ export default function GroomingPage() {
           </div>
         </section>
 
-        <GroomingServiceList services={services} />
+        <GroomingServiceList services={groomingServices} />
 
         <section aria-labelledby="metode-kunjungan-title">
           <div className="mx-auto max-w-2xl text-center">
