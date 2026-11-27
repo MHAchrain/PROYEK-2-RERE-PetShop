@@ -296,6 +296,48 @@ export default function AboutPage() {
                 })}
           </div>
         </div>
+
+        {/* Download Aplikasi Android */}
+        <div className="rounded-3xl border border-primary/15 bg-white p-6 shadow-sm sm:p-10">
+          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+            <div className="max-w-xl space-y-3 text-center md:text-left">
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                Aplikasi Android
+              </span>
+              <h3 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+                Belanja &amp; Booking Grooming Lebih Praktis di HP
+              </h3>
+              <p className="text-sm leading-relaxed text-gray-600 sm:text-base">
+                Scan QR Code di samping dengan kamera HP Anda, atau klik langsung gambar QR / tombol di bawah untuk mengunduh aplikasi resmi <strong>ReRe Petshop (APK)</strong>.
+              </p>
+              <div className="pt-2">
+                <a
+                  href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
+                  download
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90"
+                >
+                  Download Aplikasi Android (.APK)
+                </a>
+              </div>
+            </div>
+
+            <a
+              href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
+              download
+              title="Klik untuk download ReRe Petshop APK"
+              className="group flex flex-col items-center rounded-3xl border-2 border-dashed border-primary/25 bg-gray-50 p-4 transition hover:border-primary hover:bg-primary/5"
+            >
+              <img
+                src="/qr-apk.png"
+                alt="QR Code Download ReRe Petshop Android APK"
+                className="h-44 w-44 rounded-xl bg-white p-2 shadow-sm transition group-hover:scale-[1.02]"
+              />
+              <span className="mt-2.5 text-xs font-semibold text-gray-600 group-hover:text-primary">
+                Scan atau Klik QR untuk Download
+              </span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
