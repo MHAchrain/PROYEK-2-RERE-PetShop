@@ -6,7 +6,14 @@ export const getGroomingServices = async () => {
     try {
         const response = await api.get('/grooming/services');
         if (response.data?.success && Array.isArray(response.data.data)) {
-            return response.data.data;
+            return response.data.data
+                .map((item) => ({
+                    ...item,
+                    price: Number(item.price ?? 0),
+                    durationMinutes: item.durationMinutes ?? item.duration_minutes ?? 60,
+                    isActive: item.isActive ?? item.is_active ?? true,
+                }))
+                .filter((item) => item.isActive);
         }
     } catch {
         // Fallback jika offline / network issue
@@ -24,7 +31,14 @@ export const getGroomingSlots = async (date) => {
         });
 
         if (response.data?.success && Array.isArray(response.data.data)) {
-            return response.data.data;
+            return response.data.data
+                .map((item) => ({
+                    ...item,
+                    price: Number(item.price ?? 0),
+                    durationMinutes: item.durationMinutes ?? item.duration_minutes ?? 60,
+                    isActive: item.isActive ?? item.is_active ?? true,
+                }))
+                .filter((item) => item.isActive);
         }
     } catch {
         // Jika server bermasalah, buat default fallback slot untuk tanggal yang dipilih
@@ -47,7 +61,14 @@ export const getGroomingBookings = async (userId) => {
     try {
         const response = await api.get('/grooming/history');
         if (response.data?.success && Array.isArray(response.data.data)) {
-            return response.data.data;
+            return response.data.data
+                .map((item) => ({
+                    ...item,
+                    price: Number(item.price ?? 0),
+                    durationMinutes: item.durationMinutes ?? item.duration_minutes ?? 60,
+                    isActive: item.isActive ?? item.is_active ?? true,
+                }))
+                .filter((item) => item.isActive);
         }
     } catch {
         // Abaikan

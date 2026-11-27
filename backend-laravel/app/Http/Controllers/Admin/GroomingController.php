@@ -49,20 +49,17 @@ class GroomingController extends Controller
                         $txStatus = $s->transaction_status ?? null;
 
                         if ($pt === 'bank_transfer' && $bank) {
-                            $b->payment_method = strtoupper($bank) . ' VA';
+                            $b->midtrans_payment_method = strtoupper($bank) . ' VA';
                         } elseif ($pt === 'echannel') {
-                            $b->payment_method = 'MANDIRI VA';
+                            $b->midtrans_payment_method = 'MANDIRI VA';
                         } elseif (!empty($pt)) {
-                            $b->payment_method = strtoupper(str_replace('_', ' ', $pt));
+                            $b->midtrans_payment_method = strtoupper(str_replace('_', ' ', $pt));
                         }
 
-                        if (in_array($txStatus, ['settlement', 'capture'], true)) {
-                            $b->payment_status = 'paid';
-                            if ($b->status === 'menunggu_pembayaran') {
-                                $b->status = 'terjadwal';
-                            }
+                        if (in_array($txStatus, ['settlement', 'capture'], true) && $b->status === 'menunggu_pembayaran') {
+                            $b->status = 'terjadwal';
+                            $b->save();
                         }
-                        $b->save();
                     } catch (\Throwable $e) {
                     }
                 }
