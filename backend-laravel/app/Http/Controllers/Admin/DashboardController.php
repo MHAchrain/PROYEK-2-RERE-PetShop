@@ -119,6 +119,29 @@ class DashboardController extends Controller
             ->latest('id')
             ->get();
 
+        try {
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = (bool) config('midtrans.is_production', false);
+            foreach ($groomingPaidHariIni as $g) {
+                if (!empty($g->midtrans_order_id)) {
+                    try {
+                        $s = (object) \Midtrans\Transaction::status($g->midtrans_order_id);
+                        $pt = $s->payment_type ?? null;
+                        $bank = $s->va_numbers[0]->bank ?? null;
+                        if ($pt === 'bank_transfer' && $bank) {
+                            $g->midtrans_payment_method = strtoupper($bank) . ' VA';
+                        } elseif ($pt === 'echannel') {
+                            $g->midtrans_payment_method = 'MANDIRI VA';
+                        } elseif (!empty($pt)) {
+                            $g->midtrans_payment_method = strtoupper(str_replace('_', ' ', $pt));
+                        }
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+        }
+
         $subtotalGrooming = (float) $groomingPaidHariIni->sum(function ($g) {
             return (float) ($g->service->price ?? $g->total_price ?? $g->price ?? 0);
         });

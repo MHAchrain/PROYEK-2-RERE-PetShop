@@ -294,7 +294,7 @@
                     <td>
                         <span class="badge-paid">LUNAS</span>
                         <div class="text-muted" style="margin-top: 2px;">
-                            {{ strtoupper($g->payment_method ?? ($g->midtrans_order_id ? 'MIDTRANS' : 'MANUAL')) }}
+                            {{ strtoupper($g->midtrans_payment_method ?? $g->payment_method ?? ($g->midtrans_order_id ? 'MIDTRANS' : 'MANUAL')) }}
                         </div>
                     </td>
                     <td class="text-right font-bold" style="color: #0f172a;">

@@ -309,6 +309,8 @@
         if (isQrisPaid) {
             selectBayar.disabled = true;
             selectBayar.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'border-slate-200');
+            lockIcon.innerHTML = `<i class="fa-solid fa-lock text-[9px]"></i> ${rawMetode || 'Midtrans'} Terkunci`;
+            lockNotice.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ${rawMetode || 'Midtrans'} Lunas (Hanya status pesanan yang dapat diubah).`;
             lockIcon.classList.remove('hidden');
             lockNotice.classList.remove('hidden');
         } else {
