@@ -1,5 +1,5 @@
 import { getCategories } from "../../services/categoryservice";
-import { categoryIconMap } from "../../utils/categoryIconMap";
+import { categoryIconByKey, categoryIconMap } from "../../utils/categoryIconMap";
 import { useEffect, useState } from "react";
 import CategoryCard from "../ui/categorycard";
 import * as icons from "lucide-react";
@@ -28,7 +28,7 @@ export default function CategorySection() {
         ...categories.map((item) => ({
             id: item.id_kategori,
             nama: item.nama_kategori,
-            Icon: categoryIconMap[item.nama_kategori] || icons.Box,
+            Icon: categoryIconByKey[item.icon] || categoryIconMap[item.nama_kategori] || icons.Box,
             isService: false
         })),
         ...serviceList.map((item) => ({

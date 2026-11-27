@@ -14,6 +14,7 @@ class Kategori extends Model
 
     protected $fillable = [
         'nama_kategori',
+        'icon',
     ];
 
     public function produks()

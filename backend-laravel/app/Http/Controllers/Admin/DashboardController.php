@@ -45,9 +45,10 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // 3. Grooming Hari Ini (Kolom database TiDB: date & time)
+        // 3. Grooming Hari Ini (Hanya yang sudah dibayar & status terjadwal)
         $groomingHariIni = GroomingBooking::with(['service', 'pelanggan'])
             ->whereDate('date', $today)
+            ->where('status', 'terjadwal')
             ->orderBy('time', 'asc')
             ->take(6)
             ->get();
@@ -59,16 +60,25 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 5. Statistik Penjualan 7 Hari Terakhir
+        // 5. Statistik Penjualan 7 Hari Terakhir (Toko + Grooming yang sudah lunas)
         $chartDates = [];
         $chartTotals = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $chartDates[] = $date->translatedFormat('d M');
-            $sum = (float) Pesanan::whereDate('tanggal_pesanan', $date)
-                ->whereIn('status_pesanan', ['diproses', 'dikirim', 'selesai'])
+            $sumToko = (float) Pesanan::whereDate('tanggal_pesanan', $date)
+                ->whereHas('pembayaran', function ($p) {
+                    $p->where('status_bayar', 'paid');
+                })
                 ->sum('total');
-            $chartTotals[] = $sum;
+            $sumGrooming = (float) GroomingBooking::with('service')
+                ->whereDate('created_at', $date)
+                ->whereIn('status', ['terjadwal', 'dikonfirmasi', 'selesai'])
+                ->get()
+                ->sum(function ($g) {
+                    return (float) ($g->total_price ?? $g->price ?? $g->service->price ?? 0);
+                });
+            $chartTotals[] = $sumToko + $sumGrooming;
         }
 
         return view('admin.dashboard.index', compact(

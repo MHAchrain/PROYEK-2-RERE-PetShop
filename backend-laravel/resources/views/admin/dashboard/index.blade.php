@@ -82,60 +82,34 @@
             </div>
         </div>
 
-        <!-- Peringatan Stok Menipis & Jadwal Grooming Hari Ini (1 Col) -->
-        <div class="space-y-6">
-            <!-- Stok Menipis -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
-                        <span>Stok Menipis (<= 5)</span>
-                    </h4>
-                    <a href="{{ route('admin.produk.index') }}" class="text-xs text-brand-600 hover:underline font-semibold">Semua</a>
-                </div>
-                @forelse($stokMenipis as $item)
-                    <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-xs">
-                        <div class="min-w-0 pr-2">
-                            <p class="font-semibold text-slate-800 truncate">{{ $item->nama_produk }}</p>
-                            <span class="text-slate-400 text-[11px]">{{ $item->kategori->nama_kategori ?? '-' }}</span>
-                        </div>
-                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold {{ $item->stok == 0 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700' }}">
-                            {{ $item->stok }} tersisa
-                        </span>
-                    </div>
-                @empty
-                    <p class="text-xs text-slate-400 py-4 text-center">Semua stok produk mencukupi.</p>
-                @endforelse
+        <!-- Peringatan Stok Menipis (1 Col, setara Chart) -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm h-full">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                    <span>Stok Menipis (&lt;= 5)</span>
+                </h4>
+                <a href="{{ route('admin.produk.index') }}" class="text-xs text-brand-600 hover:underline font-semibold">Semua</a>
             </div>
-
-            <!-- Grooming Hari Ini -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-calendar-day text-brand-600"></i>
-                        <span>Grooming Hari Ini</span>
-                    </h4>
-                    <a href="{{ route('admin.grooming.bookings') }}" class="text-xs text-brand-600 hover:underline font-semibold">Jadwal</a>
-                </div>
-                @forelse($groomingHariIni as $booking)
-                    <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-xs">
-                        <div>
-                            <p class="font-semibold text-slate-800">{{ $booking->pet_name }} ({{ $booking->pet_type }})</p>
-                            <span class="text-slate-400 text-[11px]">{{ $booking->service->name ?? 'Layanan' }}</span>
-                        </div>
-                        <span class="font-mono text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded">
-                            {{ substr($booking->time, 0, 5) }}
-                        </span>
+            @forelse($stokMenipis as $item)
+                <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-xs">
+                    <div class="min-w-0 pr-2">
+                        <p class="font-semibold text-slate-800 truncate">{{ $item->nama_produk }}</p>
+                        <span class="text-slate-400 text-[11px]">{{ $item->kategori->nama_kategori ?? '-' }}</span>
                     </div>
-                @empty
-                    <p class="text-xs text-slate-400 py-3 text-center">Tidak ada jadwal grooming untuk hari ini.</p>
-                @endforelse
-            </div>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold {{ $item->stok == 0 ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700' }}">
+                        {{ $item->stok }} tersisa
+                    </span>
+                </div>
+            @empty
+                <p class="text-xs text-slate-400 py-4 text-center">Semua stok produk mencukupi.</p>
+            @endforelse
         </div>
     </div>
 
-    <!-- BARIS 3: PESANAN SIAP KIRIM (HANYA STATUS DIPROSES) -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <!-- BARIS 3: PESANAN SIAP KIRIM (2 KOLOM) & JADWAL GROOMING HARI INI (1 KOLOM) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-200 flex items-center justify-between">
             <div>
                 <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -199,6 +173,53 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    </div>
+
+        <!-- Grooming Hari Ini (Setara Pesanan Siap Kirim) -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-day text-brand-600"></i>
+                        <span>Grooming Hari Ini (Terjadwal)</span>
+                    </h3>
+                    <p class="text-xs text-slate-400">Hanya menampilkan booking yang sudah dibayar &amp; terjadwal hari ini</p>
+                </div>
+                <a href="{{ route('admin.grooming.bookings') }}" class="text-xs font-bold text-brand-600 hover:text-brand-700 inline-flex items-center gap-1">
+                    <span>Lihat Semua</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </a>
+            </div>
+            <div class="p-5 divide-y divide-slate-100">
+                @forelse($groomingHariIni as $booking)
+                    <div class="flex items-center justify-between py-3 first:pt-0 last:pb-0 text-xs gap-3">
+                        <div class="min-w-0">
+                            <p class="font-bold text-slate-900 truncate">
+                                {{ $booking->pet_name }} <span class="font-normal text-slate-500">({{ $booking->pet_type }})</span>
+                            </p>
+                            <p class="text-slate-500 text-[11px] truncate">
+                                {{ $booking->service->name ?? 'Layanan' }} &bull; {{ $booking->pelanggan->nama ?? 'Customer' }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="font-mono text-[11px] font-bold text-brand-700 bg-brand-50 px-2 py-1 rounded">
+                                {{ substr($booking->time, 0, 5) }} WIB
+                            </span>
+                            <form action="{{ route('admin.grooming.booking.status', $booking->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="status" value="dikonfirmasi">
+                                <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition shadow-sm">
+                                    Konfirmasi
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-xs text-slate-400 py-8 text-center">Tidak ada jadwal grooming terjadwal untuk hari ini.</p>
+                @endforelse
+            </div>
         </div>
     </div>
 

@@ -19,6 +19,7 @@ class KategoriController extends Controller
     {
         $validated = $request->validate([
             'nama_kategori' => ['required', 'string', 'max:100', 'unique:kategori,nama_kategori'],
+            'icon' => ['nullable', 'string', 'max:60'],
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi.',
             'nama_kategori.unique' => 'Kategori dengan nama tersebut sudah ada.',
@@ -34,6 +35,7 @@ class KategoriController extends Controller
     {
         $validated = $request->validate([
             'nama_kategori' => ['required', 'string', 'max:100', 'unique:kategori,nama_kategori,' . $kategori->id_kategori . ',id_kategori'],
+            'icon' => ['nullable', 'string', 'max:60'],
         ]);
 
         $kategori->update($validated);
