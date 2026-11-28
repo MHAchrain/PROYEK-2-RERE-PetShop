@@ -114,12 +114,12 @@ Berikut sebagian katalog produk tersedia di RERe Petshop:
 
 PANDUAN FORMAT JAWABAN:
 1. Ringkas, Rapih & Jelas: Jawab langsung ke inti pertanyaan user dalam maksimal 5-6 kalimat (boleh berupa paragraf singkat atau list poin dengan tanda •).
-2. Akurat & Tidak Ngaco: Jawab HANYA sesuai pertanyaan user. Jika produk yang ditanyakan tidak ada di katalog di atas, katakan jujur belum tersedia dan JANGAN paksakan produk yang tidak nyambung (misal ditanya vitamin jangan rekomendasikan kandang).
+2. Akurat & Pintar Melipir: Jawab sesuai kebutuhan user. Jika produk persis yang dicari (misal vitamin bulu) tidak ada di katalog, rekomendasikan alternatif terdekat yang masih satu tujuan/kategori (misal Shampoo Conditioner, obat bulu, atau suplemen lain yang ada di katalog) dan jelaskan singkat kegunaannya. JANGAN rekomendasikan barang yang melenceng jauh (misal ditanya vitamin jangan beri kandang).
 3. Tanpa Tanda Bintang Markdown: JANGAN gunakan tanda ** atau * untuk menebalkan teks. Tulis teks polos yang rapi.
 4. Sapaan Singkat: Awali dengan 'Halo Cat Lovers! 🐾'.
-5. Produk Wajib Relevan: Pilih 1-3 produk dari katalog di atas yang benar-benar cocok dengan nama produk atau kategori yang ditanyakan user. JANGAN pernah menulis kode ID seperti (ID: 2) di teks jawaban.
+5. Produk Wajib Relevan: Wajib pilih 1-3 produk dari katalog di atas (atau alternatif terdekatnya yang masih relevan) dan sertakan ID-nya di tag rekomendasi. JANGAN pernah menulis kode ID seperti (ID: 2) di teks jawaban.
 6. Baris Terakhir: Wajib akhiri teks dengan tag rekomendasi format:
-[RECOMMENDED_IDS: 1, 2] (atau kosongkan [RECOMMENDED_IDS:] jika hanya konsultasi atau tidak ada produk yang cocok).";
+[RECOMMENDED_IDS: 1, 2] (isi dengan ID produk/alternatif yang kamu sebutkan; kosongkan [RECOMMENDED_IDS:] hanya jika pertanyaan murni konsultasi tanpa produk).";
 
         try {
             $contents = [];
@@ -160,7 +160,6 @@ PANDUAN FORMAT JAWABAN:
                 $modelName,
                 'gemini-3.8-flash',
                 'gemini-3.1-flash-lite',
-                'gemini-3.6-flash',
             ]));
 
             $response = null;
@@ -168,7 +167,7 @@ PANDUAN FORMAT JAWABAN:
                 $modelName = $candidate;
                 $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}";
                 try {
-                    $response = Http::timeout(15)->post($endpoint, $payload);
+                    $response = Http::timeout(60)->post($endpoint, $payload);
                     if ($response->successful()) {
                         break;
                     }
@@ -199,9 +198,9 @@ PANDUAN FORMAT JAWABAN:
 
             // Parse RECOMMENDED_IDS jika ada
             $recommendedIds = [];
-            if (preg_match('/\[RECOMMENDED_IDS:\s*([0-9,\s]+)\]/i', $rawText, $matches)) {
-                $ids = explode(',', $matches[1]);
-                $recommendedIds = array_map('intval', array_map('trim', $ids));
+            if (preg_match('/\[RECOMMENDED_IDS:\s*([0-9,\s]*)\]/i', $rawText, $matches)) {
+                $ids = array_filter(array_map('trim', explode(',', $matches[1])), fn($v) => $v !== '');
+                $recommendedIds = array_map('intval', $ids);
                 // Bersihkan tag dari teks yang ditampilkan ke user
                 $rawText = trim(str_replace($matches[0], '', $rawText));
             }

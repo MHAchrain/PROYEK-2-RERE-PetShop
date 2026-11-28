@@ -230,6 +230,11 @@ class RecommendationController extends Controller
 
             if ($catHit->isNotEmpty()) {
                 $pool = $catHit;
+            } elseif (!empty(array_intersect(array_map('strtolower', $categories), ['vitamin', 'obat']))) {
+                // Melipir ke perawatan bulu/kesehatan (shampo/susu) jika vitamin/obat persis tidak tersedia
+                $altHit = $pool->filter(fn($prod) => $inCat($prod, 'shampo') || $inCat($prod, 'susu'));
+                if ($altHit->isEmpty()) return collect();
+                $pool = $altHit;
             } else {
                 return collect();
             }
@@ -313,7 +318,12 @@ class RecommendationController extends Controller
         $filtered = $scored->filter(fn($p) => $p->relevance_score >= $threshold);
 
         if ($filtered->isEmpty()) {
-            return collect();
+            // Jika kategori sudah terfilter relevan (misal melipir ke shampo/obat), tetap tampilkan produk dari pool
+            if (!empty($categories) && $pool->isNotEmpty()) {
+                $filtered = $pool;
+            } else {
+                return collect();
+            }
         }
 
         if ($cheapestOnly) {
