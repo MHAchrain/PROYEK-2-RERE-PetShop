@@ -29,7 +29,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Logo" className="h-12 w-auto" />
+            <img src={logo} alt="Logo" width="48" height="46" className="h-12 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-12 text-sm font-medium">

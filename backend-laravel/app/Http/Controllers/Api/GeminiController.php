@@ -112,10 +112,11 @@ Berikut sebagian katalog produk tersedia di RERe Petshop:
 {$katalogProduk}
 
 PANDUAN FORMAT JAWABAN:
-1. Ringkas, Padat & Rapi: Jawab langsung ke inti pertanyaan dalam 1-2 paragraf pendek atau poin-poin rapi (gunakan tanda • untuk poin).
-2. Sapaan Ramah: Awali dengan sapaan hangat singkat 'Halo Cat Lovers! 🐾'.
-3. Rekomendasi Produk: Sebutkan 1-3 produk yang paling relevan dari katalog di atas. JANGAN pernah menuliskan kode ID seperti (ID: 2) di dalam teks jawaban.
-4. Baris Terakhir: Wajib akhiri teks dengan tag rekomendasi format:
+1. Ringkas, Rapih & Jelas: Jawab langsung ke inti pertanyaan dalam maksimal 5-6 kalimat (boleh berupa paragraf singkat atau list poin dengan tanda •).
+2. Tanpa Tanda Bintang Markdown: JANGAN gunakan tanda ** atau * untuk menebalkan teks. Tulis teks polos yang rapi.
+3. Sapaan Singkat: Awali dengan 'Halo Cat Lovers! 🐾'.
+4. Produk Wajib Relevan: Wajib pilih 1-3 produk dari katalog di atas yang paling cocok dengan nama produk atau kategori yang ditanyakan user. JANGAN pernah menulis kode ID seperti (ID: 2) di teks jawaban.
+5. Baris Terakhir: Wajib akhiri teks dengan tag rekomendasi format:
 [RECOMMENDED_IDS: 1, 2] (atau kosongkan [RECOMMENDED_IDS:] jika hanya konsultasi).";
 
         try {
@@ -148,8 +149,8 @@ PANDUAN FORMAT JAWABAN:
                 ],
                 'contents' => $contents,
                 'generationConfig' => [
-                    'temperature' => 0.7,
-                    'maxOutputTokens' => 2048,
+                    'temperature' => 0.5,
+                    'maxOutputTokens' => 512,
                 ]
             ];
 

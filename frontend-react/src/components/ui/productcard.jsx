@@ -121,6 +121,7 @@ export default function ProductCard({
           <button
             type="button"
             onClick={handleAddToWishlist}
+            aria-label="Tambah ke wishlist"
             className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition">
             <Heart size={18} />
           </button>

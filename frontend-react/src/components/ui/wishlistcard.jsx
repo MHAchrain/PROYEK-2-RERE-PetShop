@@ -57,6 +57,7 @@ export default function WishlistCard({
               onRemove?.(id);
             }}
             disabled={isRemoving}
+            aria-label="Hapus dari wishlist"
             className="bg-white p-2 rounded-full shadow hover:bg-gray-200 transition disabled:cursor-not-allowed disabled:opacity-60"
           >
             <Trash2 size={18} className="text-red-500" />
