@@ -16,32 +16,38 @@ export const useAddToCart = () => {
       return { ok: false, reason: "auth_required" };
     }
 
+    let previousCart;
+    setCart((prev) => {
+      previousCart = prev;
+      if (!prev || !prev.items) {
+        return { items: [{ id_produk: productId, qty: quantity }] };
+      }
+
+      const existing = prev.items.find((item) => item.id_produk === productId);
+      return {
+        ...prev,
+        items: existing
+          ? prev.items.map((item) =>
+              item.id_produk === productId ? { ...item, qty: item.qty + quantity } : item
+            )
+          : [...prev.items, { id_produk: productId, qty: quantity }],
+      };
+    });
+
     try {
       const cartData = await addCartItem({
         id_produk: productId,
         qty: quantity,
       });
 
-      setCart((prev) => {
-        if (!prev || !prev.items) {
-          return cartData;
-        }
-
-        const existing = prev.items.find((item) => item.id_produk === productId);
-
-        return {
-          ...prev,
-          items: existing
-            ? prev.items.map((item) =>
-                item.id_produk === productId ? { ...item, qty: item.qty + quantity } : item
-              )
-            : [...prev.items, { id_produk: productId, qty: quantity }],
-        };
-      });
+      if (cartData && cartData.items) {
+        setCart(cartData);
+      }
 
       await onSuccess?.();
       return { ok: true, reason: null };
     } catch (error) {
+      setCart(previousCart);
       return { ok: false, reason: "request_failed", error };
     }
   };

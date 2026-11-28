@@ -3,11 +3,11 @@ import { Truck, Headphones, ShieldCheck } from 'lucide-react';
 // Assets
 import examp from './assets/examp.jpeg';
 import dummy from './assets/dummy.png';
-import hero1 from './assets/ba1.png';
-import hero2 from './assets/ba2.png';
-import hero3 from './assets/ba3.png';
-import hero4 from './assets/ba4.png';
-import hero5 from './assets/ba5.png';
+import hero1 from './assets/ba1.webp';
+import hero2 from './assets/ba2.webp';
+import hero3 from './assets/ba3.webp';
+import hero4 from './assets/ba4.webp';
+import hero5 from './assets/ba5.webp';
 
 import profile_1 from './assets/profile_1.jpeg';
 import profile_2 from './assets/profile_2.jpeg';
