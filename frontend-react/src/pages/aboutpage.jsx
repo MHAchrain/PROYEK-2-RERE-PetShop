@@ -1,6 +1,13 @@
 import { Statistic, BenefitList, branchList } from '../Data';
 import examp from '../assets/dummy.png';
-import { ArrowLeft, ArrowRight, Clock3, MapPin, Phone, Store } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Clock3,
+  MapPin,
+  Phone,
+  Store,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Skeleton from '../components/ui/skeleton';
 import SectionTitle from '../components/ui/sectiontitle';
@@ -13,7 +20,7 @@ export default function AboutPage() {
   const branchPageCount = Math.ceil(branchList.length / branchesPerPage);
   const visibleBranches = branchList.slice(
     currentBranchPage * branchesPerPage,
-    currentBranchPage * branchesPerPage + branchesPerPage
+    currentBranchPage * branchesPerPage + branchesPerPage,
   );
 
   useEffect(() => {
@@ -78,19 +85,35 @@ export default function AboutPage() {
                 Download Aplikasi ReRe Petshop
               </h2>
               <p className="text-sm leading-relaxed text-gray-600">
-                Scan QR Code di samping dengan kamera HP anda, atau klik langsung gambar QR / tombol Play Store di bawah untuk mengunduh APK resmi.
+                Scan QR Code di samping dengan kamera HP anda, atau klik
+                langsung gambar QR / tombol Play Store di bawah untuk mengunduh
+                APK resmi.
               </p>
               <div className="pt-1 flex justify-center md:justify-start">
                 <a
-                  href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v2.0.0/rere-petshop.apk"
+                  href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v2.00/rere-petshop.apk"
                   download
-                  className="inline-flex items-center gap-3 rounded-xl bg-gray-950 px-5 py-2.5 text-white shadow-md transition hover:bg-gray-800"
-                >
-                  <svg viewBox="0 0 24 24" className="h-7 w-7 shrink-0" fill="none">
-                    <path d="M3.6 2.3C3.2 2.7 3 3.3 3 4.1v15.8c0 .8.2 1.4.6 1.8l.1.1 8.9-8.9v-.2L3.7 2.2l-.1.1z" fill="#00D2FF" />
-                    <path d="M15.6 15.8l-3-3v-.2l3-3 .1.1 3.5 2c1 .6 1 1.5 0 2.1l-3.5 2-.1 0z" fill="#FFD500" />
-                    <path d="M15.7 15.8l-3.1-3.1-9 9c.3.4.9.4 1.6 0l10.5-5.9z" fill="#FF3A44" />
-                    <path d="M15.7 8.2L5.2 2.3C4.5 1.9 3.9 1.9 3.6 2.3l9 9 3.1-3.1z" fill="#00F076" />
+                  className="inline-flex items-center gap-3 rounded-xl bg-gray-950 px-5 py-2.5 text-white shadow-md transition hover:bg-gray-800">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-7 w-7 shrink-0"
+                    fill="none">
+                    <path
+                      d="M3.6 2.3C3.2 2.7 3 3.3 3 4.1v15.8c0 .8.2 1.4.6 1.8l.1.1 8.9-8.9v-.2L3.7 2.2l-.1.1z"
+                      fill="#00D2FF"
+                    />
+                    <path
+                      d="M15.6 15.8l-3-3v-.2l3-3 .1.1 3.5 2c1 .6 1 1.5 0 2.1l-3.5 2-.1 0z"
+                      fill="#FFD500"
+                    />
+                    <path
+                      d="M15.7 15.8l-3.1-3.1-9 9c.3.4.9.4 1.6 0l10.5-5.9z"
+                      fill="#FF3A44"
+                    />
+                    <path
+                      d="M15.7 8.2L5.2 2.3C4.5 1.9 3.9 1.9 3.6 2.3l9 9 3.1-3.1z"
+                      fill="#00F076"
+                    />
                   </svg>
                   <div className="text-left leading-tight">
                     <div className="text-[10px] font-medium uppercase tracking-wider text-gray-300">
@@ -108,8 +131,7 @@ export default function AboutPage() {
               href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
               download
               title="Klik untuk download ReRe Petshop APK"
-              className="group flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-emerald-500 hover:shadow-md"
-            >
+              className="group flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-emerald-500 hover:shadow-md">
               <img
                 src="/qr-apk.png"
                 alt="QR Code Download ReRe Petshop Android APK"
@@ -133,15 +155,27 @@ export default function AboutPage() {
               </div>
             ) : (
               <>
-                <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">Kenapa kami memulainya</h1>
+                <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
+                  Kenapa kami memulainya
+                </h1>
                 <p className="leading-relaxed text-gray-600">
-                  Berawal dari kecintaan kami terhadap hewan peliharaan, kami menyadari bahwa menemukan produk dan layanan terbaik untuk mereka tidak selalu mudah. Banyak pemilik hewan harus mencari ke berbagai tempat hanya untuk memastikan kebutuhan si kesayangan terpenuhi.
+                  Berawal dari kecintaan kami terhadap hewan peliharaan, kami
+                  menyadari bahwa menemukan produk dan layanan terbaik untuk
+                  mereka tidak selalu mudah. Banyak pemilik hewan harus mencari
+                  ke berbagai tempat hanya untuk memastikan kebutuhan si
+                  kesayangan terpenuhi.
                 </p>
                 <p className="leading-relaxed text-gray-600">
-                  Dari situlah platform ini lahir, untuk menghadirkan kemudahan dalam satu genggaman. Kami menghubungkan para pecinta hewan dengan petshop terpercaya di sekitar mereka, menyediakan akses ke makanan berkualitas, vitamin, perlengkapan, hingga layanan grooming profesional.
+                  Dari situlah platform ini lahir, untuk menghadirkan kemudahan
+                  dalam satu genggaman. Kami menghubungkan para pecinta hewan
+                  dengan petshop terpercaya di sekitar mereka, menyediakan akses
+                  ke makanan berkualitas, vitamin, perlengkapan, hingga layanan
+                  grooming profesional.
                 </p>
                 <p className="text-gray-600">
-                  Karena bagi kami, hewan peliharaan bukan sekadar teman. Mereka adalah keluarga yang pantas mendapatkan perhatian dan kasih sayang terbaik setiap hari.
+                  Karena bagi kami, hewan peliharaan bukan sekadar teman. Mereka
+                  adalah keluarga yang pantas mendapatkan perhatian dan kasih
+                  sayang terbaik setiap hari.
                 </p>
               </>
             )}
@@ -152,7 +186,11 @@ export default function AboutPage() {
               <Skeleton className="h-112 w-full rounded-3xl bg-gray-200 animate-pulse" />
             ) : (
               <div className="relative group">
-                <img src={examp} alt="Tentang ReRe Petshop" className="h-112 w-full rounded-3xl object-cover shadow-lg" />
+                <img
+                  src={examp}
+                  alt="Tentang ReRe Petshop"
+                  className="h-112 w-full rounded-3xl object-cover shadow-lg"
+                />
               </div>
             )}
           </div>
@@ -161,30 +199,31 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
           {isLoading
             ? [...Array(4)].map((_, i) => (
-              <div key={i} className="rounded-3xl border border-gray-300 p-8 text-center">
-                <Skeleton className="mx-auto mb-4 h-16 w-16 rounded-full" />
-                <Skeleton className="mx-auto mb-2 h-6 w-1/2" />
-                <Skeleton className="mx-auto h-4 w-2/3" />
-              </div>
-            ))
-            : Statistic.map((item) => {
-              const Icon = item.icon;
-              return (
                 <div
-                  key={item.id}
-                  className="group rounded-3xl border border-gray-200 bg-white p-8 text-center transition-all duration-150 hover:-translate-y-1 hover:border-primary/20 hover:bg-primary hover:text-white hover:shadow-lg"
-                >
-                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-300 transition-all duration-300 group-hover:bg-white/30">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white transition-all duration-300 group-hover:bg-white group-hover:text-primary">
-                      <Icon size={22} />
-                    </div>
-                  </div>
-
-                  <h2 className="text-3xl font-bold">{item.value}</h2>
-                  <p className="mt-2 text-sm">{item.label}</p>
+                  key={i}
+                  className="rounded-3xl border border-gray-300 p-8 text-center">
+                  <Skeleton className="mx-auto mb-4 h-16 w-16 rounded-full" />
+                  <Skeleton className="mx-auto mb-2 h-6 w-1/2" />
+                  <Skeleton className="mx-auto h-4 w-2/3" />
                 </div>
-              );
-            })}
+              ))
+            : Statistic.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div
+                    key={item.id}
+                    className="group rounded-3xl border border-gray-200 bg-white p-8 text-center transition-all duration-150 hover:-translate-y-1 hover:border-primary/20 hover:bg-primary hover:text-white hover:shadow-lg">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-300 transition-all duration-300 group-hover:bg-white/30">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white transition-all duration-300 group-hover:bg-white group-hover:text-primary">
+                        <Icon size={22} />
+                      </div>
+                    </div>
+
+                    <h2 className="text-3xl font-bold">{item.value}</h2>
+                    <p className="mt-2 text-sm">{item.label}</p>
+                  </div>
+                );
+              })}
         </div>
 
         <div className="space-y-6">
@@ -197,9 +236,12 @@ export default function AboutPage() {
           {!isLoading && branchList.length > branchesPerPage ? (
             <div className="flex flex-col gap-4 rounded-3xl border border-primary/10 bg-primary/5 p-4 sm:p-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">Navigasi Cabang</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/70">
+                  Navigasi Cabang
+                </p>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                  Menampilkan {visibleBranches.length} cabang dari total {branchList.length} lokasi.
+                  Menampilkan {visibleBranches.length} cabang dari total{' '}
+                  {branchList.length} lokasi.
                 </p>
               </div>
 
@@ -211,20 +253,26 @@ export default function AboutPage() {
                 <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
                   <button
                     type="button"
-                    onClick={() => setCurrentBranchPage((prev) => (prev === 0 ? branchPageCount - 1 : prev - 1))}
+                    onClick={() =>
+                      setCurrentBranchPage((prev) =>
+                        prev === 0 ? branchPageCount - 1 : prev - 1,
+                      )
+                    }
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-primary/15 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary/30 hover:text-primary"
-                    aria-label="Halaman cabang sebelumnya"
-                  >
+                    aria-label="Halaman cabang sebelumnya">
                     <ArrowLeft size={18} />
                     Sebelumnya
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => setCurrentBranchPage((prev) => (prev === branchPageCount - 1 ? 0 : prev + 1))}
+                    onClick={() =>
+                      setCurrentBranchPage((prev) =>
+                        prev === branchPageCount - 1 ? 0 : prev + 1,
+                      )
+                    }
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-primary/15 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-primary/30 hover:text-primary"
-                    aria-label="Halaman cabang berikutnya"
-                  >
+                    aria-label="Halaman cabang berikutnya">
                     Berikutnya
                     <ArrowRight size={18} />
                   </button>
@@ -236,69 +284,88 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {isLoading
               ? [...Array(3)].map((_, i) => (
-                <div key={i} className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                  <Skeleton className="h-12 w-12 rounded-2xl" />
-                  <Skeleton className="mt-6 h-6 w-2/3" />
-                  <Skeleton className="mt-3 h-4 w-full" />
-                  <Skeleton className="mt-2 h-4 w-5/6" />
-                  <Skeleton className="mt-6 h-20 w-full rounded-2xl" />
-                </div>
-              ))
+                  <div
+                    key={i}
+                    className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <Skeleton className="h-12 w-12 rounded-2xl" />
+                    <Skeleton className="mt-6 h-6 w-2/3" />
+                    <Skeleton className="mt-3 h-4 w-full" />
+                    <Skeleton className="mt-2 h-4 w-5/6" />
+                    <Skeleton className="mt-6 h-20 w-full rounded-2xl" />
+                  </div>
+                ))
               : visibleBranches.map((branch) => (
-                <div
-                  key={branch.id}
-                  className="group rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg sm:p-6"
-                >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <Store size={26} />
+                  <div
+                    key={branch.id}
+                    className="group rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg sm:p-6">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <Store size={26} />
+                    </div>
+
+                    <h3 className="mt-5 text-lg font-semibold text-gray-900 sm:mt-6 sm:text-xl">
+                      {branch.name}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-500">
+                      {branch.note}
+                    </p>
+
+                    <div className="mt-5 space-y-4 rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:mt-6">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 rounded-xl bg-primary/10 p-2 text-primary">
+                          <MapPin size={16} />
+                        </span>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">
+                            Alamat
+                          </p>
+                          <p className="mt-1 text-sm font-medium text-gray-700">
+                            {branch.address}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 rounded-xl bg-primary/10 p-2 text-primary">
+                          <Clock3 size={16} />
+                        </span>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">
+                            Jam Operasional
+                          </p>
+                          <p className="mt-1 text-sm font-medium text-gray-700">
+                            {branch.hours}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 rounded-xl bg-primary/10 p-2 text-primary">
+                          <Phone size={16} />
+                        </span>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">
+                            Kontak
+                          </p>
+                          <p className="mt-1 text-sm font-medium text-gray-700">
+                            {branch.phone}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <a
+                      href={
+                        branch.href ||
+                        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch.address)}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 sm:mt-6">
+                      <MapPin size={16} />
+                      Buka di Google Maps
+                    </a>
                   </div>
-
-                  <h3 className="mt-5 text-lg font-semibold text-gray-900 sm:mt-6 sm:text-xl">{branch.name}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-gray-500">{branch.note}</p>
-
-                  <div className="mt-5 space-y-4 rounded-2xl border border-gray-100 bg-gray-50/80 p-4 sm:mt-6">
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 rounded-xl bg-primary/10 p-2 text-primary">
-                        <MapPin size={16} />
-                      </span>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Alamat</p>
-                        <p className="mt-1 text-sm font-medium text-gray-700">{branch.address}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 rounded-xl bg-primary/10 p-2 text-primary">
-                        <Clock3 size={16} />
-                      </span>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Jam Operasional</p>
-                        <p className="mt-1 text-sm font-medium text-gray-700">{branch.hours}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 rounded-xl bg-primary/10 p-2 text-primary">
-                        <Phone size={16} />
-                      </span>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">Kontak</p>
-                        <p className="mt-1 text-sm font-medium text-gray-700">{branch.phone}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <a
-                    href={branch.href || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch.address)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 sm:mt-6"
-                  >
-                    <MapPin size={16} />
-                    Buka di Google Maps
-                  </a>
-                </div>
-              ))}
+                ))}
           </div>
 
           {!isLoading && branchList.length > branchesPerPage ? (
@@ -309,8 +376,11 @@ export default function AboutPage() {
                   type="button"
                   onClick={() => setCurrentBranchPage(index)}
                   aria-label={`Pindah ke halaman cabang ${index + 1}`}
-                  className={`h-2.5 rounded-full transition-all ${index === currentBranchPage ? 'w-8 bg-primary' : 'w-2.5 bg-primary/25 hover:bg-primary/50'
-                    }`}
+                  className={`h-2.5 rounded-full transition-all ${
+                    index === currentBranchPage
+                      ? 'w-8 bg-primary'
+                      : 'w-2.5 bg-primary/25 hover:bg-primary/50'
+                  }`}
                 />
               ))}
             </div>
@@ -327,27 +397,29 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 gap-10 text-center md:grid-cols-3">
             {isLoading
               ? [...Array(3)].map((_, i) => (
-                <div key={i} className="space-y-4">
-                  <Skeleton className="mx-auto h-16 w-16 rounded-full" />
-                  <Skeleton className="mx-auto h-5 w-1/2" />
-                  <Skeleton className="mx-auto h-4 w-3/4" />
-                </div>
-              ))
-              : BenefitList.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.id} className="space-y-4 rounded-3xl border border-gray-200 bg-white px-6 py-8 text-center shadow-sm">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-300">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
-                        <Icon size={24} />
-                      </div>
-                    </div>
-
-                    <h4 className="text-lg font-bold">{item.title}</h4>
-                    <p className="text-sm text-gray-500">{item.desc}</p>
+                  <div key={i} className="space-y-4">
+                    <Skeleton className="mx-auto h-16 w-16 rounded-full" />
+                    <Skeleton className="mx-auto h-5 w-1/2" />
+                    <Skeleton className="mx-auto h-4 w-3/4" />
                   </div>
-                );
-              })}
+                ))
+              : BenefitList.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.id}
+                      className="space-y-4 rounded-3xl border border-gray-200 bg-white px-6 py-8 text-center shadow-sm">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-300">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
+                          <Icon size={24} />
+                        </div>
+                      </div>
+
+                      <h4 className="text-lg font-bold">{item.title}</h4>
+                      <p className="text-sm text-gray-500">{item.desc}</p>
+                    </div>
+                  );
+                })}
           </div>
         </div>
       </div>
