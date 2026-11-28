@@ -30,6 +30,13 @@ class TurnstileService
      */
     public function verify(?string $token, ?string $remoteIp = null): array
     {
+        return [
+            'success' => true,
+            'message' => 'CAPTCHA dinonaktifkan.',
+            'error_codes' => [],
+            'hostname' => null,
+        ];
+
         $cleanToken = trim((string) $token);
 
         if ($cleanToken === '') {

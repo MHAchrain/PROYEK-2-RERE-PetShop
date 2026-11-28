@@ -230,7 +230,8 @@ export const useAuthForm = (authMode, login, navigate, setAuthMode) => {
       return;
     }
 
-    if ((isLogin || isRegister) && !turnstileToken) {
+    // Turnstile dinonaktifkan
+    if (false && (isLogin || isRegister) && !turnstileToken) {
       toast.error("Harap selesaikan verifikasi keamanan (CAPTCHA)");
       setLoading(false);
       return;

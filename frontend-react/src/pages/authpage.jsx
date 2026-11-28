@@ -424,16 +424,7 @@ export default function AuthPage() {
               </div>
             )}
 
-            {/* CLOUDFLARE TURNSTILE CAPTCHA */}
-            {(isLogin || isRegister) && (
-              <Turnstile
-                ref={turnstileRef}
-                action={isLogin ? 'login' : 'register'}
-                onVerify={handleTurnstileVerify}
-                onExpire={handleTurnstileExpire}
-                onError={handleTurnstileError}
-              />
-            )}
+            {/* CLOUDFLARE TURNSTILE CAPTCHA (dinonaktifkan) */}
 
             {/* TOMBOL SUBMIT */}
             {(!isForgotPassword || codeVerified) && (
