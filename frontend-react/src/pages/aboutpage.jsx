@@ -82,7 +82,7 @@ export default function AboutPage() {
               </p>
               <div className="pt-1 flex justify-center md:justify-start">
                 <a
-                  href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v1.0.0/rere-petshop.apk"
+                  href="https://github.com/MHAchrain/PROYEK-2-RERE-PetShop/releases/download/v2.0.0/rere-petshop.apk"
                   download
                   className="inline-flex items-center gap-3 rounded-xl bg-gray-950 px-5 py-2.5 text-white shadow-md transition hover:bg-gray-800"
                 >
