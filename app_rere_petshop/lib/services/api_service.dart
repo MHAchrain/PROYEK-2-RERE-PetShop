@@ -400,6 +400,21 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>?> getGeminiUsage() async {
+    try {
+      final response = await _dio.get(
+        '/gemini-usage',
+        options: await _authOptions(),
+      );
+      if (response.data is Map && response.data['usage'] != null) {
+        return Map<String, dynamic>.from(response.data['usage']);
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   // ─── ERROR HANDLER ────────────────────────────────────────
 
   String _handleError(DioException e) {

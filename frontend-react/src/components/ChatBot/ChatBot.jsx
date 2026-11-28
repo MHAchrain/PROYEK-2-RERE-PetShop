@@ -166,6 +166,7 @@ export default function ChatBot() {
 
       const endpoint = selectedModel === 'gemini' ? '/chat-gemini' : '/chat-ai';
       const response = await axios.post(endpoint, formData, {
+        timeout: 60000,
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -12,6 +12,28 @@ use Illuminate\Support\Facades\Log;
 
 class GeminiController extends Controller
 {
+    public function getUsage(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['success' => false], 401);
+        }
+        $userId = $user->id_pelanggan ?? $user->id;
+        $today = now()->format('Y-m-d');
+        $cacheKey = "gemini_daily_usage:{$userId}:{$today}";
+        $maxDailyQuota = 15;
+        $currentUsage = (int) Cache::get($cacheKey, 0);
+
+        return response()->json([
+            'success' => true,
+            'usage' => [
+                'used' => $currentUsage,
+                'limit' => $maxDailyQuota,
+                'remaining' => max(0, $maxDailyQuota - $currentUsage),
+            ],
+        ]);
+    }
+
     /**
      * Chat menggunakan Google Gemini API via Backend Laravel
      * Dibatasi kuota harian per user (misal 10 chat / hari).

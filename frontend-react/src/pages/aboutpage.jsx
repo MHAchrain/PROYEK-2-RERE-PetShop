@@ -72,7 +72,7 @@ export default function AboutPage() {
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="max-w-xl space-y-3 text-center md:text-left">
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
-                Android App • v1.0.0
+                Android App • v2.0.0
               </span>
               <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
                 Download Aplikasi ReRe Petshop

@@ -60,6 +60,19 @@ class _ArpetPageState extends State<ArpetPage> {
   int _thinkingSeconds = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _loadGeminiUsage();
+  }
+
+  Future<void> _loadGeminiUsage() async {
+    final usage = await ApiService().getGeminiUsage();
+    if (mounted && usage != null) {
+      setState(() => _geminiUsage = usage);
+    }
+  }
+
+  @override
   void dispose() {
     _typingTimer?.cancel();
     _thinkingTimer?.cancel();
@@ -531,8 +544,7 @@ class _ArpetPageState extends State<ArpetPage> {
           errorMsg =
               'Silakan login terlebih dahulu untuk menggunakan Arpet Gemini.';
         } else {
-          errorMsg =
-              '🐾 Maaf, ARPET sedang mengalami kendala jaringan. Silakan coba sesaat lagi.';
+          errorMsg = '🐾 Maaf, terjadi kendala: $errorMsg';
         }
 
         _addAnimatedAiMessage(errorMsg);
@@ -637,9 +649,9 @@ class _ArpetPageState extends State<ArpetPage> {
                         const SizedBox(width: 4),
                         const Icon(Icons.arrow_drop_down,
                             size: 16, color: AppColors.primary),
-                        if (_selectedModel == 'gemini' && _geminiUsage != null)
+                        if (_selectedModel == 'gemini')
                           Text(
-                            '(/10)',
+                            '(${_geminiUsage?['used'] ?? 0}/${_geminiUsage?['limit'] ?? 15})',
                             style: const TextStyle(
                                 fontSize: 10,
                                 color: Colors.orange,

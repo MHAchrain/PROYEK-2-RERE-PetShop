@@ -129,6 +129,7 @@ Route::middleware('auth:sanctum')->group(function () {
     | ARPET GEMINI (PROTECTED + DAILY LIMIT)
     |--------------------------------------------------------------------------
     */
+    Route::get('/gemini-usage', [GeminiController::class, 'getUsage']);
     Route::post('/chat-gemini', [GeminiController::class, 'chatGemini']);
 
     /*
