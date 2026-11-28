@@ -87,6 +87,11 @@ class RecommendationController extends Controller
             $aiMode = 'error';
         }
 
+        // ✅ Jika AI service tidak mengirim categories (misal mode ollama), infer dari pesan user
+        if (empty($categories) && $message !== '') {
+            $categories = $this->inferCategoriesFromMessage($message);
+        }
+
         // ✅ Cuma cari produk kalau AI-nya sukses
         // Mode "special" (grooming CTA) & "off_topic" nggak perlu produk
         $successModes = ['ollama', 'gemini_vision', 'rule_based'];
@@ -231,8 +236,11 @@ class RecommendationController extends Controller
             if ($catHit->isNotEmpty()) {
                 $pool = $catHit;
             } elseif (!empty(array_intersect(array_map('strtolower', $categories), ['vitamin', 'obat']))) {
-                // Melipir ke perawatan bulu/kesehatan (shampo/susu) jika vitamin/obat persis tidak tersedia
-                $altHit = $pool->filter(fn($prod) => $inCat($prod, 'shampo') || $inCat($prod, 'susu'));
+                // Jika vitamin/obat persis tidak ada, tampilkan kategori obat (kategori 2 non-shampoo/parfum)
+                $altHit = $pool->filter(fn($prod) => (int)($prod->id_kategori ?? 0) === 2
+                    && !str_contains(strtolower($prod->nama_produk ?? ''), 'shampoo')
+                    && !str_contains(strtolower($prod->nama_produk ?? ''), 'sampo')
+                    && !str_contains(strtolower($prod->nama_produk ?? ''), 'parfum'));
                 if ($altHit->isEmpty()) return collect();
                 $pool = $altHit;
             } else {
@@ -359,5 +367,21 @@ class RecommendationController extends Controller
         }
 
         return !empty($found) ? $found : ['kucing'];
+    }
+
+    protected function inferCategoriesFromMessage(string $text): array
+    {
+        $t = strtolower($text);
+        $cats = [];
+        if (preg_match('/\b(vitamin|suplemen|imun|obat|kutu|jamur|scabies|cacing|luka|tetes)\b/', $t)) $cats[] = 'vitamin';
+        if (preg_match('/\b(shampoo|sampo|mandi)\b/', $t)) $cats[] = 'shampo';
+        if (preg_match('/\b(parfum|pewangi)\b/', $t)) $cats[] = 'parfum';
+        if (preg_match('/\b(makanan|pakan|kibble|dry\s*food|wet\s*food|snack|whiskas|bolt|royal\s*canin|cat\s*choize|meo|felibite|cleo|maxi|excel)\b/', $t)) $cats[] = 'makanan';
+        if (preg_match('/\b(susu|dot|kitten\s*milk)\b/', $t)) $cats[] = 'susu';
+        if (preg_match('/\b(pasir|tofu|litter)\b/', $t)) $cats[] = 'pasir';
+        if (preg_match('/\b(kandang|litter\s*box|tempat\s*makan|spetan|cargo)\b/', $t)) $cats[] = 'perlengkapan';
+        if (preg_match('/\b(mainan|bola|tongkat|laser)\b/', $t)) $cats[] = 'mainan';
+        if (preg_match('/\b(kalung|baju|aksesoris)\b/', $t)) $cats[] = 'aksesoris';
+        return array_values(array_unique($cats));
     }
 }

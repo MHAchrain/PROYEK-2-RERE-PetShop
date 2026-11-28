@@ -114,7 +114,7 @@ Berikut sebagian katalog produk tersedia di RERe Petshop:
 {$katalogProduk}
 
 PANDUAN FORMAT JAWABAN:
-1. Super Ringkas: Jawab langsung ke inti dalam 1-2 kalimat pendek saja (maksimal 30 kata). Jangan bertele-tele.
+1. Ringkas & Rapih (Format List): Jawab singkat dan rapih menggunakan 2-3 poin list dengan tanda • (jangan paragraf panjang).
 2. Akurat & Pintar Melipir: Jawab sesuai kebutuhan user. Jika produk persis yang dicari (misal vitamin bulu) tidak ada di katalog, rekomendasikan alternatif terdekat yang masih satu tujuan/kategori (misal Shampoo Conditioner, obat bulu, atau suplemen lain yang ada di katalog) dan jelaskan singkat kegunaannya. JANGAN rekomendasikan barang yang melenceng jauh (misal ditanya vitamin jangan beri kandang).
 3. Tanpa Tanda Bintang Markdown: JANGAN gunakan tanda ** atau * untuk menebalkan teks. Tulis teks polos yang rapi.
 4. Sapaan Singkat: Awali dengan 'Halo Cat Lovers! 🐾'.
@@ -139,7 +139,11 @@ PANDUAN FORMAT JAWABAN:
                 ];
             }
 
-            $userQuery = $message ?: 'Tolong analisis foto anabul saya ini dan berikan saran atau rekomendasi produk yang cocok.';
+            $userQuery = $hasImage
+                ? ($message
+                    ? "ANALISIS FOTO INI: {$message}. Jelaskan singkat kondisi yang terlihat di foto dan rekomendasikan 1-3 produk paling sesuai dari katalog beserta [RECOMMENDED_IDS: ...]."
+                    : "ANALISIS FOTO INI: Jelaskan singkat kondisi anabul atau produk yang terlihat di foto, lalu rekomendasikan 1-3 produk paling sesuai dari katalog beserta [RECOMMENDED_IDS: ...].")
+                : $message;
             $parts[] = ['text' => $userQuery];
             $contents[] = ['role' => 'user', 'parts' => $parts];
 
@@ -153,14 +157,14 @@ PANDUAN FORMAT JAWABAN:
                 'contents' => $contents,
                 'generationConfig' => [
                     'temperature' => 0.2,
-                    'maxOutputTokens' => 120,
+                    'maxOutputTokens' => 600,
                 ]
             ];
 
             $candidateModels = array_values(array_unique([
-                $modelName,
                 'gemini-3.1-flash-lite',
                 'gemini-3.6-flash',
+                $modelName,
                 'gemini-3.8-flash',
             ]));
 
@@ -196,7 +200,16 @@ PANDUAN FORMAT JAWABAN:
             }
 
             $geminiData = $response->json();
-            $rawText = $geminiData['candidates'][0]['content']['parts'][0]['text'] ?? 'Maaf, ARPET tidak dapat memproses jawaban saat ini.';
+            $partsResp = $geminiData['candidates'][0]['content']['parts'] ?? [];
+            $rawText = '';
+            foreach ($partsResp as $p) {
+                if (empty($p['thought']) && !empty($p['text'])) {
+                    $rawText .= $p['text'];
+                }
+            }
+            if (trim($rawText) === '') {
+                $rawText = 'Maaf, ARPET tidak dapat memproses jawaban saat ini.';
+            }
 
             // Parse RECOMMENDED_IDS jika ada
             $recommendedIds = [];
@@ -207,13 +220,41 @@ PANDUAN FORMAT JAWABAN:
                 $rawText = trim(str_replace($matches[0], '', $rawText));
             }
 
-            $matchedProducts = [];
+            $matchedProducts = collect();
             if (!empty($recommendedIds)) {
                 DB::reconnect();
                 $matchedProducts = Produk::with('kategori')
                     ->whereIn('id_produk', $recommendedIds)
                     ->where('stok', '>', 0)
-                    ->get();
+                    ->get()
+                    ->sortBy(fn($p) => array_search((int)$p->id_produk, $recommendedIds, true))
+                    ->values();
+            }
+
+            // Fallback jika analisis gambar belum menghasilkan kartu produk dari tag
+            if ($matchedProducts->isEmpty() && $hasImage) {
+                DB::reconnect();
+                $searchText = strtolower($rawText . ' ' . $message);
+                $ignoreWords = ['kucing', 'anabul', 'hewan', 'untuk', 'yang', 'dari', 'dengan', 'ukuran', 'warna', 'kecil', 'besar', 'pack', 'gram', 'liter'];
+                $matchedProducts = Produk::with('kategori')
+                    ->where('stok', '>', 0)
+                    ->get()
+                    ->map(function ($p) use ($searchText, $ignoreWords) {
+                        $nama = strtolower($p->nama_produk ?? '');
+                        $score = 0;
+                        foreach (preg_split('/\s+/', $nama) as $word) {
+                            $word = trim($word, ".,()[]");
+                            if (strlen($word) >= 4 && !in_array($word, $ignoreWords, true) && str_contains($searchText, $word)) {
+                                $score++;
+                            }
+                        }
+                        $p->_match_score = $score;
+                        return $p;
+                    })
+                    ->filter(fn($p) => $p->_match_score > 0)
+                    ->sortByDesc('_match_score')
+                    ->take(3)
+                    ->values();
             }
 
             // Update kuota harian user (simpan sampai tengah malam)
