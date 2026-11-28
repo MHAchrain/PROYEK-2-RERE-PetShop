@@ -152,7 +152,7 @@ class _ArpetPageState extends State<ArpetPage> {
     });
   }
 
-    Future<void> _onCameraPressed() async {
+  Future<void> _onCameraPressed() async {
     final isLoggedIn = await _authService.hasAuthToken();
     if (!isLoggedIn) {
       _showLoginDialog();
@@ -176,7 +176,8 @@ class _ArpetPageState extends State<ArpetPage> {
           children: [
             Icon(Icons.camera_alt_rounded, color: Color(0xFFE65100)),
             SizedBox(width: 8),
-            Text('Beralih ke Gemini?', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            Text('Beralih ke Gemini?',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
           ],
         ),
         content: const Text(
@@ -192,7 +193,8 @@ class _ArpetPageState extends State<ArpetPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () {
               Navigator.pop(ctx);
@@ -219,16 +221,20 @@ class _ArpetPageState extends State<ArpetPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.photo_library_rounded, color: AppColors.primary),
-                title: const Text('Pilih dari Galeri', style: TextStyle(fontWeight: FontWeight.w600)),
+                leading: const Icon(Icons.photo_library_rounded,
+                    color: AppColors.primary),
+                title: const Text('Pilih dari Galeri',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.gallery);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                title: const Text('Ambil dari Kamera', style: TextStyle(fontWeight: FontWeight.w600)),
+                leading: const Icon(Icons.camera_alt_rounded,
+                    color: AppColors.primary),
+                title: const Text('Ambil dari Kamera',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.camera);
@@ -281,7 +287,8 @@ class _ArpetPageState extends State<ArpetPage> {
           children: const [
             Icon(Icons.lock_outline_rounded, color: AppColors.primary),
             SizedBox(width: 8),
-            Text('Silakan Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Silakan Login',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
         content: const Text(
@@ -294,13 +301,15 @@ class _ArpetPageState extends State<ArpetPage> {
               Navigator.pop(ctx);
               setState(() => _selectedModel = 'local');
             },
-            child: const Text('Pakai Local', style: TextStyle(color: Colors.grey)),
+            child:
+                const Text('Pakai Local', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () {
               Navigator.pop(ctx);
@@ -342,30 +351,39 @@ class _ArpetPageState extends State<ArpetPage> {
                 const SizedBox(height: 12),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.bolt_rounded, color: Color(0xFF6EE7B7)),
+                  leading:
+                      const Icon(Icons.bolt_rounded, color: Color(0xFF6EE7B7)),
                   title: Row(
                     children: [
                       const Text(
                         'Arpet Local',
-                        style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
+                        style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15),
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: const Color(0xFF064E3B),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
                           'Bebas Akses',
-                          style: TextStyle(color: Color(0xFF6EE7B7), fontSize: 10, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: Color(0xFF6EE7B7),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
                   ),
                   subtitle: const Text(
                     'FastAPI Python lokal, tanpa login & tanpa limit token',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    style:
+                        TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                   trailing: _selectedModel == 'local'
                       ? const Icon(Icons.check, color: Color(0xFF10B981))
@@ -378,30 +396,39 @@ class _ArpetPageState extends State<ArpetPage> {
                 const Divider(color: Color(0xFFE5E7EB)),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.auto_awesome, color: Color(0xFFFBBF24)),
+                  leading:
+                      const Icon(Icons.auto_awesome, color: Color(0xFFFBBF24)),
                   title: Row(
                     children: [
                       const Text(
                         'Arpet Gemini',
-                        style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
+                        style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15),
                       ),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: const Color(0xFF78350F),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
                           'Wajib Login',
-                          style: TextStyle(color: Color(0xFFFDE68A), fontSize: 10, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: Color(0xFFFDE68A),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
                   ),
                   subtitle: const Text(
                     'Google Gemini Cloud via Laravel (Maksimal 15x/hari)',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    style:
+                        TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                   trailing: _selectedModel == 'gemini'
                       ? const Icon(Icons.check, color: Color(0xFFF59E0B))
@@ -423,6 +450,7 @@ class _ArpetPageState extends State<ArpetPage> {
       },
     );
   }
+
   Future<void> _sendMessage([String? quickText]) async {
     final text = quickText ?? _textController.text.trim();
     final imgBytes = _selectedImageBytes;
@@ -444,7 +472,8 @@ class _ArpetPageState extends State<ArpetPage> {
     _removeSelectedImage();
 
     setState(() {
-      _messages.add(_ChatMessage(isUser: true, text: text, imageBytes: imgBytes));
+      _messages
+          .add(_ChatMessage(isUser: true, text: text, imageBytes: imgBytes));
       _isLoading = true;
       _thinkingSeconds = 0;
     });
@@ -495,12 +524,15 @@ class _ArpetPageState extends State<ArpetPage> {
       if (mounted) {
         String errorMsg = e.toString();
         if (errorMsg.contains('429')) {
-          errorMsg = 'Kuota harian Arpet Gemini Anda telah habis (15/15 hari ini). Silakan gunakan Arpet Local ya!';
+          errorMsg =
+              'Kuota harian Arpet Gemini Anda telah habis (15/15 hari ini). Silakan gunakan Arpet Local ya!';
         } else if (errorMsg.contains('401')) {
           _showLoginDialog();
-          errorMsg = 'Silakan login terlebih dahulu untuk menggunakan Arpet Gemini.';
+          errorMsg =
+              'Silakan login terlebih dahulu untuk menggunakan Arpet Gemini.';
         } else {
-          errorMsg = '🐾 Maaf, ARPET sedang mengalami kendala jaringan. Silakan coba sesaat lagi.';
+          errorMsg =
+              '🐾 Maaf, ARPET sedang mengalami kendala jaringan. Silakan coba sesaat lagi.';
         }
 
         _addAnimatedAiMessage(errorMsg);
@@ -593,7 +625,9 @@ class _ArpetPageState extends State<ArpetPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _selectedModel == 'gemini' ? 'Arpet Gemini (Cloud)' : 'Arpet Local (Ollama)',
+                          _selectedModel == 'gemini'
+                              ? 'Arpet Gemini (Cloud)'
+                              : 'Arpet Local (Ollama)',
                           style: const TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
@@ -601,21 +635,19 @@ class _ArpetPageState extends State<ArpetPage> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.arrow_drop_down, size: 16, color: AppColors.primary),
+                        const Icon(Icons.arrow_drop_down,
+                            size: 16, color: AppColors.primary),
                         if (_selectedModel == 'gemini' && _geminiUsage != null)
                           Text(
                             '(/10)',
-                            style: const TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold),
                           ),
                       ],
                     ),
                   ),
-
-
-
-
-
-
                 ],
               ),
             ),
@@ -853,8 +885,8 @@ class _ArpetPageState extends State<ArpetPage> {
                         itemCount: message.products.length,
                         itemBuilder: (context, pIdx) {
                           final item = message.products[pIdx] as Map;
-                          final productId = int.tryParse(
-                              item['id_produk']?.toString() ?? '');
+                          final productId =
+                              int.tryParse(item['id_produk']?.toString() ?? '');
                           final name =
                               item['nama_produk']?.toString() ?? 'Produk';
                           final price = item['harga']?.toString() ?? '0';
@@ -882,8 +914,8 @@ class _ArpetPageState extends State<ArpetPage> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                    color: const Color(0xFFE5E7EB)),
+                                border:
+                                    Border.all(color: const Color(0xFFE5E7EB)),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.04),
@@ -893,33 +925,32 @@ class _ArpetPageState extends State<ArpetPage> {
                                 ],
                               ),
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
                                     child: ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(8),
                                       child: image.isNotEmpty
                                           ? Image.network(
                                               () {
                                                 var clean = image.trim();
-                                                if (clean.startsWith('produk/')) {
+                                                if (clean
+                                                    .startsWith('produk/')) {
                                                   clean = clean.substring(7);
                                                 }
-                                                return clean.startsWith('http://') ||
-                                                        clean.startsWith('https://')
+                                                return clean.startsWith(
+                                                            'http://') ||
+                                                        clean.startsWith(
+                                                            'https://')
                                                     ? clean
                                                     : '${AppConstants.baseUrl}/image/$clean';
                                               }(),
                                               fit: BoxFit.cover,
                                               width: double.infinity,
-                                              errorBuilder:
-                                                  (_, __, ___) =>
-                                                      Container(
+                                              errorBuilder: (_, __, ___) =>
+                                                  Container(
                                                 color: Colors.grey[200],
-                                                child: const Icon(
-                                                    Icons.pets,
+                                                child: const Icon(Icons.pets,
                                                     color: AppColors.grey),
                                               ),
                                             )
@@ -1028,11 +1059,15 @@ class _ArpetPageState extends State<ArpetPage> {
                 const Expanded(
                   child: Text(
                     'Foto anabul siap dianalisis dengan Gemini',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFE65100)),
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFFE65100)),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                  icon: const Icon(Icons.close_rounded,
+                      size: 18, color: Colors.grey),
                   onPressed: _removeSelectedImage,
                 ),
               ],
@@ -1049,7 +1084,8 @@ class _ArpetPageState extends State<ArpetPage> {
           child: Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.camera_alt_rounded, color: AppColors.primary, size: 24),
+                icon: const Icon(Icons.camera_alt_rounded,
+                    color: AppColors.primary, size: 24),
                 onPressed: _isLoading ? null : _onCameraPressed,
                 tooltip: 'Foto Anabul',
               ),
@@ -1085,7 +1121,8 @@ class _ArpetPageState extends State<ArpetPage> {
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                  icon: const Icon(Icons.send_rounded,
+                      color: Colors.white, size: 20),
                   onPressed: _isLoading ? null : () => _sendMessage(),
                 ),
               ),

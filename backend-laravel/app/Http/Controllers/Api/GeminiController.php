@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -206,6 +207,7 @@ PANDUAN FORMAT JAWABAN:
 
             $matchedProducts = [];
             if (!empty($recommendedIds)) {
+                DB::reconnect();
                 $matchedProducts = Produk::with('kategori')
                     ->whereIn('id_produk', $recommendedIds)
                     ->where('stok', '>', 0)

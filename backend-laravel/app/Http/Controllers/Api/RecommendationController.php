@@ -127,6 +127,7 @@ class RecommendationController extends Controller
         ?string $ageGroup = null, array $categories = [], ?string $sortBy = null,
         bool $cheapestOnly = false, bool $expensiveOnly = false, ?int $limit = null
     ) {
+        \Illuminate\Support\Facades\DB::reconnect();
         $allProducts = Produk::with('kategori')->where('stok', '>', 0)->get();
 
         if ($allProducts->isEmpty()) return collect();
@@ -163,6 +164,7 @@ class RecommendationController extends Controller
                     return str_contains($nama, 'shampoo') || str_contains($nama, 'sampo')
                         || str_contains($desk, 'shampoo') || str_contains($desk, 'sampo');
 
+                case 'vitamin':
                 case 'obat':
                     return $katId === 2
                         && !str_contains($nama, 'shampoo')
@@ -170,7 +172,10 @@ class RecommendationController extends Controller
                         && !str_contains($nama, 'parfum')
                         && (
                             str_contains($nama, 'obat') || str_contains($nama, 'detick')
-                            || str_contains($nama, 'tetes') || str_contains($desk, 'kutu')
+                            || str_contains($nama, 'tetes') || str_contains($nama, 'vitamin')
+                            || str_contains($nama, 'suplemen') || str_contains($nama, 'nutri')
+                            || str_contains($desk, 'vitamin') || str_contains($desk, 'suplemen')
+                            || str_contains($desk, 'imun') || str_contains($desk, 'kutu')
                             || str_contains($desk, 'jamur') || str_contains($desk, 'luka')
                             || str_contains($desk, 'scabies') || str_contains($desk, 'cacing')
                             || str_contains($desk, 'antiparasit')
