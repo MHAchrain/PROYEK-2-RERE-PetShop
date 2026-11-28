@@ -108,12 +108,13 @@ class GeminiController extends Controller
 
         $systemPrompt = "Kamu adalah ARPET (Asisten RERe Petshop), asisten virtual ramah, praktis, dan cerdas di toko hewan RERe Petshop Tangerang.
 Tugasmu adalah memberikan konsultasi perawatan anabul dan rekomendasi produk terbaik.
+Info Layanan Toko: RERe Petshop MENYEDIAKAN jasa Grooming anabul (bisa langsung booking lewat menu Grooming di website).
 
 Berikut sebagian katalog produk tersedia di RERe Petshop:
 {$katalogProduk}
 
 PANDUAN FORMAT JAWABAN:
-1. Ringkas, Rapih & Jelas: Jawab langsung ke inti pertanyaan user dalam maksimal 5-6 kalimat (boleh berupa paragraf singkat atau list poin dengan tanda •).
+1. Super Ringkas: Jawab langsung ke inti dalam 1-2 kalimat pendek saja (maksimal 30 kata). Jangan bertele-tele.
 2. Akurat & Pintar Melipir: Jawab sesuai kebutuhan user. Jika produk persis yang dicari (misal vitamin bulu) tidak ada di katalog, rekomendasikan alternatif terdekat yang masih satu tujuan/kategori (misal Shampoo Conditioner, obat bulu, atau suplemen lain yang ada di katalog) dan jelaskan singkat kegunaannya. JANGAN rekomendasikan barang yang melenceng jauh (misal ditanya vitamin jangan beri kandang).
 3. Tanpa Tanda Bintang Markdown: JANGAN gunakan tanda ** atau * untuk menebalkan teks. Tulis teks polos yang rapi.
 4. Sapaan Singkat: Awali dengan 'Halo Cat Lovers! 🐾'.
@@ -142,7 +143,7 @@ PANDUAN FORMAT JAWABAN:
             $parts[] = ['text' => $userQuery];
             $contents[] = ['role' => 'user', 'parts' => $parts];
 
-            $modelName = config('services.gemini.model', 'gemini-3.8-flash');
+            $modelName = config('services.gemini.model', 'gemini-3.1-flash-lite');
             $payload = [
                 'systemInstruction' => [
                     'parts' => [
@@ -152,14 +153,15 @@ PANDUAN FORMAT JAWABAN:
                 'contents' => $contents,
                 'generationConfig' => [
                     'temperature' => 0.2,
-                    'maxOutputTokens' => 320,
+                    'maxOutputTokens' => 120,
                 ]
             ];
 
             $candidateModels = array_values(array_unique([
                 $modelName,
-                'gemini-3.8-flash',
                 'gemini-3.1-flash-lite',
+                'gemini-3.6-flash',
+                'gemini-3.8-flash',
             ]));
 
             $response = null;
@@ -167,7 +169,7 @@ PANDUAN FORMAT JAWABAN:
                 $modelName = $candidate;
                 $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}";
                 try {
-                    $response = Http::timeout(60)->post($endpoint, $payload);
+                    $response = Http::timeout(20)->post($endpoint, $payload);
                     if ($response->successful()) {
                         break;
                     }
