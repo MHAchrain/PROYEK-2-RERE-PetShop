@@ -113,12 +113,13 @@ Berikut sebagian katalog produk tersedia di RERe Petshop:
 {$katalogProduk}
 
 PANDUAN FORMAT JAWABAN:
-1. Ringkas, Rapih & Jelas: Jawab langsung ke inti pertanyaan dalam maksimal 5-6 kalimat (boleh berupa paragraf singkat atau list poin dengan tanda •).
-2. Tanpa Tanda Bintang Markdown: JANGAN gunakan tanda ** atau * untuk menebalkan teks. Tulis teks polos yang rapi.
-3. Sapaan Singkat: Awali dengan 'Halo Cat Lovers! 🐾'.
-4. Produk Wajib Relevan: Wajib pilih 1-3 produk dari katalog di atas yang paling cocok dengan nama produk atau kategori yang ditanyakan user. JANGAN pernah menulis kode ID seperti (ID: 2) di teks jawaban.
-5. Baris Terakhir: Wajib akhiri teks dengan tag rekomendasi format:
-[RECOMMENDED_IDS: 1, 2] (atau kosongkan [RECOMMENDED_IDS:] jika hanya konsultasi).";
+1. Ringkas, Rapih & Jelas: Jawab langsung ke inti pertanyaan user dalam maksimal 5-6 kalimat (boleh berupa paragraf singkat atau list poin dengan tanda •).
+2. Akurat & Tidak Ngaco: Jawab HANYA sesuai pertanyaan user. Jika produk yang ditanyakan tidak ada di katalog di atas, katakan jujur belum tersedia dan JANGAN paksakan produk yang tidak nyambung (misal ditanya vitamin jangan rekomendasikan kandang).
+3. Tanpa Tanda Bintang Markdown: JANGAN gunakan tanda ** atau * untuk menebalkan teks. Tulis teks polos yang rapi.
+4. Sapaan Singkat: Awali dengan 'Halo Cat Lovers! 🐾'.
+5. Produk Wajib Relevan: Pilih 1-3 produk dari katalog di atas yang benar-benar cocok dengan nama produk atau kategori yang ditanyakan user. JANGAN pernah menulis kode ID seperti (ID: 2) di teks jawaban.
+6. Baris Terakhir: Wajib akhiri teks dengan tag rekomendasi format:
+[RECOMMENDED_IDS: 1, 2] (atau kosongkan [RECOMMENDED_IDS:] jika hanya konsultasi atau tidak ada produk yang cocok).";
 
         try {
             $contents = [];
@@ -150,8 +151,8 @@ PANDUAN FORMAT JAWABAN:
                 ],
                 'contents' => $contents,
                 'generationConfig' => [
-                    'temperature' => 0.5,
-                    'maxOutputTokens' => 512,
+                    'temperature' => 0.2,
+                    'maxOutputTokens' => 320,
                 ]
             ];
 
@@ -167,7 +168,7 @@ PANDUAN FORMAT JAWABAN:
                 $modelName = $candidate;
                 $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}";
                 try {
-                    $response = Http::timeout(25)->post($endpoint, $payload);
+                    $response = Http::timeout(15)->post($endpoint, $payload);
                     if ($response->successful()) {
                         break;
                     }
